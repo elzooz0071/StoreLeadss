@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>منصة إدارة العمليات التشغيلية للمطاعم</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>window.supabase||document.write('<script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"><\/script>')</script>
+<style>
+:root{
+  --navy:#0B2447; --blue:#1D4ED8; --blue-2:#2563EB; --blue-3:#3B82F6; --sky:#DBEAFE; --ice:#EFF6FF;
+  --bg:#F4F7FB; --card:#FFFFFF; --line:#DCE5F1; --text:#1E293B; --muted:#64748B;
+  --good:#15803D; --good-bg:#DCFCE7; --warn:#B45309; --warn-bg:#FEF3C7; --bad:#B91C1C; --bad-bg:#FEE2E2;
+  --r:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Cairo',sans-serif}
+body{background:var(--bg);color:var(--text);font-size:14px;line-height:1.6}
+.container{max-width:1200px;margin:0 auto;padding:18px;position:relative}
+.hidden{display:none!important}
+section.tab{display:none}
+section.tab.active{display:block}
+
+/* Login */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,var(--navy) 0%,#163a7a 55%,var(--blue-2) 100%);padding:20px}
+.login-card{background:#fff;border-radius:18px;padding:36px 32px;width:100%;max-width:420px;box-shadow:0 20px 50px rgba(0,0,0,.25)}
+.login-card .logo{width:56px;height:56px;border-radius:14px;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;margin:0 auto 14px}
+.login-card h2{text-align:center;color:var(--navy);font-weight:800;font-size:20px}
+.login-card p.sub{text-align:center;color:var(--muted);margin-bottom:22px;font-size:13px}
+
+/* Header / nav */
+header.top{background:var(--navy);color:#fff;border-radius:var(--r);padding:14px 22px;display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+header.top h1{font-size:18px;font-weight:800}
+header.top small{display:block;opacity:.7;font-size:12px;font-weight:400}
+.top-actions{display:flex;align-items:center;gap:10px}
+.user-chip{background:rgba(255,255,255,.12);padding:6px 14px;border-radius:20px;font-weight:600;font-size:13px}
+.icon-btn{position:relative;background:rgba(255,255,255,.12);border:none;color:#fff;border-radius:50%;width:38px;height:38px;cursor:pointer;font-size:16px}
+.icon-btn .dot{position:absolute;top:-4px;left:-4px;background:#EF4444;color:#fff;font-size:10px;font-weight:700;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 4px}
+.btn-out{background:transparent;border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:8px;padding:6px 14px;cursor:pointer;font-weight:600}
+.btn-out:hover{background:rgba(255,255,255,.12)}
+.notif-panel{position:absolute;left:18px;top:74px;width:340px;max-width:92vw;background:#fff;color:var(--text);border-radius:var(--r);box-shadow:0 12px 40px rgba(11,36,71,.25);border:1px solid var(--line);z-index:50;overflow:hidden}
+.notif-panel .nh{padding:12px 16px;font-weight:700;display:flex;justify-content:space-between;background:var(--ice);color:var(--navy)}
+.notif-panel .nh button{background:none;border:none;color:var(--blue);cursor:pointer;font-weight:600;font-size:12px}
+.notif-list{max-height:340px;overflow:auto}
+.notif-item{padding:10px 16px;border-top:1px solid var(--line);font-size:13px}
+.notif-item.unread{background:#F0F7FF;border-right:3px solid var(--blue)}
+.notif-item small{color:var(--muted);display:block}
+
+nav.nav{display:flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:6px;margin-bottom:18px;overflow-x:auto}
+nav.nav button{flex:1;min-width:max-content;border:none;background:transparent;padding:10px 16px;border-radius:8px;cursor:pointer;color:var(--muted);font-weight:700;font-size:13px;position:relative;white-space:nowrap}
+nav.nav button:hover{background:var(--ice);color:var(--blue)}
+nav.nav button.active{background:var(--blue);color:#fff}
+nav.nav .nb{background:#EF4444;color:#fff;border-radius:10px;font-size:10px;padding:1px 6px;margin-right:6px}
+
+/* Cards / forms */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:22px;margin-bottom:18px}
+.card h3{color:var(--navy);font-weight:800;font-size:16px;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.card h4{color:var(--navy);margin:14px 0 8px;font-size:14px}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.fg{margin-bottom:12px}
+label{display:block;font-weight:700;margin-bottom:5px;font-size:13px;color:var(--navy)}
+input[type=text],input[type=password],input[type=email],input[type=number],input[type=date],select,textarea{width:100%;padding:10px 12px;border:1px solid #C9D6E8;border-radius:8px;font-size:14px;outline:none;background:#fff;transition:.15s}
+input:focus,select:focus,textarea:focus{border-color:var(--blue-3);box-shadow:0 0 0 3px rgba(59,130,246,.18)}
+textarea{min-height:84px;resize:vertical}
+.btn{background:var(--blue);color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:700;font-size:14px;cursor:pointer;transition:.15s}
+.btn:hover{background:var(--blue-2)}
+.btn:disabled{opacity:.6;cursor:wait}
+.btn.block{width:100%}
+.btn.ghost{background:var(--ice);color:var(--blue)}
+.btn.ghost:hover{background:var(--sky)}
+.btn.ok{background:var(--good)}
+.btn.danger{background:#fff;color:var(--bad);border:1px solid #FCA5A5}
+.btn.danger:hover{background:var(--bad-bg)}
+.btn.sm{padding:5px 12px;font-size:12px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.spacer{flex:1}
+.muted{color:var(--muted)}
+.empty{text-align:center;color:var(--muted);padding:26px 10px;background:var(--ice);border-radius:10px}
+
+/* KPI */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;border-right:4px solid var(--blue-3)}
+.kpi .kpi-l{color:var(--muted);font-size:12px;font-weight:600}
+.kpi .kpi-v{font-size:22px;font-weight:800;color:var(--navy);margin:2px 0}
+.kpi .kpi-s{font-size:12px;color:var(--muted)}
+.kpi.good{border-right-color:var(--good)} .kpi.warn{border-right-color:#F59E0B} .kpi.bad{border-right-color:#DC2626}
+.kpi.good .kpi-s{color:var(--good)} .kpi.warn .kpi-s{color:var(--warn)} .kpi.bad .kpi-s{color:var(--bad)}
+
+/* Tables */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
+th{background:var(--navy);color:#fff;padding:10px 12px;text-align:right;font-weight:700;white-space:nowrap}
+td{padding:10px 12px;border-top:1px solid var(--line);vertical-align:middle}
+tbody tr:nth-child(even){background:#F8FAFD}
+tbody tr:hover{background:var(--ice)}
+td input{padding:6px 8px;font-size:13px}
+
+/* Badges */
+.badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:700;white-space:nowrap}
+.b-blue{background:var(--sky);color:var(--blue)} .b-good{background:var(--good-bg);color:var(--good)}
+.b-warn{background:var(--warn-bg);color:var(--warn)} .b-bad{background:var(--bad-bg);color:var(--bad)}
+.b-gray{background:#E2E8F0;color:#475569}
+
+.item{border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:10px;background:#fff}
+.item.pri-high{border-right:4px solid #DC2626} .item.pri-mid{border-right:4px solid #F59E0B} .item.pri-low{border-right:4px solid var(--blue-3)}
+.item.done{background:#F6FBF7;border-right:4px solid var(--good)}
+.bar{height:8px;background:#E2E8F0;border-radius:6px;overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--blue-3);border-radius:6px}
+.alert{background:var(--warn-bg);border:1px solid #FCD34D;color:#78350F;padding:12px 16px;border-radius:10px;margin-bottom:14px;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;font-weight:600}
+.alert.info{background:var(--ice);border-color:var(--sky);color:var(--navy)}
+.chk{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;cursor:pointer;background:#fff}
+.chk.on{background:#F0FDF4;border-color:#86EFAC}
+.chk input{width:20px;height:20px;margin-top:3px;accent-color:var(--blue)}
+.shift-h{font-weight:800;color:var(--blue);margin:14px 0 8px;font-size:14px}
+
+/* Modal / toast */
+.modal-bg{position:fixed;inset:0;background:rgba(11,36,71,.55);display:none;align-items:flex-start;justify-content:center;padding:30px 14px;overflow:auto;z-index:100}
+.modal-bg.open{display:flex}
+.modal{background:#fff;border-radius:14px;width:100%;max-width:640px;padding:22px}
+.modal-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.modal-h h3{color:var(--navy);font-size:17px;border:0;margin:0;padding:0}
+.modal-h button{background:none;border:none;font-size:24px;cursor:pointer;color:var(--muted)}
+.kv{display:grid;grid-template-columns:150px 1fr;gap:6px 12px;margin-bottom:12px}
+.kv dt{color:var(--muted);font-weight:600} .kv dd{font-weight:600}
+.toast-box{position:fixed;bottom:20px;right:20px;left:20px;display:flex;flex-direction:column;align-items:center;gap:8px;z-index:200;pointer-events:none}
+.toast{background:var(--navy);color:#fff;padding:11px 20px;border-radius:10px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.25);animation:in .25s}
+.toast.err{background:var(--bad)} .toast.ok{background:var(--good)}
+@keyframes in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.chart svg{width:100%;height:auto;display:block}
+.minibar{height:6px;background:#E2E8F0;border-radius:4px;margin-top:4px;min-width:70px}
+.minibar i{display:block;height:100%;background:var(--blue-3);border-radius:4px}
+
+/* Executive report */
+.exec-head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid var(--blue);padding-bottom:14px;margin-bottom:16px;gap:12px;flex-wrap:wrap}
+.exec-head h2{color:var(--navy);font-size:22px;font-weight:800}
+.insight{background:var(--ice);border-right:4px solid var(--blue);padding:10px 14px;border-radius:8px;margin-bottom:8px;font-weight:600}
+.sign{display:flex;justify-content:space-between;margin-top:40px;gap:20px}
+.sign div{flex:1;border-top:1px solid #94A3B8;padding-top:6px;text-align:center;color:var(--muted);font-size:12px}
+
+@media print{
+  body{background:#fff}.container{padding:0;max-width:none}
+  header.top,nav.nav,.no-print,.toast-box,.notif-panel{display:none!important}
+  section.tab:not(.active){display:none!important}
+  .card{border:none;padding:0}
+  table{min-width:0;font-size:11px} th{background:#0B2447!important;color:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .kpi,.insight{-webkit-print-color-adjust:exact;print-color-adjust:exact;break-inside:avoid}
+}
+@media(max-width:640px){.kv{grid-template-columns:1fr}.container{padding:10px}}
+</style>
+</head>
+<body>
+
+<!-- ============ تسجيل الدخول ============ -->
+<div id="loginScreen" class="login-wrap">
+  <div class="login-card">
+    <div class="logo">R</div>
+    <h2>منصة إدارة العمليات التشغيلية</h2>
+    <p class="sub">بوابة مديري المناطق والفروع</p>
+    <div class="fg"><label>اسم المستخدم أو البريد الإلكتروني</label><input type="text" id="loginUsername" autocomplete="username" dir="ltr" style="text-align:right"></div>
+    <div class="fg"><label>كلمة المرور</label><input type="password" id="loginPassword" autocomplete="current-password" onkeydown="if(event.key==='Enter')handleLogin()"></div>
+    <button class="btn block" id="loginBtn" onclick="handleLogin()">تسجيل الدخول</button>
+    <div style="margin-top:14px;text-align:center"><a href="#" onclick="forgotPassword();return false" style="font-size:13px;color:var(--blue);text-decoration:none;font-weight:600">نسيت كلمة المرور؟</a></div>
+    <div style="margin-top:16px;text-align:center;font-size:11px;color:#94A3B8;direction:ltr">v2026.10.17 · db: njwasycnepgaivfypppl</div>
+  </div>
+</div>
+
+<!-- ============ التطبيق ============ -->
+<div id="mainApp" class="container hidden">
+  <header class="top">
+    <h1><span id="appTitle">منصة إدارة العمليات</span><small id="appSub"></small></h1>
+    <div class="top-actions">
+      <button class="icon-btn" onclick="toggleNotif()" title="الإشعارات">&#128276;<span class="dot hidden" id="bellDot">0</span></button>
+      <span class="user-chip" id="userChip"></span>
+      <button class="btn-out" onclick="handleLogout()">تسجيل الخروج</button>
+    </div>
+  </header>
+  <div id="notifPanel" class="notif-panel hidden">
+    <div class="nh"><span>الإشعارات</span><button onclick="markAllRead()">تعيين الكل كمقروء</button></div>
+    <div class="notif-list" id="notifList"></div>
+  </div>
+  <nav class="nav" id="navBar"></nav>
+
+  <!-- ===== لوحات مدير المنطقة ===== -->
+  <section class="tab" id="tab-dash">
+    <div class="card">
+      <h3>لوحة المؤشرات الإجمالية
+        <select id="dashRange" style="width:auto" onchange="dashRange=this.value;renderAdminDash()"></select>
+      </h3>
+      <div id="adminDashBody"></div>
+    </div>
+  </section>
+
+  <section class="tab" id="tab-reports">
+    <div class="card">
+      <h3>التقارير الواردة من الفروع
+        <button class="btn ghost sm" onclick="exportExcel(getRange('30d'))">تصدير Excel (آخر 30 يوماً)</button>
+      </h3>
+      <div class="grid g3" style="margin-bottom:14px">
+        <div><label>الفرع</label><select id="fBranch" onchange="renderAdminReports()"></select></div>
+        <div><label>نوع التقرير</label><select id="fType" onchange="renderAdminReports()"></select></div>
+        <div><label>الحالة</label><select id="fStatus" onchange="renderAdminReports()">
+          <option value="">كل الحالات</option><option value="new">جديد</option><option value="reviewed">معتمد</option><option value="returned">مُعاد للفرع</option></select></div>
+        <div><label>الفترة</label><select id="fRange" onchange="renderAdminReports()"></select></div>
+      </div>
+      <div id="adminReportsList"></div>
+    </div>
+  </section>
+
+  <section class="tab" id="tab-exec">
+    <div class="card">
+      <h3 class="no-print">التقرير التنفيذي لمدير المنطقة
+        <span class="row">
+          <select id="execRange" style="width:auto" onchange="renderExec()"></select>
+          <button class="btn sm" onclick="window.print()">طباعة / حفظ PDF</button>
+          <button class="btn ghost sm" onclick="exportExcel(getRange($('execRange').value))">تصدير Excel</button>
+        </span>
+      </h3>
+      <div id="execBody"></div>
+    </div>
+  </section>
+
+  <section class="tab" id="tab-tasks">
+    <div class="card">
+      <h3>إصدار تكليف جديد للفروع</h3>
+      <div class="grid g2">
+        <div class="fg"><label>عنوان التكليف</label><input type="text" id="tTitle" placeholder="مثال: مراجعة جاهزية الفرع لزيارة التفتيش"></div>
+        <div class="fg"><label>الأولوية</label><select id="tPri"><option value="mid">متوسطة</option><option value="high">عالية / عاجلة</option><option value="low">منخفضة</option></select></div>
+        <div class="fg"><label>الموعد النهائي</label><input type="date" id="tDue"></div>
+      </div>
+      <div class="fg"><label>التفاصيل والتعليمات</label><textarea id="tDesc"></textarea></div>
+      <div class="fg"><label>الفروع المستهدفة</label>
+        <label style="font-weight:600"><input type="checkbox" id="tAll" checked onchange="toggleAllTargets()"> كل الفروع النشطة</label>
+        <div id="tTargets" class="row" style="gap:6px 18px;margin-top:6px"></div>
+      </div>
+      <button class="btn" onclick="createTask()">إصدار التكليف وإشعار الفروع</button>
+    </div>
+    <div class="card"><h3>متابعة التكليفات</h3><div id="adminTasksList"></div></div>
+  </section>
+
+  <section class="tab" id="tab-checklist">
+    <div class="card">
+      <h3>الالتزام اليومي بقوائم المراجعة (اليوم)</h3>
+      <div id="adminCheckStatus"></div>
+    </div>
+    <div class="card">
+      <h3>إدارة بنود قائمة المراجعة</h3>
+      <div class="grid g3">
+        <div class="fg"><label>البند</label><input type="text" id="ckTitle"></div>
+        <div class="fg"><label>الوصف</label><input type="text" id="ckDesc"></div>
+        <div class="fg"><label>الفترة</label><select id="ckShift"><option value="open">الافتتاح</option><option value="service">التشغيل</option><option value="close">الإغلاق</option></select></div>
+      </div>
+      <button class="btn" onclick="addChecklistItem()">إضافة البند</button>
+      <div id="adminChecklistItems" style="margin-top:16px"></div>
+    </div>
+  </section>
+
+  <section class="tab" id="tab-branches">
+    <div class="card"><h3>إضافة فرع جديد</h3>
+      <div class="grid g3">
+        <div class="fg"><label>اسم الدخول (إنجليزي)</label><input type="text" id="nbUser" placeholder="branch11" dir="ltr"></div>
+        <div class="fg"><label>اسم الفرع</label><input type="text" id="nbName"></div>
+        <div class="fg"><label>كلمة المرور (6 أحرف فأكثر)</label><input type="text" id="nbPass"></div>
+      </div>
+      <button class="btn" id="nbBtn" onclick="addBranch()">إضافة الفرع</button>
+    </div>
+    <div class="card"><h3>الفروع وحسابات الدخول</h3><div id="adminBranchesList"></div></div>
+  </section>
+
+  <section class="tab" id="tab-settings">
+    <div class="card"><h3>إعدادات المؤسسة</h3>
+      <div class="grid g3">
+        <div class="fg"><label>اسم المؤسسة / العلامة التجارية</label><input type="text" id="sCompany"></div>
+        <div class="fg"><label>العملة</label><input type="text" id="sCurrency"></div>
+        <div class="fg"><label>نوع النشاط</label><select id="sConcept"></select></div>
+      </div>
+      <h4>المستهدفات التشغيلية</h4>
+      <div class="grid g3">
+        <div class="fg"><label>الحد الأقصى لنسبة الهالك من المبيعات (%)</label><input type="number" id="sWaste" min="0" step="0.1"></div>
+        <div class="fg"><label>الحد الأقصى لنسبة تكلفة العمالة (%)</label><input type="number" id="sLabor" min="0" step="0.1"></div>
+        <div class="fg"><label>الحد الأدنى لدرجة الجودة (%)</label><input type="number" id="sQuality" min="0" max="100"></div>
+      </div>
+      <div class="row">
+        <button class="btn" onclick="saveSettings()">حفظ الإعدادات</button>
+        <button class="btn ghost" onclick="applyTemplate()">تطبيق قالب نوع النشاط (قائمة المراجعة والمستهدفات)</button>
+      </div>
+    </div>
+    <div class="card"><h3>حساب مدير المنطقة</h3>
+      <div class="grid g3">
+        <div class="fg"><label>كلمة المرور الحالية</label><input type="password" id="apOld"></div>
+        <div class="fg"><label>كلمة المرور الجديدة</label><input type="password" id="apNew"></div>
+      </div>
+      <button class="btn" onclick="changePassword('apOld','apNew')">تغيير كلمة المرور</button>
+    </div>
+    <div class="card"><h3>النسخ الاحتياطي</h3>
+      <p class="muted" style="margin-bottom:12px">البيانات محفوظة في قاعدة بيانات Supabase. يمكنك تنزيل نسخة JSON من البيانات الحالية (بدون المرفقات).</p>
+      <div class="row"><button class="btn ghost" onclick="backupData()">تصدير نسخة احتياطية</button></div>
+    </div>
+  </section>
+
+  <!-- ===== لوحات مدير الفرع ===== -->
+  <section class="tab" id="tab-bdash">
+    <div class="card">
+      <h3>لوحة مؤشرات الفرع
+        <select id="bRange" style="width:auto" onchange="dashRange=this.value;renderBranchDash()"></select>
+      </h3>
+      <div id="branchDashBody"></div>
+    </div>
+  </section>
+
+  <section class="tab" id="tab-submit">
+    <div class="card">
+      <h3>رفع تقرير جديد للإدارة</h3>
+      <div class="grid g2">
+        <div class="fg"><label>نوع التقرير</label><select id="rfType" onchange="renderReportFields()"></select></div>
+        <div class="fg"><label>تاريخ التقرير</label><input type="date" id="rfDate"></div>
+      </div>
+      <div id="rfFields" class="grid g2"></div>
+      <div class="fg"><label>ملاحظات إضافية</label><textarea id="rfNotes"></textarea></div>
+      <div class="fg"><label>مرفق (صورة أو ملف، حتى 5 ميجا) — اختياري</label><input type="file" id="rfFile"></div>
+      <button class="btn" id="rfBtn" onclick="submitReport()">إرسال التقرير</button>
+    </div>
+    <div class="card"><h3>سجل تقارير الفرع وحالتها</h3><div id="branchReportsList"></div></div>
+  </section>
+
+  <section class="tab" id="tab-inventory">
+    <div class="card">
+      <h3>الجرد والمخزون <span class="muted" id="invMeta" style="font-size:12px;font-weight:600"></span></h3>
+      <div id="invBody"></div>
+    </div>
+  </section>
+
+  <section class="tab" id="tab-bcheck">
+    <div class="card">
+      <h3>قائمة المراجعة اليومية <span id="chkPct" class="badge b-blue"></span></h3>
+      <div id="branchCheckBody"></div>
+    </div>
+  </section>
+
+  <section class="tab" id="tab-btasks">
+    <div class="card"><h3>التكليفات الواردة من الإدارة</h3><div id="branchTasksList"></div></div>
+  </section>
+
+  <section class="tab" id="tab-account">
+    <div class="card"><h3>بيانات الحساب</h3>
+      <div class="grid g2">
+        <div class="fg"><label>اسم مدير الفرع</label><input type="text" id="acManager"></div>
+        <div class="fg"><label>البريد الإلكتروني (لاستعادة كلمة المرور)</label><input type="email" id="acEmail"></div>
+      </div>
+      <button class="btn" onclick="saveAccount()">حفظ البيانات</button>
+    </div>
+    <div class="card"><h3>تغيير كلمة المرور</h3>
+      <div class="grid g2">
+        <div class="fg"><label>كلمة المرور الحالية</label><input type="password" id="bpOld"></div>
+        <div class="fg"><label>كلمة المرور الجديدة</label><input type="password" id="bpNew"></div>
+      </div>
+      <button class="btn" onclick="changePassword('bpOld','bpNew')">تغيير كلمة المرور</button>
+    </div>
+  </section>
+</div>
+
+<div class="modal-bg" id="modal"><div class="modal"><div class="modal-h"><h3 id="modalT"></h3><button onclick="closeModal()">&times;</button></div><div id="modalB"></div></div></div>
+<div class="toast-box" id="toasts"></div>
+
+<script>
+/* =====================================================================
+   إعدادات الاتصال بـ Supabase
+   (المفتاح anon آمن للظهور هنا طالما RLS مفعّل — لا تضع service_role أبداً)
+   ===================================================================== */
+const SUPABASE_URL='https://njwasycnepgaivfypppl.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5qd2FzeWNuZXBnYWl2ZnlwcHBsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwMTM1NjEsImV4cCI6MjEwNzU4OTU2MX0.eRNm65Es74vgosJuq0m2Up_1HLifzkAGesvGjMuMM6A';
+const EMAIL_DOMAIN='@rms-portal.com';
+if(typeof supabase==='undefined'){
+  document.body.innerHTML='<div style="max-width:520px;margin:60px auto;padding:24px;background:#fff;border:1px solid #DCE5F1;border-radius:12px;font-family:Tahoma,Arial;direction:rtl;line-height:1.9"><h3 style="color:#B91C1C">تعذر تحميل مكتبة الاتصال بقاعدة البيانات</h3><p>الصفحة تحتاج اتصالاً بالإنترنت لتحميل مكتبة Supabase. تأكد من الإنترنت، وأوقف إضافات حجب الإعلانات أو الـ VPN، ثم أعد تحميل الصفحة.</p></div>';
+  throw new Error('supabase-js failed to load');
+}
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad=n=>String(n).padStart(2,'0');
+const isoOf=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const today=()=>isoOf(new Date());
+const addDays=(iso,n)=>{const d=new Date(iso+'T12:00:00');d.setDate(d.getDate()+n);return isoOf(d)};
+const fmtDate=i=>i?i.split('-').reverse().join('/'):'';
+const nowTime=()=>{const d=new Date();return pad(d.getHours())+':'+pad(d.getMinutes())};
+const fmtTs=iso=>{if(!iso)return '';const d=new Date(iso);return fmtDate(isoOf(d))+' '+pad(d.getHours())+':'+pad(d.getMinutes())};
+const num=n=>Number(n||0).toLocaleString('en-US',{maximumFractionDigits:0});
+const money=n=>num(n)+' '+(db?db.settings.currency:'');
+const pct=(n,d=1)=>(isFinite(n)?Number(n).toFixed(d):'0')+'%';
+const newId=()=>(window.crypto&&crypto.randomUUID)?crypto.randomUUID():'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return (c==='x'?r:(r&3|8)).toString(16)});
+
+const SHIFTS={open:'الافتتاح',service:'التشغيل',close:'الإغلاق'};
+const CONCEPTS={
+ fast:{name:'وجبات سريعة (Fast Food)',orders:'عدد الطلبات',ticket:'متوسط قيمة الطلب',targets:{waste:3,labor:25,quality:90},
+  checklist:[
+   ['open','تشغيل وفحص القلايات والشوايات','التأكد من درجات الحرارة القياسية لمعدات التشغيل'],
+   ['open','فحص حرارة الثلاجات والفريزرات','تسجيل القراءات والتأكد من سلامة الحساسات'],
+   ['open','جاهزية الفريق والزي الرسمي','الالتزام بمعايير المظهر والنظافة الشخصية'],
+   ['open','جرد المخبوزات والمكونات الرئيسية','تسجيل الكميات المتاحة لبدء الوردية'],
+   ['open','فتح الكاشير وفحص نظام الطلبات',''],
+   ['service','متابعة زمن تجهيز الطلبات','الالتزام بالزمن المستهدف للخدمة'],
+   ['service','فحص جودة الزيت وتبديله عند الحاجة',''],
+   ['service','مراجعة نظافة الصالة ودورات المياه',''],
+   ['close','تنظيف وتعقيم المعدات',''],
+   ['close','مطابقة الكاشير وتسليم الإيراد',''],
+   ['close','تأمين المخزن وإغلاق الأجهزة','']],
+  inv:[['لحم برجر','كجم',40,15],['خبز برجر','عبوة',60,20],['زيت قلي','لتر',50,20],['بطاطس مجمدة','كجم',80,30],['صلصات','عبوة',30,10],['عبوات تغليف','كرتونة',25,8]]},
+ fine:{name:'مطاعم فاخرة (Fine Dining)',orders:'عدد الضيوف (Covers)',ticket:'متوسط إنفاق الضيف',targets:{waste:4,labor:33,quality:95},
+  checklist:[
+   ['open','إعداد الصالة وتنسيق الطاولات','المفارش والأدوات والإضاءة والموسيقى'],
+   ['open','اجتماع الإحاطة قبل الوردية (Pre-shift)','أطباق اليوم والحساسية الغذائية وأهداف المبيعات'],
+   ['open','فحص محطات المطبخ والتحضير (Mise en place)',''],
+   ['open','مراجعة الحجوزات وتوزيع الطاولات',''],
+   ['open','فحص المشروبات ودرجات التقديم',''],
+   ['service','متابعة معايير الخدمة وزمن الأطباق',''],
+   ['service','جمع تقييمات الضيوف ومعالجة الملاحظات',''],
+   ['close','مطابقة الإيراد وإغلاق الحسابات',''],
+   ['close','تنظيف وتعقيم المطبخ والصالة',''],
+   ['close','تسجيل ملاحظات الوردية وتسليمها','']],
+  inv:[['لحوم مستوردة','كجم',25,8],['مأكولات بحرية','كجم',20,8],['أجبان مستوردة','كجم',12,4],['خضروات ورقية','كجم',15,5],['مشروبات وعصائر','زجاجة',60,20],['أدوات مائدة (احتياطي)','قطعة',100,30]]},
+ intl:{name:'مطاعم عالمية / متعددة المطابخ',orders:'عدد الفواتير',ticket:'متوسط الفاتورة',targets:{waste:4,labor:30,quality:92},
+  checklist:[
+   ['open','فحص محطات المطابخ المختلفة وجاهزيتها',''],
+   ['open','فحص حرارة التبريد والتجميد',''],
+   ['open','مراجعة المنيو وتوافر الأصناف',''],
+   ['open','جاهزية الفريق ومعايير المظهر',''],
+   ['service','مراجعة جودة الأطباق قبل التقديم',''],
+   ['service','متابعة زمن الخدمة وطلبات التوصيل',''],
+   ['close','مطابقة الكاشير',''],
+   ['close','التنظيف والتعقيم',''],
+   ['close','تحديث الجرد','']],
+  inv:[['دجاج','كجم',40,15],['لحوم','كجم',35,12],['أرز ومكرونة','كجم',60,20],['صلصات وتوابل','عبوة',45,15],['ألبان وأجبان','كجم',25,8],['خضروات طازجة','كجم',40,15]]},
+ cafe:{name:'مقاهي وكافيهات (Café)',orders:'عدد الفواتير',ticket:'متوسط الفاتورة',targets:{waste:3,labor:28,quality:90},
+  checklist:[
+   ['open','تشغيل ومعايرة ماكينات القهوة',''],
+   ['open','فحص الألبان والمنتجات سريعة التلف',''],
+   ['open','تنظيف الواجهة والمقاعد',''],
+   ['service','متابعة جودة المشروبات والتقديم',''],
+   ['service','مراجعة نظافة الصالة',''],
+   ['close','تنظيف الماكينات (Backflush)',''],
+   ['close','مطابقة الكاشير','']],
+  inv:[['بن قهوة','كجم',30,10],['حليب','لتر',60,25],['سيروب ونكهات','زجاجة',25,8],['أكواب وأغطية','كرتونة',20,6],['معجنات وحلويات','قطعة',50,15]]}
+};
+
+const cur=true;
+const REPORTS={
+ sales:{label:'تقرير المبيعات اليومي',daily:true,fields:[
+  {k:'sales_total',l:'إجمالي المبيعات',t:'number',cur,req:1},
+  {k:'orders',l:()=>CONCEPTS[db.settings.concept].orders,t:'number',req:1},
+  {k:'dine_in',l:'مبيعات الصالة',t:'number',cur},
+  {k:'takeaway',l:'مبيعات الاستلام (Takeaway)',t:'number',cur},
+  {k:'delivery',l:'مبيعات التوصيل والتطبيقات',t:'number',cur},
+  {k:'discounts',l:'الخصومات والمرتجعات',t:'number',cur},
+  {k:'avg_serve',l:'متوسط زمن الخدمة (دقيقة)',t:'number',only:['fast']},
+  {k:'reservations',l:'عدد الحجوزات',t:'number',only:['fine']},
+  {k:'noshow',l:'حالات عدم الحضور (No-show)',t:'number',only:['fine']}]},
+ waste:{label:'تقرير الهالك والفاقد',fields:[
+  {k:'item',l:'الصنف',t:'text',req:1},
+  {k:'qty',l:'الكمية',t:'number'},
+  {k:'waste_value',l:'قيمة الهالك',t:'number',cur,req:1},
+  {k:'reason',l:'السبب',t:'select',opts:['انتهاء الصلاحية','خطأ في التحضير','إرجاع من العميل','تلف أثناء التخزين','عطل معدات','أخرى']}]},
+ labor:{label:'تقرير العمالة والحضور',daily:true,fields:[
+  {k:'present',l:'عدد الحاضرين',t:'number',req:1},
+  {k:'absent',l:'عدد الغياب',t:'number'},
+  {k:'overtime',l:'ساعات العمل الإضافي',t:'number'},
+  {k:'labor_cost',l:'تكلفة العمالة اليومية',t:'number',cur,req:1},
+  {k:'incident',l:'أبرز ملاحظة',t:'select',opts:['لا يوجد','تأخير','غياب بدون إذن','نقص عمالة','مخالفة سلوكية','إصابة عمل']}]},
+ quality:{label:'تقرير الجودة والنظافة',daily:true,fields:[
+  {k:'quality_score',l:'درجة الجودة (%)',t:'number',req:1,max:100},
+  {k:'hygiene_score',l:'درجة النظافة (%)',t:'number',max:100},
+  {k:'complaints',l:'عدد شكاوى العملاء',t:'number'},
+  {k:'rating',l:'متوسط تقييم الضيوف (من 5)',t:'number',max:5}]},
+ maintenance:{label:'طلب صيانة',fields:[
+  {k:'equipment',l:'المعدة / الموقع',t:'text',req:1},
+  {k:'severity',l:'درجة الأهمية',t:'select',opts:['عادية','عاجلة','حرجة (توقف التشغيل)']}]},
+ inventory:{label:'تقرير الجرد والمخزون',auto:true,fields:[
+  {k:'counted',l:'عدد الأصناف المجرودة',t:'number'},{k:'low',l:'أصناف دون الحد الأدنى',t:'number'},{k:'lowItems',l:'قائمة النواقص',t:'text'}]},
+ other:{label:'ملاحظة تشغيلية',fields:[{k:'subject',l:'الموضوع',t:'text',req:1}]}
+};
+const STATUS={new:['جديد','b-blue'],reviewed:['معتمد','b-good'],returned:['مُعاد للفرع','b-warn']};
+const RANGES={today:'اليوم','7d':'آخر 7 أيام','30d':'آخر 30 يوماً',month:'الشهر الحالي'};
+const MAX_FILE=5*1024*1024;
+
+let db=null, currentUser=null, activeTab=null, dashRange='7d', timer=null;
+
+/* =====================================================================
+   طبقة البيانات (Supabase)
+   ===================================================================== */
+async function fetchAll(table,cols,build){
+  const out=[];
+  for(let from=0;;from+=1000){
+    let q=sb.from(table).select(cols);
+    if(build)q=build(q);
+    const {data,error}=await q.range(from,from+999);
+    if(error)throw error;
+    out.push(...data);
+    if(data.length<1000)break;
+  }
+  return out;
+}
+async function one(q){const {data,error}=await q;if(error)throw error;return data}
+
+/* تنفيذ عملية كتابة مع عرض الخطأ للمستخدم — ترجع null عند الفشل */
+async function w(q){
+  const r=await q;
+  if(r.error){console.error(r.error);toast('تعذر تنفيذ العملية: '+(r.error.message||''),'err');return null}
+  return r;
+}
+
+const mapCk=x=>({id:x.id,shift:x.shift,title:x.title,desc:x.descr||''});
+const mapUser=p=>({username:p.username,role:p.role,name:p.name,manager:p.manager||'',email:p.email_contact||'',active:p.active});
+const mapTask=t=>({id:t.id,title:t.title,desc:t.descr||'',priority:t.priority,due:t.due,targets:t.targets||[],archived:t.archived,created:fmtTs(t.created_at),status:{}});
+const mapReport=r=>({id:r.id,branch:r.branch_id,type:r.type,date:r.report_date,created:fmtTs(r.created_at),data:r.data||{},notes:r.notes||'',att:r.att_path?{name:r.att_name||'مرفق',path:r.att_path}:null,status:r.status,review:r.review||''});
+
+async function loadAll(){
+  const since=addDays(today(),-180), sinceChk=addDays(today(),-45);
+  const [st,pr,cl,runs,tasks,tst,reps,inv,meta,nt]=await Promise.all([
+    one(sb.from('settings').select('*').eq('id',1).single()),
+    one(sb.from('profiles').select('*')),
+    one(sb.from('checklist_items').select('*').order('sort').order('created_at')),
+    fetchAll('check_runs','*',q=>q.gte('run_date',sinceChk).order('run_date').order('branch_id').order('item_id')),
+    one(sb.from('tasks').select('*').order('created_at',{ascending:false})),
+    fetchAll('task_status','*',q=>q.order('task_id').order('branch_id')),
+    fetchAll('reports','*',q=>q.gte('report_date',since).order('created_at',{ascending:false}).order('id')),
+    fetchAll('inventory_items','*',q=>q.order('branch_id').order('sort').order('id')),
+    one(sb.from('inventory_meta').select('*')),
+    one(sb.from('notifications').select('*').order('created_at',{ascending:false}).limit(100))
+  ]);
+  const n={settings:{company:st.company,currency:st.currency,concept:st.concept,targets:st.targets},
+    users:{},checklist:cl.map(mapCk),checkRuns:{},tasks:tasks.map(mapTask),reports:reps.map(mapReport),inventory:{},notifs:[]};
+  pr.forEach(p=>n.users[p.id]=mapUser(p));
+  runs.forEach(r=>{const k=r.branch_id+'|'+r.run_date;(n.checkRuns[k]=n.checkRuns[k]||{})[r.item_id]=r.done_at||''});
+  const tmap={};n.tasks.forEach(t=>tmap[t.id]=t);
+  tst.forEach(s=>{if(tmap[s.task_id])tmap[s.task_id].status[s.branch_id]={time:fmtTs(s.done_at)}});
+  inv.forEach(i=>{(n.inventory[i.branch_id]=n.inventory[i.branch_id]||{items:[],updated:''}).items.push({id:i.id,name:i.name,unit:i.unit||'',qty:+i.qty,min:+i.min_qty})});
+  meta.forEach(m=>{(n.inventory[m.branch_id]=n.inventory[m.branch_id]||{items:[],updated:''}).updated=fmtTs(m.updated_at)});
+  n.notifs=nt.map(x=>({id:x.id,text:x.text,time:fmtTs(x.created_at),read:x.read}));
+  db=n;
+}
+
+async function notify(to,text){
+  await sb.from('notifications').insert(to==='admin'?{to_admin:true,text}:{to_user:to,text});
+}
+const myNotifs=()=>db.notifs;
+function updateBell(){
+  const c=myNotifs().filter(n=>!n.read).length, d=$('bellDot');
+  d.textContent=c; d.classList.toggle('hidden',!c);
+  $('notifList').innerHTML=myNotifs().slice(0,15).map(n=>`<div class="notif-item ${n.read?'':'unread'}">${esc(n.text)}<small>${n.time}</small></div>`).join('')||'<div class="notif-item muted">لا توجد إشعارات</div>';
+}
+function toggleNotif(){$('notifPanel').classList.toggle('hidden')}
+async function markAllRead(){
+  const ids=myNotifs().filter(n=>!n.read).map(n=>n.id);
+  if(ids.length){if(!await w(sb.from('notifications').update({read:true}).in('id',ids)))return}
+  myNotifs().forEach(n=>n.read=true);updateBell();
+}
+
+function toast(t,k){const e=document.createElement('div');e.className='toast '+(k||'');e.textContent=t;$('toasts').appendChild(e);setTimeout(()=>e.remove(),3800)}
+function openModal(t,h){$('modalT').textContent=t;$('modalB').innerHTML=h;$('modal').classList.add('open')}
+function closeModal(){$('modal').classList.remove('open')}
+const badge=(t,c)=>`<span class="badge ${c}">${esc(t)}</span>`;
+const statusBadge=s=>{const x=STATUS[s]||STATUS.new;return badge(x[0],x[1])};
+function kpi(l,v,s,tone){return `<div class="kpi ${tone||''}"><div class="kpi-l">${l}</div><div class="kpi-v">${v}</div><div class="kpi-s">${s||'&nbsp;'}</div></div>`}
+const lowerTone=(v,t)=>v<=t?'good':v<=t*1.2?'warn':'bad';
+const higherTone=(v,t)=>v>=t?'good':v>=t-5?'warn':'bad';
+const toneBadge=t=>t==='good'?'b-good':t==='warn'?'b-warn':'b-bad';
+function fillRangeSelect(id,sel){$(id).innerHTML=Object.entries(RANGES).map(([k,v])=>`<option value="${k}" ${k===sel?'selected':''}>${v}</option>`).join('')}
+
+/* =====================================================================
+   حسابات المؤشرات
+   ===================================================================== */
+const branches=all=>Object.entries(db.users).filter(([k,u])=>u.role==='branch'&&(all||u.active!==false)).map(([k,u])=>({id:k,...u}));
+const bName=id=>db.users[id]?db.users[id].name:'—';
+
+function getRange(k){
+  const t=today();
+  if(k==='today')return{from:t,to:t,key:k};
+  if(k==='30d')return{from:addDays(t,-29),to:t,key:k};
+  if(k==='month')return{from:t.slice(0,8)+'01',to:t,key:k};
+  return{from:addDays(t,-6),to:t,key:'7d'};
+}
+function dayList(from,to){const a=[];let d=from;while(d<=to&&d<=today()){a.push(d);d=addDays(d,1)}return a}
+
+function reportsIn(from,to,branch){return db.reports.filter(r=>r.date>=from&&r.date<=to&&(!branch||r.branch===branch))}
+function metrics(branch,from,to){
+  const rs=reportsIn(from,to,branch);
+  const m={sales:0,orders:0,waste:0,labor:0,present:0,absent:0,ot:0,qs:[],hs:[],ratings:[],complaints:0,maint:0,count:rs.length,dine:0,take:0,deliv:0,disc:0};
+  rs.forEach(r=>{const d=r.data||{};
+    if(r.type==='sales'){m.sales+=+d.sales_total||0;m.orders+=+d.orders||0;m.dine+=+d.dine_in||0;m.take+=+d.takeaway||0;m.deliv+=+d.delivery||0;m.disc+=+d.discounts||0}
+    if(r.type==='waste')m.waste+=+d.waste_value||0;
+    if(r.type==='labor'){m.labor+=+d.labor_cost||0;m.present+=+d.present||0;m.absent+=+d.absent||0;m.ot+=+d.overtime||0}
+    if(r.type==='quality'){if(d.quality_score!=null)m.qs.push(+d.quality_score);if(d.hygiene_score!=null)m.hs.push(+d.hygiene_score);if(d.rating!=null)m.ratings.push(+d.rating);m.complaints+=+d.complaints||0}
+    if(r.type==='maintenance')m.maint++;
+  });
+  const av=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
+  m.avg=m.orders?m.sales/m.orders:0; m.wastePct=m.sales?m.waste/m.sales*100:0; m.laborPct=m.sales?m.labor/m.sales*100:0;
+  m.quality=av(m.qs); m.hygiene=av(m.hs); m.rating=av(m.ratings);
+  return m;
+}
+function checkPct(branch,date){
+  const total=db.checklist.length; if(!total)return null;
+  const run=db.checkRuns[branch+'|'+date]||{};
+  return Math.round(db.checklist.filter(c=>c.id in run).length/total*100);
+}
+function checkAvg(branch,from,to){
+  const days=dayList(from,to); if(!days.length||!db.checklist.length)return null;
+  return Math.round(days.reduce((s,d)=>s+checkPct(branch,d),0)/days.length);
+}
+function lowStock(branch){const inv=db.inventory[branch];return inv?inv.items.filter(i=>+i.qty<=+i.min):[]}
+function myTaskStatus(t,branch){return t.status&&t.status[branch]}
+function openTasks(branch){return db.tasks.filter(t=>!t.archived&&t.targets.includes(branch)&&!myTaskStatus(t,branch))}
+function salesCompliance(branch,from,to){
+  const days=dayList(from,to); if(!days.length)return 0;
+  const have=new Set(db.reports.filter(r=>r.branch===branch&&r.type==='sales'&&r.date>=from&&r.date<=to).map(r=>r.date));
+  return Math.round(days.filter(d=>have.has(d)).length/days.length*100);
+}
+function branchRows(from,to){
+  return branches().map(b=>{const m=metrics(b.id,from,to);
+    return{b,m,chk:checkAvg(b.id,from,to),low:lowStock(b.id).length,open:openTasks(b.id).length,comp:salesCompliance(b.id,from,to),
+      pending:db.reports.filter(r=>r.branch===b.id&&r.status==='new').length}});
+}
+function dailySeries(branch,from,to){
+  let days=dayList(from,to); if(days.length<7){days=dayList(addDays(to,-6),to)}
+  if(days.length>31)days=days.slice(-31);
+  return days.map(d=>({label:d.slice(8),value:metrics(branch,d,d).sales}));
+}
+function barChart(series){
+  const W=620,H=210,p=30,max=Math.max(1,...series.map(s=>s.value)),bw=(W-p*2)/series.length;
+  let g='';
+  series.forEach((s,i)=>{const h=(H-p*2)*s.value/max,x=p+i*bw+bw*.18,y=H-p-h;
+    g+=`<rect x="${x}" y="${y}" width="${bw*.64}" height="${Math.max(h,1)}" rx="4" fill="${s.value?'#3B82F6':'#CBD5E1'}"/>`;
+    if(series.length<=14&&s.value)g+=`<text x="${x+bw*.32}" y="${y-5}" font-size="10" text-anchor="middle" fill="#0B2447">${num(s.value)}</text>`;
+    g+=`<text x="${x+bw*.32}" y="${H-10}" font-size="10" text-anchor="middle" fill="#64748B">${s.label}</text>`;});
+  return `<div class="chart"><svg viewBox="0 0 ${W} ${H}"><line x1="${p}" y1="${H-p}" x2="${W-p}" y2="${H-p}" stroke="#DCE5F1"/>${g}</svg></div>`;
+}
+
+/* =====================================================================
+   تسجيل الدخول والخروج
+   ===================================================================== */
+async function handleLogin(){
+  const u=$('loginUsername').value.trim().toLowerCase(),p=$('loginPassword').value;
+  if(!u||!p)return toast('أدخل اسم المستخدم وكلمة المرور','err');
+  const btn=$('loginBtn');btn.disabled=true;
+  try{
+    const {data,error}=await sb.auth.signInWithPassword({email:u.includes('@')?u:u+EMAIL_DOMAIN,password:p});
+    if(error){
+      console.error('login error',error);
+      const m=(error.message||'').toLowerCase();
+      if(m.includes('invalid login'))return toast('بيانات الدخول غير صحيحة، أو الحساب غير موجود في Supabase (راجع Authentication > Users)','err');
+      if(m.includes('not confirmed'))return toast('الحساب غير مفعّل: اقفل Confirm email أو فعّل المستخدم من لوحة Supabase','err');
+      if(m.includes('failed to fetch')||m.includes('network')||error.status===0)return toast('تعذر الوصول إلى Supabase: تأكد من الإنترنت، وأن المشروع ليس موقوفاً (Paused) في لوحة Supabase، وأوقف الـ VPN أو إضافات حجب الإعلانات','err');
+      return toast('خطأ من Supabase: '+error.message+(error.status?' ('+error.status+')':''),'err');
+    }
+    await enter(data.user.id);
+  }finally{btn.disabled=false}
+}
+async function enter(userId){
+  const {data:prof,error}=await sb.from('profiles').select('*').eq('id',userId).maybeSingle();
+  if(error||!prof){await sb.auth.signOut();console.error('profile',error);return toast(error?('تعذر قراءة بيانات الحساب: '+error.message+' — تأكد أن setup.sql اتشغّل كاملاً'):'تسجيل الدخول نجح لكن الحساب غير مربوط بالنظام. شغّل setup.sql مرة أخرى في SQL Editor','err')}
+  if(!prof.active){await sb.auth.signOut();return toast('هذا الحساب موقوف. تواصل مع مدير المنطقة','err')}
+  const {data:{user:au}}=await sb.auth.getUser();
+  currentUser={authEmail:au?au.email:prof.username+EMAIL_DOMAIN,username:prof.id,login:prof.username,role:prof.role,name:prof.name,manager:prof.manager||'',email:prof.email_contact||''};
+  try{await loadAll()}
+  catch(e){console.error(e);await sb.auth.signOut();currentUser=null;return toast('تعذر تحميل البيانات. تأكد من تشغيل سكريبت قاعدة البيانات','err')}
+  startApp();
+}
+async function handleLogout(){
+  clearInterval(timer);
+  await sb.auth.signOut();
+  currentUser=null;db=null;
+  $('mainApp').classList.add('hidden');$('loginScreen').classList.remove('hidden');
+  $('loginPassword').value='';$('notifPanel').classList.add('hidden');$('execRange').innerHTML='';$('fRange').innerHTML='';$('rfType').innerHTML='';
+}
+async function forgotPassword(){
+  const e=(prompt('أدخل البريد الإلكتروني المسجل لحسابك:')||'').trim();if(!e)return;
+  await sb.rpc('request_password_reset',{p_email:e});
+  toast('إذا كان البريد مسجلاً فقد أُرسل طلبك إلى مدير المنطقة.');
+}
+async function changePassword(oldId,newId){
+  const o=$(oldId).value,n=$(newId).value;
+  if(!o)return toast('أدخل كلمة المرور الحالية','err');
+  if(n.length<6)return toast('كلمة المرور الجديدة يجب ألا تقل عن 6 أحرف','err');
+  const {error:e1}=await sb.auth.signInWithPassword({email:currentUser.authEmail,password:o});
+  if(e1)return toast('كلمة المرور الحالية غير صحيحة','err');
+  if(!await w(sb.auth.updateUser({password:n})))return;
+  $(oldId).value='';$(newId).value='';toast('تم تغيير كلمة المرور','ok');
+}
+
+const NAV={
+ admin:[['dash','لوحة المؤشرات'],['reports','التقارير الواردة'],['exec','التقرير التنفيذي'],['tasks','التكليفات'],['checklist','قوائم المراجعة'],['branches','الفروع والحسابات'],['settings','الإعدادات']],
+ branch:[['bdash','لوحة الفرع'],['submit','رفع تقرير'],['inventory','الجرد والمخزون'],['bcheck','قائمة المراجعة اليومية'],['btasks','التكليفات الواردة'],['account','الحساب']]
+};
+
+function startApp(){
+  $('loginScreen').classList.add('hidden');$('mainApp').classList.remove('hidden');$('appTitle').textContent=db.settings.company;
+  $('appSub').textContent=currentUser.role==='admin'?'لوحة تحكم مدير المنطقة':'لوحة تحكم '+currentUser.name;
+  $('userChip').textContent=currentUser.name;
+  document.querySelectorAll('section.tab').forEach(s=>s.classList.remove('active'));
+  buildNav(); showTab(NAV[currentUser.role][0][0]); updateBell();
+  clearInterval(timer);timer=setInterval(refresh,60000);
+}
+async function refresh(){
+  if(!currentUser||document.hidden)return;
+  try{await loadAll();updateBell();updateBadges()}catch(e){console.warn('refresh failed',e)}
+}
+function buildNav(){
+  $('navBar').innerHTML=NAV[currentUser.role].map(([id,l])=>`<button id="nav-${id}" onclick="showTab('${id}')">${l}<span class="nb hidden" id="nb-${id}"></span></button>`).join('');
+  updateBadges();
+}
+function updateBadges(){
+  const set=(id,n)=>{const e=$('nb-'+id);if(e){e.textContent=n;e.classList.toggle('hidden',!n)}};
+  if(currentUser.role==='admin')set('reports',db.reports.filter(r=>r.status==='new').length);
+  else {set('btasks',openTasks(currentUser.username).length);set('submit',db.reports.filter(r=>r.branch===currentUser.username&&r.status==='returned').length)}
+}
+function showTab(id){
+  activeTab=id;
+  document.querySelectorAll('section.tab').forEach(s=>s.classList.toggle('active',s.id==='tab-'+id));
+  document.querySelectorAll('#navBar button').forEach(b=>b.classList.toggle('active',b.id==='nav-'+id));
+  $('notifPanel').classList.add('hidden');
+  initTab(id); window.scrollTo({top:0});
+}
+function initTab(id){
+  const R={dash:()=>{fillRangeSelect('dashRange',dashRange);renderAdminDash()},reports:initReportsTab,exec:()=>{if(!$('execRange').innerHTML)fillRangeSelect('execRange','30d');renderExec()},
+   tasks:initTasksTab,checklist:renderAdminChecklist,branches:renderAdminBranches,settings:initSettings,
+   bdash:()=>{fillRangeSelect('bRange',dashRange);renderBranchDash()},submit:initSubmitTab,inventory:renderInventory,bcheck:renderBranchCheck,btasks:renderBranchTasks,account:initAccount};
+  R[id]&&R[id]();
+}
+
+/* =====================================================================
+   لوحات المدير
+   ===================================================================== */
+function branchTable(rows,full){
+  const t=db.settings.targets,maxS=Math.max(1,...rows.map(r=>r.m.sales));
+  const sorted=[...rows].sort((a,b)=>b.m.sales-a.m.sales);
+  return `<div class="tbl-wrap"><table><thead><tr><th>#</th><th>الفرع</th><th>المبيعات</th><th>${CONCEPTS[db.settings.concept].orders}</th><th>${CONCEPTS[db.settings.concept].ticket}</th><th>الهالك %</th><th>العمالة %</th><th>الجودة</th><th>قوائم المراجعة</th>${full?'<th>التزام التقارير</th>':''}<th>نواقص المخزون</th><th>تكليفات مفتوحة</th></tr></thead><tbody>`+
+  sorted.map((r,i)=>{const m=r.m;
+    return `<tr><td>${i+1}</td><td><strong>${esc(r.b.name)}</strong></td>
+    <td>${num(m.sales)}<div class="minibar"><i style="width:${m.sales/maxS*100}%"></i></div></td>
+    <td>${num(m.orders)}</td><td>${num(m.avg)}</td>
+    <td>${m.sales?badge(pct(m.wastePct),toneBadge(lowerTone(m.wastePct,t.waste))):'—'}</td>
+    <td>${m.sales&&m.labor?badge(pct(m.laborPct),toneBadge(lowerTone(m.laborPct,t.labor))):'—'}</td>
+    <td>${m.quality!=null?badge(pct(m.quality,0),toneBadge(higherTone(m.quality,t.quality))):'—'}</td>
+    <td>${r.chk!=null?pct(r.chk,0):'—'}</td>${full?`<td>${badge(r.comp+'%',r.comp>=90?'b-good':r.comp>=60?'b-warn':'b-bad')}</td>`:''}
+    <td>${r.low?badge(r.low,'b-bad'):badge('0','b-good')}</td><td>${r.open?badge(r.open,'b-warn'):badge('0','b-good')}</td></tr>`}).join('')+`</tbody></table></div>`;
+}
+function renderAdminDash(){
+  const {from,to}=getRange(dashRange),t=db.settings.targets,rows=branchRows(from,to),tot=metrics(null,from,to);
+  const missing=branches().filter(b=>!db.reports.some(r=>r.branch===b.id&&r.type==='sales'&&r.date===today()));
+  const newR=db.reports.filter(r=>r.status==='new').length;
+  const lowAll=rows.reduce((s,r)=>s+r.low,0);
+  let h='';
+  if(newR)h+=`<div class="alert info"><span>يوجد ${newR} تقرير بانتظار المراجعة</span><button class="btn sm" onclick="showTab('reports')">مراجعة التقارير</button></div>`;
+  if(missing.length)h+=`<div class="alert"><span>فروع لم ترسل تقرير مبيعات اليوم: ${missing.map(b=>esc(b.name)).join('، ')}</span></div>`;
+  h+=`<div class="kpis">
+   ${kpi('إجمالي المبيعات',money(tot.sales),fmtDate(from)+' — '+fmtDate(to))}
+   ${kpi(CONCEPTS[db.settings.concept].orders,num(tot.orders),CONCEPTS[db.settings.concept].ticket+': '+money(tot.avg))}
+   ${kpi('نسبة الهالك',tot.sales?pct(tot.wastePct):'—','المستهدف ≤ '+t.waste+'%  |  '+money(tot.waste),tot.sales?lowerTone(tot.wastePct,t.waste):'')}
+   ${kpi('نسبة تكلفة العمالة',tot.sales&&tot.labor?pct(tot.laborPct):'—','المستهدف ≤ '+t.labor+'%',tot.sales&&tot.labor?lowerTone(tot.laborPct,t.labor):'')}
+   ${kpi('متوسط الجودة',tot.quality!=null?pct(tot.quality,0):'—','المستهدف ≥ '+t.quality+'%',tot.quality!=null?higherTone(tot.quality,t.quality):'')}
+   ${kpi('نواقص المخزون',num(lowAll),'أصناف دون الحد الأدنى',lowAll?'bad':'good')}
+  </div>`;
+  h+=`<h4>المبيعات اليومية (إجمالي الفروع)</h4>`+barChart(dailySeries(null,from,to));
+  h+=`<h4>مقارنة أداء الفروع</h4>`+(rows.length?branchTable(rows,false):'<div class="empty">لا توجد فروع</div>');
+  const recent=db.reports.slice(0,6);
+  h+=`<h4>آخر العمليات الواردة</h4>`+(recent.length?recent.map(r=>`<div class="item row"><span>${esc(bName(r.branch))} — ${esc(REPORTS[r.type]?REPORTS[r.type].label:r.type)}</span><span class="spacer"></span><span class="muted">${r.created}</span>${statusBadge(r.status)}<button class="btn ghost sm" onclick="openReport('${r.id}')">عرض</button></div>`).join(''):'<div class="empty">لم تصل تقارير بعد.</div>');
+  $('adminDashBody').innerHTML=h;
+}
+
+function initReportsTab(){
+  $('fBranch').innerHTML='<option value="">كل الفروع</option>'+branches(true).map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('');
+  $('fType').innerHTML='<option value="">كل الأنواع</option>'+Object.entries(REPORTS).map(([k,v])=>`<option value="${k}">${v.label}</option>`).join('');
+  if(!$('fRange').innerHTML){$('fRange').innerHTML='<option value="all">كل الفترات (آخر 180 يوماً)</option>'+Object.entries(RANGES).map(([k,v])=>`<option value="${k}">${v}</option>`).join('');$('fRange').value='30d'}
+  renderAdminReports();
+}
+function repSummary(r){
+  const d=r.data||{};
+  switch(r.type){
+   case 'sales':return money(d.sales_total)+' | '+num(d.orders)+' '+(db.settings.concept==='fine'?'ضيف':'طلب');
+   case 'waste':return esc(d.item||'')+' — '+money(d.waste_value);
+   case 'labor':return 'حضور '+num(d.present)+' / غياب '+num(d.absent)+' | '+money(d.labor_cost);
+   case 'quality':return 'جودة '+num(d.quality_score)+'%'+(d.complaints?' | شكاوى '+d.complaints:'');
+   case 'maintenance':return esc(d.equipment||'')+' — '+esc(d.severity||'');
+   case 'inventory':return 'نواقص: '+num(d.low)+' من '+num(d.counted);
+   default:return esc(d.subject||'');
+  }
+}
+function renderAdminReports(){
+  const b=$('fBranch').value,ty=$('fType').value,st=$('fStatus').value,rg=$('fRange').value;
+  let from='0000-00-00',to='9999-99-99'; if(rg!=='all'){const x=getRange(rg);from=x.from;to=x.to}
+  const list=db.reports.filter(r=>(!b||r.branch===b)&&(!ty||r.type===ty)&&(!st||r.status===st)&&r.date>=from&&r.date<=to);
+  $('adminReportsList').innerHTML=list.length?`<div class="tbl-wrap"><table><thead><tr><th>التاريخ</th><th>الفرع</th><th>النوع</th><th>الملخص</th><th>الحالة</th><th></th></tr></thead><tbody>`+
+   list.map(r=>`<tr><td>${fmtDate(r.date)}</td><td><strong>${esc(bName(r.branch))}</strong></td><td>${esc(REPORTS[r.type].label)}</td><td>${repSummary(r)}</td><td>${statusBadge(r.status)}</td><td><button class="btn ghost sm" onclick="openReport('${r.id}')">عرض ومراجعة</button></td></tr>`).join('')+`</tbody></table></div>`
+   :'<div class="empty">لا توجد تقارير مطابقة للفلاتر المحددة.</div>';
+}
+function fieldDisplay(f,v){
+  if(v==null||v==='')return '—';
+  return f.cur?money(v):f.t==='number'?num(v):esc(v);
+}
+function openReport(id){
+  const r=db.reports.find(x=>x.id===id); if(!r)return;
+  const def=REPORTS[r.type]; const isAdmin=currentUser.role==='admin';
+  let h=`<dl class="kv"><dt>الفرع</dt><dd>${esc(bName(r.branch))}</dd><dt>النوع</dt><dd>${def.label}</dd><dt>تاريخ التقرير</dt><dd>${fmtDate(r.date)}</dd><dt>وقت الإرسال</dt><dd>${r.created}</dd><dt>الحالة</dt><dd>${statusBadge(r.status)}</dd>`;
+  def.fields.forEach(f=>{if(r.data&&r.data[f.k]!=null&&r.data[f.k]!=='')h+=`<dt>${esc(typeof f.l==='function'?f.l():f.l)}</dt><dd>${fieldDisplay(f,r.data[f.k])}</dd>`});
+  if(r.notes)h+=`<dt>ملاحظات</dt><dd>${esc(r.notes)}</dd>`;
+  h+='</dl>';
+  if(r.att)h+=`<p><strong>المرفق:</strong> ${esc(r.att.name)}</p><div id="attBox" class="muted">جارٍ تحميل المرفق…</div>`;
+  if(r.review)h+=`<div class="insight" style="margin-top:12px">ملاحظات الإدارة: ${esc(r.review)}</div>`;
+  if(isAdmin){
+    h+=`<div class="fg" style="margin-top:14px"><label>ملاحظات مدير المنطقة</label><textarea id="revText">${esc(r.review||'')}</textarea></div>
+    <div class="row"><button class="btn ok" onclick="reviewReport('${r.id}','reviewed')">اعتماد التقرير</button><button class="btn ghost" onclick="reviewReport('${r.id}','returned')">إعادته للفرع للاستيفاء</button></div>`;
+  }
+  openModal(def.label+' — '+bName(r.branch),h);
+  if(r.att)loadAtt(r.att);
+}
+async function loadAtt(a){
+  const {data,error}=await sb.storage.from('attachments').createSignedUrl(a.path,300);
+  const box=$('attBox'); if(!box)return;
+  if(error||!data){box.textContent='تعذر تحميل المرفق';return}
+  const isImg=/\.(jpe?g|png|gif|webp)$/i.test(a.path);
+  box.innerHTML=isImg?`<img src="${data.signedUrl}" style="max-width:100%;border-radius:8px;border:1px solid var(--line)">`:`<a href="${data.signedUrl}" target="_blank" rel="noopener" style="color:var(--blue);font-weight:700">فتح / تنزيل المرفق</a>`;
+}
+async function reviewReport(id,st){
+  const r=db.reports.find(x=>x.id===id),txt=$('revText').value.trim();
+  if(st==='returned'&&!txt)return toast('اكتب سبب الإعادة للفرع','err');
+  if(!await w(sb.from('reports').update({status:st,review:txt,reviewed_at:new Date().toISOString()}).eq('id',id)))return;
+  r.status=st;r.review=txt;
+  notify(r.branch,(st==='reviewed'?'تم اعتماد ':'تمت إعادة ')+REPORTS[r.type].label+' بتاريخ '+fmtDate(r.date)+(txt?' — '+txt:''));
+  closeModal();updateBadges();
+  if(activeTab==='reports')renderAdminReports();if(activeTab==='dash')renderAdminDash();
+  toast('تم تحديث حالة التقرير','ok');
+}
+
+function renderExec(){
+  const rg=getRange($('execRange').value),{from,to}=rg,t=db.settings.targets,rows=branchRows(from,to),tot=metrics(null,from,to);
+  const cn=CONCEPTS[db.settings.concept];
+  const active=rows.filter(r=>r.m.sales>0);
+  const best=[...active].sort((a,b)=>b.m.sales-a.m.sales)[0];
+  const worstWaste=[...active].sort((a,b)=>b.m.wastePct-a.m.wastePct)[0];
+  const lowQ=rows.filter(r=>r.m.quality!=null&&r.m.quality<t.quality);
+  const hiLabor=rows.filter(r=>r.m.labor&&r.m.laborPct>t.labor);
+  const ins=[];
+  if(best)ins.push(`أعلى الفروع مبيعاً: <strong>${esc(best.b.name)}</strong> بإجمالي ${money(best.m.sales)}.`);
+  if(worstWaste&&worstWaste.m.wastePct>t.waste)ins.push(`أعلى نسبة هالك: <strong>${esc(worstWaste.b.name)}</strong> (${pct(worstWaste.m.wastePct)}) مقابل المستهدف ${t.waste}%.`);
+  if(hiLabor.length)ins.push(`فروع تجاوزت مستهدف تكلفة العمالة: ${hiLabor.map(r=>esc(r.b.name)).join('، ')}.`);
+  if(lowQ.length)ins.push(`فروع دون مستهدف الجودة: ${lowQ.map(r=>esc(r.b.name)).join('، ')}.`);
+  let h=`<div class="exec-head"><div><h2>${esc(db.settings.company)}</h2><div class="muted">التقرير التنفيذي للأداء التشغيلي — ${esc(cn.name)}</div></div>
+   <div style="text-align:left"><div><strong>الفترة:</strong> ${fmtDate(from)} — ${fmtDate(to)}</div><div class="muted">تاريخ الإصدار: ${fmtTs(new Date().toISOString())}</div></div></div>
+  <div class="kpis">
+   ${kpi('إجمالي المبيعات',money(tot.sales),'عدد الفروع: '+rows.length)}
+   ${kpi(cn.orders,num(tot.orders),cn.ticket+': '+money(tot.avg))}
+   ${kpi('نسبة الهالك',tot.sales?pct(tot.wastePct):'—','المستهدف ≤ '+t.waste+'%',tot.sales?lowerTone(tot.wastePct,t.waste):'')}
+   ${kpi('نسبة تكلفة العمالة',tot.sales&&tot.labor?pct(tot.laborPct):'—','المستهدف ≤ '+t.labor+'%',tot.sales&&tot.labor?lowerTone(tot.laborPct,t.labor):'')}
+   ${kpi('متوسط الجودة',tot.quality!=null?pct(tot.quality,0):'—','المستهدف ≥ '+t.quality+'%',tot.quality!=null?higherTone(tot.quality,t.quality):'')}
+   ${kpi('شكاوى العملاء',num(tot.complaints),'خلال الفترة')}
+  </div>
+  <h4>أبرز الملاحظات</h4>${ins.length?ins.map(i=>`<div class="insight">${i}</div>`).join(''):'<div class="empty">لا توجد بيانات كافية.</div>'}
+  <h4>أداء الفروع التفصيلي</h4>${branchTable(rows,true)}
+  <div class="sign"><div>مدير المنطقة</div><div>مدير العمليات</div><div>الاعتماد</div></div>`;
+  $('execBody').innerHTML=h;
+}
+
+/* تصدير Excel */
+function exportExcel(rg){
+  const {from,to}=rg,cn=CONCEPTS[db.settings.concept];
+  const sum=branchRows(from,to).map(r=>({'الفرع':r.b.name,'المبيعات':r.m.sales,[cn.orders]:r.m.orders,[cn.ticket]:Math.round(r.m.avg),'الهالك %':+r.m.wastePct.toFixed(2),'العمالة %':+r.m.laborPct.toFixed(2),'الجودة':r.m.quality!=null?+r.m.quality.toFixed(1):'','التزام قوائم المراجعة %':r.chk??'','نواقص المخزون':r.low,'تكليفات مفتوحة':r.open}));
+  const reps=reportsIn(from,to).map(r=>({'التاريخ':r.date,'الفرع':bName(r.branch),'النوع':REPORTS[r.type].label,'الحالة':STATUS[r.status][0],'الملخص':repSummary(r).replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>'),'ملاحظات الفرع':r.notes,'ملاحظات الإدارة':r.review}));
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(sum),'أداء الفروع');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(reps),'التقارير');
+  wb.Workbook={Views:[{RTL:true}]};
+  XLSX.writeFile(wb,'report-'+from+'_'+to+'.xlsx');
+}
+
+/* التكليفات */
+function initTasksTab(){
+  $('tTargets').innerHTML=branches().map(b=>`<label style="font-weight:600;margin:0"><input type="checkbox" class="tT" value="${b.id}" checked disabled> ${esc(b.name)}</label>`).join('');
+  $('tAll').checked=true; renderAdminTasks();
+}
+function toggleAllTargets(){const all=$('tAll').checked;document.querySelectorAll('.tT').forEach(c=>{c.disabled=all;if(all)c.checked=true})}
+async function createTask(){
+  const title=$('tTitle').value.trim(); if(!title)return toast('أدخل عنوان التكليف','err');
+  const targets=$('tAll').checked?branches().map(b=>b.id):[...document.querySelectorAll('.tT:checked')].map(c=>c.value);
+  if(!targets.length)return toast('اختر فرعاً واحداً على الأقل','err');
+  const r=await w(sb.from('tasks').insert({title,descr:$('tDesc').value.trim(),priority:$('tPri').value,due:$('tDue').value||null,targets,created_by:currentUser.username}).select().single());
+  if(!r)return;
+  db.tasks.unshift(mapTask(r.data));
+  await sb.from('notifications').insert(targets.map(b=>({to_user:b,text:'تكليف جديد من الإدارة: '+title})));
+  $('tTitle').value='';$('tDesc').value='';$('tDue').value='';
+  renderAdminTasks();toast('تم إصدار التكليف بنجاح','ok');
+}
+const PRI={high:['عالية','b-bad','pri-high'],mid:['متوسطة','b-warn','pri-mid'],low:['منخفضة','b-blue','pri-low']};
+function renderAdminTasks(){
+  const list=db.tasks.filter(t=>!t.archived);
+  $('adminTasksList').innerHTML=list.length?list.map(t=>{
+    const done=t.targets.filter(b=>t.status&&t.status[b]).length,p=t.targets.length?Math.round(done/t.targets.length*100):0;
+    return `<div class="item ${PRI[t.priority][2]}"><div class="row"><strong>${esc(t.title)}</strong>${badge(PRI[t.priority][0],PRI[t.priority][1])}<span class="spacer"></span><span class="muted">${t.created}</span></div>
+     ${t.desc?`<p class="muted" style="margin:6px 0">${esc(t.desc)}</p>`:''}
+     ${t.due?`<div class="muted">الموعد النهائي: ${fmtDate(t.due)}</div>`:''}
+     <div class="bar" style="margin:8px 0"><i style="width:${p}%"></i></div><div class="muted" style="margin-bottom:8px">تم الإنجاز: ${done} من ${t.targets.length} فرع</div>
+     <div class="row" style="margin-top:10px"><button class="btn danger sm" onclick="archiveTask('${t.id}')">أرشفة</button></div></div>`}).join(''):'<div class="empty">لا توجد تكليفات نشطة.</div>';
+}
+async function archiveTask(id){
+  if(!confirm('أرشفة هذا التكليف؟'))return;
+  if(!await w(sb.from('tasks').update({archived:true}).eq('id',id)))return;
+  db.tasks.find(t=>t.id===id).archived=true;renderAdminTasks();
+}
+
+/* قوائم المراجعة (مدير) */
+function renderAdminChecklist(){
+  const t=today();
+  $('adminCheckStatus').innerHTML=`<div class="tbl-wrap"><table><thead><tr><th>الفرع</th><th>نسبة الإنجاز اليوم</th><th>التفاصيل</th></tr></thead><tbody>`+branches().map(b=>{
+    const p=checkPct(b.id,t)||0,run=db.checkRuns[b.id+'|'+t]||{},done=db.checklist.filter(c=>c.id in run).length;
+    return `<tr><td><strong>${esc(b.name)}</strong></td><td style="min-width:180px"><div class="bar"><i style="width:${p}%"></i></div> ${p}%</td><td>${done} من ${db.checklist.length} بنداً</td></tr>`}).join('')+'</tbody></table></div>';
+  $('adminChecklistItems').innerHTML=Object.entries(SHIFTS).map(([k,l])=>{
+    const items=db.checklist.filter(c=>c.shift===k);
+    return `<div class="shift-h">${l}</div>`+(items.length?items.map(c=>`<div class="item row"><div><strong>${esc(c.title)}</strong><div class="muted">${esc(c.desc)}</div></div><span class="spacer"></span><button class="btn danger sm" onclick="delChecklistItem('${c.id}')">حذف</button></div>`).join(''):'<div class="muted" style="margin-bottom:6px">لا توجد بنود</div>');
+  }).join('');
+}
+async function addChecklistItem(){
+  const title=$('ckTitle').value.trim(); if(!title)return toast('أدخل نص البند','err');
+  const r=await w(sb.from('checklist_items').insert({shift:$('ckShift').value,title,descr:$('ckDesc').value.trim(),sort:db.checklist.length+1}).select().single());
+  if(!r)return;
+  db.checklist.push(mapCk(r.data));
+  $('ckTitle').value='';$('ckDesc').value='';renderAdminChecklist();toast('تمت إضافة البند','ok');
+}
+async function delChecklistItem(id){
+  if(!confirm('حذف هذا البند؟'))return;
+  if(!await w(sb.from('checklist_items').delete().eq('id',id)))return;
+  db.checklist=db.checklist.filter(c=>c.id!==id);renderAdminChecklist();
+}
+
+/* الفروع */
+function renderAdminBranches(){
+  $('adminBranchesList').innerHTML=`<div class="tbl-wrap"><table><thead><tr><th>اسم الدخول</th><th>اسم الفرع</th><th>المدير</th><th>كلمة مرور جديدة</th><th>نشط</th><th></th></tr></thead><tbody>`+
+  branches(true).map(b=>`<tr><td dir="ltr" style="text-align:right">${esc(b.username)}</td><td><input type="text" id="bn_${b.id}" value="${esc(b.name)}"></td><td><input type="text" id="bm_${b.id}" value="${esc(b.manager||'')}"></td><td><input type="text" id="bp_${b.id}" placeholder="اتركها فارغة" style="width:140px"></td><td><input type="checkbox" id="ba_${b.id}" ${b.active!==false?'checked':''} style="width:18px;height:18px"></td><td><button class="btn sm" onclick="saveBranch('${b.id}')">حفظ</button></td></tr>`).join('')+'</tbody></table></div>';
+}
+async function saveBranch(id){
+  const u=db.users[id],np=$('bp_'+id).value.trim();
+  if(np&&np.length<6)return toast('كلمة المرور يجب ألا تقل عن 6 أحرف','err');
+  const patch={name:$('bn_'+id).value.trim()||u.name,manager:$('bm_'+id).value.trim(),active:$('ba_'+id).checked};
+  if(!await w(sb.from('profiles').update(patch).eq('id',id)))return;
+  if(np){if(!await w(sb.rpc('admin_set_password',{p_user:id,p_password:np})))return;$('bp_'+id).value=''}
+  Object.assign(u,patch);toast('تم حفظ بيانات الفرع','ok');
+}
+async function addBranch(){
+  const u=$('nbUser').value.trim().toLowerCase(),n=$('nbName').value.trim(),p=$('nbPass').value.trim();
+  if(!/^[a-z0-9_]{3,20}$/.test(u))return toast('اسم الدخول: 3-20 حرفاً إنجليزياً صغيراً أو أرقاماً','err');
+  if(Object.values(db.users).some(x=>x.username===u))return toast('اسم الدخول مستخدم مسبقاً','err');
+  if(!n||p.length<6)return toast('أكمل الاسم وكلمة مرور من 6 أحرف على الأقل','err');
+  const btn=$('nbBtn');btn.disabled=true;
+  try{
+    if(!await w(sb.rpc('admin_invite_branch',{p_username:u,p_name:n})))return;
+    // عميل منفصل حتى لا تتغير جلسة المدير الحالية
+    const tmp=supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false,storageKey:'tmp-signup'}});
+    const {data,error}=await tmp.auth.signUp({email:u+EMAIL_DOMAIN,password:p});
+    if(error||!data.user||(data.user.identities&&!data.user.identities.length)){
+      await sb.from('branch_invites').delete().eq('username',u);
+      console.error('signUp',error);
+      return toast(error?('تعذر إنشاء الحساب: '+error.message+(/disabled/i.test(error.message)?' — فعّل Allow new users to sign up من Authentication > Sign In / Providers':'')):'هذا البريد مسجل مسبقاً في Supabase','err');
+    }
+    const {data:prof}=await sb.from('profiles').select('*').eq('username',u).maybeSingle();
+    if(!prof)return toast('تم إنشاء الحساب لكنه لم يُربط. شغّل setup.sql الجديد في SQL Editor ثم أعد المحاولة','err');
+    db.users[prof.id]=mapUser(prof);
+    ['nbUser','nbName','nbPass'].forEach(i=>$(i).value='');renderAdminBranches();
+    toast(data.session?'تمت إضافة الفرع، ويقدر يدخل الآن':'تمت الإضافة لكن الحساب يحتاج تأكيد بريد: اقفل Confirm email من Supabase','ok');
+  }finally{btn.disabled=false}
+}
+
+/* الإعدادات */
+function initSettings(){
+  const s=db.settings;
+  $('sCompany').value=s.company;$('sCurrency').value=s.currency;
+  $('sConcept').innerHTML=Object.entries(CONCEPTS).map(([k,v])=>`<option value="${k}" ${k===s.concept?'selected':''}>${v.name}</option>`).join('');
+  $('sWaste').value=s.targets.waste;$('sLabor').value=s.targets.labor;$('sQuality').value=s.targets.quality;
+}
+async function saveSettings(){
+  const s=db.settings;
+  const n={company:$('sCompany').value.trim()||s.company,currency:$('sCurrency').value.trim()||s.currency,concept:$('sConcept').value,
+    targets:{waste:+$('sWaste').value||0,labor:+$('sLabor').value||0,quality:+$('sQuality').value||0}};
+  if(!await w(sb.from('settings').update(n).eq('id',1)))return;
+  Object.assign(s,n);$('appTitle').textContent=s.company;toast('تم حفظ الإعدادات','ok');
+}
+async function applyTemplate(){
+  const k=$('sConcept').value,c=CONCEPTS[k];
+  if(!confirm('سيتم استبدال قائمة المراجعة والمستهدفات بقالب «'+c.name+'» (وسيُمسح سجل إنجاز البنود القديمة). متابعة؟'))return;
+  if(!await w(sb.from('checklist_items').delete().not('id','is',null)))return;
+  const r=await w(sb.from('checklist_items').insert(c.checklist.map((x,i)=>({shift:x[0],title:x[1],descr:x[2],sort:i+1}))).select());
+  if(!r)return;
+  if(!await w(sb.from('settings').update({concept:k,targets:c.targets}).eq('id',1)))return;
+  db.settings.concept=k;db.settings.targets={...c.targets};
+  db.checklist=r.data.sort((a,b)=>a.sort-b.sort).map(mapCk);db.checkRuns={};
+  initSettings();toast('تم تطبيق القالب','ok');
+}
+function backupData(){
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(db,null,1)],{type:'application/json'}));a.download='rms-backup-'+today()+'.json';a.click();
+}
+
+/* =====================================================================
+   لوحات الفرع
+   ===================================================================== */
+function renderBranchDash(){
+  const id=currentUser.username,{from,to}=getRange(dashRange),t=db.settings.targets,m=metrics(id,from,to),cn=CONCEPTS[db.settings.concept];
+  const low=lowStock(id),open=openTasks(id),todayChk=checkPct(id,today());
+  let h=`<h4 style="margin-top:0">المبيعات</h4><div class="kpis">
+   ${kpi('إجمالي المبيعات',money(m.sales),fmtDate(from)+' — '+fmtDate(to))}
+   ${kpi(cn.orders,num(m.orders),'')}
+   ${kpi(cn.ticket,money(m.avg),'')}
+  </div>
+  <h4>الهالك والعمالة والجودة</h4><div class="kpis">
+   ${kpi('قيمة الهالك',money(m.waste),'المستهدف ≤ '+t.waste+'%',m.sales?lowerTone(m.wastePct,t.waste):'')}
+   ${kpi('تكلفة العمالة',money(m.labor),'المستهدف ≤ '+t.labor+'%',m.sales&&m.labor?lowerTone(m.laborPct,t.labor):'')}
+   ${kpi('درجة الجودة',m.quality!=null?pct(m.quality,0):'—','المستهدف ≥ '+t.quality+'%',m.quality!=null?higherTone(m.quality,t.quality):'')}
+   ${kpi('نواقص المخزون',num(low.length),low.length?'توجد نواقص':'لا توجد نواقص',low.length?'bad':'good')}
+  </div>
+  <h4>المتابعة اليومية</h4><div class="kpis">
+   ${kpi('قائمة المراجعة اليوم',todayChk==null?'—':todayChk+'%','',todayChk>=100?'good':todayChk>=50?'warn':'bad')}
+   ${kpi('تكليفات مفتوحة',num(open.length),open.length?'بانتظار الإنجاز':'لا يوجد',open.length?'warn':'good')}
+  </div>`;
+  $('branchDashBody').innerHTML=h;
+}
+
+function initSubmitTab(){
+  if(!$('rfType').innerHTML)$('rfType').innerHTML=Object.entries(REPORTS).filter(([k,v])=>!v.auto).map(([k,v])=>`<option value="${k}">${v.label}</option>`).join('');
+  $('rfDate').value=today();$('rfDate').max=today();
+  renderReportFields();renderBranchReports();
+}
+function fieldsFor(type){return REPORTS[type].fields.filter(f=>!f.only||f.only.includes(db.settings.concept))}
+function renderReportFields(){
+  const type=$('rfType').value;
+  $('rfFields').innerHTML=fieldsFor(type).map(f=>{
+    const l=(typeof f.l==='function'?f.l():f.l)+(f.cur?' ('+esc(db.settings.currency)+')':'')+(f.req?' *':'');
+    const inp=f.t==='select'?`<select id="f_${f.k}">${f.opts.map(o=>`<option>${o}</option>`).join('')}</select>`:`<input id="f_${f.k}" type="${f.t==='number'?'number':'text'}" ${f.t==='number'?`min="0" ${f.max?`max="${f.max}"`:''} step="any"`:''}>`;
+    return `<div class="fg"><label>${l}</label>${inp}</div>`}).join('');
+}
+function resizeImage(file){
+  return new Promise((res,rej)=>{
+    const r=new FileReader();
+    r.onerror=()=>rej(new Error('read'));
+    r.onload=()=>{const im=new Image();
+      im.onerror=()=>rej(new Error('img'));
+      im.onload=()=>{
+        const s=Math.min(1,1200/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);
+        c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+        c.toBlob(b=>b?res(b):rej(new Error('blob')),'image/jpeg',.8)};
+      im.src=r.result};
+    r.readAsDataURL(file);
+  });
+}
+async function submitReport(){
+  const type=$('rfType').value,def=REPORTS[type],date=$('rfDate').value,data={};
+  if(!date)return toast('حدد تاريخ التقرير','err');
+  for(const f of fieldsFor(type)){
+    const el=$('f_'+f.k),v=el.value.trim();
+    const lbl=typeof f.l==='function'?f.l():f.l;
+    if(f.req&&v==='')return toast('أكمل الحقل: '+lbl,'err');
+    if(f.t==='number'&&v!==''){if(+v<0)return toast('قيمة غير صحيحة: '+lbl,'err');if(f.max&&+v>f.max)return toast('الحد الأقصى لـ '+lbl+' هو '+f.max,'err')}
+    data[f.k]=f.t==='number'?(v===''?null:+v):v;
+  }
+  const file=$('rfFile').files[0];
+  if(file&&file.size>MAX_FILE*3)return toast('حجم الملف كبير جداً (الحد 5 ميجا)','err');
+  const btn=$('rfBtn');btn.disabled=true;
+  try{
+    let att=null;
+    if(file){
+      const isImg=file.type.startsWith('image/');
+      let blob=file,ext=(file.name.split('.').pop()||'bin').replace(/[^a-z0-9]/gi,'').slice(0,8).toLowerCase()||'bin';
+      if(isImg){try{blob=await resizeImage(file);ext='jpg'}catch(e){blob=file}}
+      if(blob.size>MAX_FILE)return toast('حجم المرفق يتجاوز 5 ميجا','err');
+      const path=currentUser.username+'/'+newId()+'.'+ext;
+      const up=await sb.storage.from('attachments').upload(path,blob,{contentType:blob.type||'application/octet-stream'});
+      if(up.error){console.error(up.error);return toast('تعذر رفع المرفق: '+up.error.message,'err')}
+      att={name:file.name,path};
+    }
+    const r=await w(sb.from('reports').insert({branch_id:currentUser.username,type,report_date:date,data,notes:$('rfNotes').value.trim(),att_name:att?att.name:null,att_path:att?att.path:null}).select().single());
+    if(!r)return;
+    db.reports.unshift(mapReport(r.data));
+    notify('admin',currentUser.name+' أرسل '+def.label);
+    $('rfNotes').value='';$('rfFile').value='';renderReportFields();renderBranchReports();updateBadges();
+    toast('تم إرسال التقرير بنجاح','ok');
+  }finally{btn.disabled=false}
+}
+function renderBranchReports(){
+  const list=db.reports.filter(r=>r.branch===currentUser.username).slice(0,40);
+  $('branchReportsList').innerHTML=list.length?`<div class="tbl-wrap"><table><thead><tr><th>التاريخ</th><th>النوع</th><th>الملخص</th><th>الحالة</th><th>ملاحظات الإدارة</th><th></th></tr></thead><tbody>`+list.map(r=>`<tr><td>${fmtDate(r.date)}</td><td>${REPORTS[r.type].label}</td><td>${repSummary(r)}</td><td>${statusBadge(r.status)}</td><td>${esc(r.review||'—')}</td><td><button class="btn ghost sm" onclick="openReport('${r.id}')">عرض</button></td></tr>`).join('')+'</tbody></table></div>':'<div class="empty">لم يتم رفع تقارير بعد.</div>';
+}
+
+/* الجرد */
+function renderInventory(){
+  const id=currentUser.username,inv=db.inventory[id];
+  if(!inv||!inv.items.length){
+    $('invMeta').textContent='';$('invBody').innerHTML=`<div class="empty">لا توجد أصناف مسجلة.<br><br><button class="btn" onclick="seedInventory()">تحميل أصناف مقترحة</button> <button class="btn ghost" onclick="addInvRow()">إضافة صنف يدوياً</button></div>`;return;
+  }
+  $('invMeta').textContent=inv.updated?'آخر جرد: '+inv.updated:'';
+  $('invBody').innerHTML=`<div class="tbl-wrap"><table><thead><tr><th>الصنف</th><th>الوحدة</th><th>الكمية الحالية</th><th>الحد الأدنى</th><th></th></tr></thead><tbody id="invRows">`+
+   inv.items.map((i,x)=>`<tr><td><input type="text" id="in_${x}" value="${esc(i.name)}"></td><td><input type="text" id="iu_${x}" value="${esc(i.unit)}" style="width:80px"></td><td><input type="number" min="0" id="iq_${x}" value="${i.qty}" style="width:100px"></td><td><input type="number" min="0" id="im_${x}" value="${i.min}" style="width:100px"></td><td><button class="btn danger sm" onclick="delInvRow(${x})">حذف</button></td></tr>`).join('')+`</tbody></table></div>
+   <div class="row" style="margin-top:12px"><button class="btn" onclick="saveInventory()">حفظ الجرد وإرساله</button><button class="btn ghost" onclick="addInvRow()">إضافة صنف</button></div>`;
+}
+function readInvInputs(){
+  const inv=db.inventory[currentUser.username];if(!inv)return [];
+  return inv.items.map((i,x)=>({...i,name:$('in_'+x)?$('in_'+x).value.trim():i.name,unit:$('iu_'+x)?$('iu_'+x).value.trim():i.unit,qty:$('iq_'+x)?+$('iq_'+x).value:i.qty,min:$('im_'+x)?+$('im_'+x).value:i.min}));
+}
+function ensureInv(){const id=currentUser.username;return db.inventory[id]=db.inventory[id]||{items:[],updated:''}}
+function addInvRow(){const inv=ensureInv();inv.items=readInvInputs();inv.items.push({id:newId(),name:'',unit:'',qty:0,min:0});renderInventory()}
+function delInvRow(x){const inv=ensureInv();inv.items=readInvInputs();inv.items.splice(x,1);renderInventory()}
+async function seedInventory(){
+  const id=currentUser.username,rows=CONCEPTS[db.settings.concept].inv.map((x,i)=>({id:newId(),branch_id:id,name:x[0],unit:x[1],qty:x[2],min_qty:x[3],sort:i}));
+  if(!await w(sb.from('inventory_items').upsert(rows)))return;
+  const inv=ensureInv();inv.items=rows.map(r=>({id:r.id,name:r.name,unit:r.unit,qty:r.qty,min:r.min_qty}));renderInventory();
+}
+async function saveInventory(){
+  const id=currentUser.username,inv=ensureInv();
+  const items=readInvInputs();
+  if(items.some(i=>!i.name))return toast('أدخل اسم كل صنف أو احذف الصف الفارغ','err');
+  if(items.some(i=>isNaN(i.qty)||isNaN(i.min)||i.qty<0||i.min<0))return toast('الكميات يجب أن تكون أرقاماً موجبة','err');
+  const rows=items.map((i,x)=>({id:i.id,branch_id:id,name:i.name,unit:i.unit,qty:i.qty,min_qty:i.min,sort:x}));
+  if(!await w(sb.from('inventory_items').upsert(rows)))return;
+  const keep=rows.map(r=>r.id);
+  if(!await w(sb.from('inventory_items').delete().eq('branch_id',id).not('id','in','('+keep.join(',')+')')))return;
+  if(!await w(sb.from('inventory_meta').upsert({branch_id:id,updated_at:new Date().toISOString()})))return;
+  const low=items.filter(i=>+i.qty<=+i.min);
+  const r=await w(sb.from('reports').insert({branch_id:id,type:'inventory',report_date:today(),data:{counted:items.length,low:low.length,lowItems:low.map(i=>i.name).join('، ')}}).select().single());
+  inv.items=items;inv.updated=fmtTs(new Date().toISOString());
+  if(r)db.reports.unshift(mapReport(r.data));
+  notify('admin',currentUser.name+' أرسل تقرير الجرد');
+  renderInventory();toast('تم حفظ وإرسال الجرد','ok');
+}
+
+/* قائمة المراجعة (فرع) */
+function renderBranchCheck(){
+  const id=currentUser.username,key=id+'|'+today(),run=db.checkRuns[key]||{};
+  const p=checkPct(id,today());$('chkPct').textContent=p==null?'':'الإنجاز '+p+'%';
+  $('branchCheckBody').innerHTML=Object.entries(SHIFTS).map(([k,l])=>{
+    const items=db.checklist.filter(c=>c.shift===k);if(!items.length)return '';
+    return `<div class="shift-h">${l}</div>`+items.map(c=>`<label class="chk ${c.id in run?'on':''}"><input type="checkbox" ${c.id in run?'checked':''} onchange="toggleCheck('${c.id}',this.checked)"><div><strong>${esc(c.title)}</strong>${c.desc?`<div class="muted">${esc(c.desc)}</div>`:''}</div></label>`).join('');
+  }).join('')||'<div class="empty">لا توجد بنود في قائمة المراجعة.</div>';
+}
+async function toggleCheck(itemId,on){
+  const b=currentUser.username,d=today(),key=b+'|'+d;
+  let r;
+  if(on)r=await w(sb.from('check_runs').upsert({branch_id:b,run_date:d,item_id:itemId,done_at:nowTime()}));
+  else r=await w(sb.from('check_runs').delete().eq('branch_id',b).eq('run_date',d).eq('item_id',itemId));
+  if(r){db.checkRuns[key]=db.checkRuns[key]||{};if(on)db.checkRuns[key][itemId]=nowTime();else delete db.checkRuns[key][itemId]}
+  renderBranchCheck();
+}
+
+/* التكليفات (فرع) */
+function renderBranchTasks(){
+  const id=currentUser.username,list=db.tasks.filter(t=>!t.archived&&t.targets.includes(id));
+  $('branchTasksList').innerHTML=list.length?list.map(t=>{const s=myTaskStatus(t,id);
+    return `<div class="item ${s?'done':PRI[t.priority][2]}"><div class="row"><strong>${esc(t.title)}</strong>${badge(PRI[t.priority][0],PRI[t.priority][1])}</div>
+    ${t.desc?`<p class="muted" style="margin:6px 0">${esc(t.desc)}</p>`:''}
+    ${t.due?`<div class="muted">الموعد النهائي: ${fmtDate(t.due)}</div>`:''}
+    ${s?`<div style="color:var(--good);font-weight:700;margin-top:6px">تم الإنجاز ${s.time}</div>`:`<button class="btn ok sm" style="margin-top:8px" onclick="completeTask('${t.id}')">تأكيد الإنجاز</button>`}</div>`}).join(''):'<div class="empty">لا توجد تكليفات.</div>';
+}
+async function completeTask(id){
+  const t=db.tasks.find(x=>x.id===id);
+  if(!await w(sb.from('task_status').upsert({task_id:id,branch_id:currentUser.username})))return;
+  t.status=t.status||{};t.status[currentUser.username]={time:fmtTs(new Date().toISOString())};
+  notify('admin',currentUser.name+' أنجز التكليف: '+t.title);
+  renderBranchTasks();updateBadges();toast('تم تسجيل الإنجاز','ok');
+}
+
+/* الحساب */
+function initAccount(){$('acManager').value=currentUser.manager||'';$('acEmail').value=currentUser.email||''}
+async function saveAccount(){
+  const manager=$('acManager').value.trim(),email=$('acEmail').value.trim();
+  if(!await w(sb.from('profiles').update({manager,email_contact:email}).eq('id',currentUser.username)))return;
+  currentUser.manager=manager;currentUser.email=email;
+  toast('تم الحفظ','ok');
+}
+
+/* =====================================================================
+   التشغيل
+   ===================================================================== */
+(async function init(){
+  document.addEventListener('click',e=>{const p=$('notifPanel');if(!p.classList.contains('hidden')&&!p.contains(e.target)&&!e.target.closest('.icon-btn'))p.classList.add('hidden')});
+  $('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
+  try{
+    const {data:{session}}=await sb.auth.getSession();
+    if(session)await enter(session.user.id);
+  }catch(e){console.error(e)}
+})();
+</script>
+</body>
+</html>
