@@ -11,27 +11,27 @@
 <script>window.supabase||document.write('<script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"><\/script>')</script>
 <style>
 :root{
-  --navy:#07426F; --blue:#0B4F82; --blue-2:#0E6AA8; --blue-3:#3E9B4F; --sky:#DCEBF5; --ice:#EEF4F8;
-  --bg:#F1F2EC; --card:#FFFFFF; --line:#DCE3E3; --text:#1B2A33; --muted:#5B6B73; --accent:#B8963E;
+  --navy:#0A2A5E; --blue:#123C80; --blue-2:#2358A8; --blue-3:#3B6FB6; --sky:#DDE7F5; --ice:#EEF3FA;
+  --bg:#F5F7FB; --card:#FFFFFF; --line:#DDE3EE; --text:#13213B; --muted:#5A6781; --accent:#6B8CC7;
   --good:#2F8A3F; --good-bg:#E1F3E4; --warn:#9A6A12; --warn-bg:#FBF0D3; --bad:#BE2D2D; --bad-bg:#FDE4E1;
-  --r:14px; --shadow:0 1px 2px rgba(7,66,111,.05),0 6px 20px rgba(7,66,111,.07);
+  --r:14px; --shadow:0 1px 2px rgba(10,42,94,.05),0 6px 20px rgba(10,42,94,.08);
 }
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Cairo',sans-serif}
-body{background:var(--bg);background-image:radial-gradient(circle at 100% 0,rgba(62,155,79,.10),transparent 38%);background-attachment:fixed;color:var(--text);font-size:14px;line-height:1.6}
+body{background:var(--bg);background-image:radial-gradient(circle at 100% 0,rgba(35,88,168,.07),transparent 38%);background-attachment:fixed;color:var(--text);font-size:14px;line-height:1.6}
 .container{max-width:1200px;margin:0 auto;padding:18px;position:relative}
 .hidden{display:none!important}
 section.tab{display:none}
 section.tab.active{display:block}
 
 /* Login */
-.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,var(--navy) 0%,#0B5A94 55%,var(--blue-2) 100%);padding:20px}
-.login-card{background:#F1F2EC;border-radius:18px;padding:36px 32px;width:100%;max-width:420px;box-shadow:0 20px 50px rgba(0,0,0,.25)}
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,var(--navy) 0%,#14418C 55%,var(--blue-2) 100%);padding:20px}
+.login-card{background:#FFFFFF;border-radius:18px;padding:36px 32px;width:100%;max-width:420px;box-shadow:0 20px 50px rgba(0,0,0,.25)}
 .login-card .logo{width:56px;height:56px;border-radius:14px;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;margin:0 auto 14px}
 .login-card h2{text-align:center;color:var(--navy);font-weight:800;font-size:20px}
 .login-card p.sub{text-align:center;color:var(--muted);margin-bottom:22px;font-size:13px}
 
 /* Header / nav */
-header.top{background:linear-gradient(135deg,var(--navy),#0B5A94);box-shadow:var(--shadow);color:#fff;border-radius:var(--r);padding:14px 22px;display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+header.top{background:linear-gradient(135deg,var(--navy),#14418C);box-shadow:var(--shadow);color:#fff;border-radius:var(--r);padding:14px 22px;display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
 header.top h1{font-size:18px;font-weight:800}
 header.top small{display:block;opacity:.7;font-size:12px;font-weight:400}
 .top-actions{display:flex;align-items:center;gap:10px}
@@ -45,7 +45,7 @@ header.top small{display:block;opacity:.7;font-size:12px;font-weight:400}
 .notif-panel .nh button{background:none;border:none;color:var(--blue);cursor:pointer;font-weight:600;font-size:12px}
 .notif-list{max-height:340px;overflow:auto}
 .notif-item{padding:10px 16px;border-top:1px solid var(--line);font-size:13px}
-.notif-item.unread{background:#EDF4F9;border-right:3px solid var(--blue)}
+.notif-item.unread{background:#EEF3FA;border-right:3px solid var(--blue)}
 .notif-item small{color:var(--muted);display:block}
 
 nav.nav{display:flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:6px;margin-bottom:18px;overflow-x:auto}
@@ -63,8 +63,8 @@ nav.nav .nb{background:#EF4444;color:#fff;border-radius:10px;font-size:10px;padd
 .g3{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
 .fg{margin-bottom:12px}
 label{display:block;font-weight:700;margin-bottom:5px;font-size:13px;color:var(--navy)}
-input[type=text],input[type=password],input[type=email],input[type=number],input[type=date],select,textarea{width:100%;padding:10px 12px;border:1px solid #C9D6DD;border-radius:8px;font-size:14px;outline:none;background:#fff;transition:.15s}
-input:focus,select:focus,textarea:focus{border-color:var(--blue-3);box-shadow:0 0 0 3px rgba(62,155,79,.22)}
+input[type=text],input[type=password],input[type=email],input[type=number],input[type=date],select,textarea{width:100%;padding:10px 12px;border:1px solid #C8D3E6;border-radius:8px;font-size:14px;outline:none;background:#fff;transition:.15s}
+input:focus,select:focus,textarea:focus{border-color:var(--blue-3);box-shadow:0 0 0 3px rgba(59,111,182,.22)}
 textarea{min-height:84px;resize:vertical}
 .btn{background:var(--blue);color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:700;font-size:14px;cursor:pointer;transition:.15s}
 .btn:hover{background:var(--blue-2)}
@@ -95,7 +95,7 @@ textarea{min-height:84px;resize:vertical}
 table{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
 th{background:var(--navy);color:#fff;padding:10px 12px;text-align:right;font-weight:700;white-space:nowrap}
 td{padding:10px 12px;border-top:1px solid var(--line);vertical-align:middle}
-tbody tr:nth-child(even){background:#F7FAFB}
+tbody tr:nth-child(even){background:#F6F8FC}
 tbody tr:hover{background:var(--ice)}
 td input{padding:6px 8px;font-size:13px}
 
@@ -144,7 +144,7 @@ td input{padding:6px 8px;font-size:13px}
 /* الشعار والمؤشرات والرسوم */
 .login-logo{display:block;width:100%;max-width:340px;margin:0 auto 10px;border-radius:12px}
 .brand{display:flex;align-items:center;gap:12px}
-.hdr-logo{width:46px;height:46px;border-radius:12px;background:#F1F2EC;padding:3px;object-fit:contain;flex:none}
+.hdr-logo{width:46px;height:46px;border-radius:12px;background:#fff;padding:3px;object-fit:contain;flex:none}
 .kpi{display:flex;gap:12px;align-items:flex-start}
 .kpi-b{flex:1;min-width:0}
 .kpi-ic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-size:18px;background:var(--ice);flex:none}
@@ -162,8 +162,8 @@ td input{padding:6px 8px;font-size:13px}
 .legend b{margin-right:auto;color:var(--navy)}
 .rk{display:grid;grid-template-columns:minmax(80px,130px) 1fr minmax(70px,auto);gap:10px;align-items:center;margin:9px 0;font-size:13px}
 .rk-bar{height:12px;background:#E6ECEF;border-radius:8px;overflow:hidden}
-.rk-bar i{display:block;height:100%;border-radius:8px;background:linear-gradient(90deg,#0E6AA8,#07426F)}
-.rk.top .rk-bar i{background:linear-gradient(90deg,#6CC07A,#2F8A3F)}
+.rk-bar i{display:block;height:100%;border-radius:8px;background:linear-gradient(90deg,#2358A8,#0A2A5E)}
+.rk.top .rk-bar i{background:linear-gradient(90deg,#7FA6E0,#3B6FB6)}
 .rk strong{color:var(--navy)}
 .chart svg{direction:ltr}
 .chart svg text{font-family:'Cairo',sans-serif}
@@ -194,7 +194,7 @@ td input{padding:6px 8px;font-size:13px}
   header.top,nav.nav,.no-print,.toast-box,.notif-panel{display:none!important}
   section.tab:not(.active){display:none!important}
   .card{border:none;padding:0}
-  table{min-width:0;font-size:11px} th{background:#07426F!important;color:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  table{min-width:0;font-size:11px} th{background:#0A2A5E!important;color:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .kpi,.insight{-webkit-print-color-adjust:exact;print-color-adjust:exact;break-inside:avoid}
 }
 @media(max-width:640px){.kv{grid-template-columns:1fr}.container{padding:10px}}
@@ -211,7 +211,7 @@ td input{padding:6px 8px;font-size:13px}
     <div class="fg"><label>كلمة المرور</label><input type="password" id="loginPassword" autocomplete="current-password" onkeydown="if(event.key==='Enter')handleLogin()"></div>
     <button class="btn block" id="loginBtn" onclick="handleLogin()">تسجيل الدخول</button>
     <div style="margin-top:14px;text-align:center"><a href="#" onclick="forgotPassword();return false" style="font-size:13px;color:var(--blue);text-decoration:none;font-weight:600">نسيت كلمة المرور؟</a></div>
-    <div style="margin-top:16px;text-align:center;font-size:11px;color:#94A3B8;direction:ltr">v2026.10.18c · db: njwasycnepgaivfypppl</div>
+    <div style="margin-top:16px;text-align:center;font-size:11px;color:#94A3B8;direction:ltr">v2026.10.18d · db: njwasycnepgaivfypppl</div>
   </div>
 </div>
 
@@ -312,6 +312,7 @@ td input{padding:6px 8px;font-size:13px}
         <div class="fg"><label>اسم الدخول (إنجليزي)</label><input type="text" id="nbUser" placeholder="branch11" dir="ltr"></div>
         <div class="fg"><label>اسم الفرع</label><input type="text" id="nbName"></div>
         <div class="fg"><label>كلمة المرور (6 أحرف فأكثر)</label><input type="text" id="nbPass"></div>
+        <div class="fg" id="nbGroupWrap"><label>المجموعة</label><select id="nbGroup"></select></div>
       </div>
       <button class="btn" id="nbBtn" onclick="addBranch()">إضافة الفرع</button>
     </div>
@@ -319,6 +320,11 @@ td input{padding:6px 8px;font-size:13px}
   </section>
 
   <section class="tab" id="tab-team">
+    <div class="card"><h3>المجموعات المقفولة</h3>
+      <p class="muted" style="margin-bottom:12px">كل مجموعة فروعها وموظفوها لا يراهم أحد خارجها (غير الأدمن). المدير بنطاق «كل الفروع» يرى فقط فروع مجموعته، ومن بدون مجموعة يرى فقط الفروع بدون مجموعة. اربط الفرع من «الفروع» والموظف من «الفريق».</p>
+      <div class="row" style="margin-bottom:12px"><input type="text" id="ngName" placeholder="اسم المجموعة، مثلاً: فروع الإسكندرية" style="max-width:320px"><button class="btn" onclick="addGroup()">+ إضافة مجموعة</button></div>
+      <div id="groupsList"></div>
+    </div>
     <div class="card"><h3>الوظائف والصلاحيات
         <button class="btn sm" onclick="editPosition(null)">+ إضافة وظيفة</button></h3>
       <p class="muted" style="margin-bottom:12px">كل وظيفة لها صلاحيات تفتحها أو تغلقها، ونطاق يحدد أي الفروع تراها. التغيير يسري على كل من يحمل الوظيفة خلال دقيقة.</p>
@@ -330,6 +336,7 @@ td input{padding:6px 8px;font-size:13px}
         <div class="fg"><label>الاسم</label><input type="text" id="nsName"></div>
         <div class="fg"><label>كلمة المرور (6 أحرف فأكثر)</label><input type="text" id="nsPass"></div>
         <div class="fg"><label>الوظيفة</label><select id="nsPos" onchange="toggleStaffBranches()"></select></div>
+        <div class="fg"><label>المجموعة</label><select id="nsGroup"></select></div>
       </div>
       <div class="fg hidden" id="nsBrWrap"><label>الفروع التي يراها</label><div id="nsBranches" class="row" style="gap:6px 18px"></div></div>
       <button class="btn" id="nsBtn" onclick="addStaff()">إضافة الموظف</button>
@@ -635,13 +642,13 @@ async function w(q){
 }
 
 const mapCk=x=>({id:x.id,shift:x.shift,title:x.title,desc:x.descr||''});
-const mapUser=p=>({username:p.username,role:p.role,name:p.name,manager:p.manager||'',email:p.email_contact||'',active:p.active,position:p.position||'',branchIds:p.branch_ids||[]});
+const mapUser=p=>({username:p.username,role:p.role,name:p.name,manager:p.manager||'',email:p.email_contact||'',active:p.active,position:p.position||'',branchIds:p.branch_ids||[],group:p.group_id||''});
 const mapTask=t=>({id:t.id,title:t.title,desc:t.descr||'',priority:t.priority,due:t.due,targets:t.targets||[],archived:t.archived,created:fmtTs(t.created_at),status:{}});
 const mapReport=r=>({id:r.id,branch:r.branch_id,type:r.type,date:r.report_date,created:fmtTs(r.created_at),data:r.data||{},notes:r.notes||'',att:r.att_path?{name:r.att_name||'مرفق',path:r.att_path}:null,status:r.status,review:r.review||''});
 
 async function loadAll(){
   const since=addDays(today(),-180), sinceChk=addDays(today(),-45);
-  const [st,pr,cl,runs,tasks,tst,reps,inv,meta,nt,pos]=await Promise.all([
+  const [st,pr,cl,runs,tasks,tst,reps,inv,meta,nt,pos,grp]=await Promise.all([
     one(sb.from('settings').select('*').eq('id',1).single()),
     one(sb.from('profiles').select('*')),
     one(sb.from('checklist_items').select('*').order('sort').order('created_at')),
@@ -652,11 +659,13 @@ async function loadAll(){
     fetchAll('inventory_items','*',q=>q.order('branch_id').order('sort').order('id')),
     one(sb.from('inventory_meta').select('*')),
     one(sb.from('notifications').select('*').order('created_at',{ascending:false}).limit(100)),
-    one(sb.from('positions').select('*').order('sort'))
+    one(sb.from('positions').select('*').order('sort')),
+    sb.from('groups').select('*').order('sort').order('name').then(r=>r.error?[]:r.data)
   ]);
   const n={settings:{company:st.company,currency:st.currency,concept:st.concept,targets:st.targets,custom:st.custom||{}},
-    users:{},positions:{},checklist:cl.map(mapCk),checkRuns:{},tasks:tasks.map(mapTask),reports:reps.map(mapReport),inventory:{},notifs:[]};
+    users:{},positions:{},groups:{},checklist:cl.map(mapCk),checkRuns:{},tasks:tasks.map(mapTask),reports:reps.map(mapReport),inventory:{},notifs:[]};
   pr.forEach(p=>n.users[p.id]=mapUser(p));
+  grp.forEach(g=>n.groups[g.id]={id:g.id,name:g.name});
   pos.forEach(x=>n.positions[x.key]={key:x.key,label:x.label,scope:x.scope,perms:x.perms||{},builtin:x.builtin,sort:x.sort});
   runs.forEach(r=>{const k=r.branch_id+'|'+r.run_date;(n.checkRuns[k]=n.checkRuns[k]||{})[r.item_id]=r.done_at||''});
   const tmap={};n.tasks.forEach(t=>tmap[t.id]=t);
@@ -764,13 +773,13 @@ function barChart(series){
   const id='bg'+(++_cid),W=640,H=250,pl=42,pr=12,pt=24,pb=30,vals=series.map(x=>x.value),max=Math.max(1,...vals);
   const pw=Math.pow(10,Math.floor(Math.log10(max))),top=Math.ceil(max/pw*2)/2*pw,bw=(W-pl-pr)/series.length,ch=H-pt-pb;
   const avg=vals.reduce((a,b)=>a+b,0)/Math.max(1,vals.length),mi=vals.indexOf(Math.max(...vals));
-  let g=`<defs><linearGradient id="${id}a" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1B78B8"/><stop offset="1" stop-color="#07426F"/></linearGradient><linearGradient id="${id}b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6CC07A"/><stop offset="1" stop-color="#2F8A3F"/></linearGradient></defs>`;
+  let g=`<defs><linearGradient id="${id}a" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2358A8"/><stop offset="1" stop-color="#0A2A5E"/></linearGradient><linearGradient id="${id}b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7FA6E0"/><stop offset="1" stop-color="#3B6FB6"/></linearGradient></defs>`;
   for(let i=0;i<=4;i++){const y=pt+ch-ch*i/4;g+=`<line x1="${pl}" y1="${y}" x2="${W-pr}" y2="${y}" stroke="#E3EAEE" ${i?'stroke-dasharray="3 4"':''}/><text x="${pl-6}" y="${y+3}" font-size="10" text-anchor="end" fill="#5B6B73">${shortNum(top*i/4)}</text>`}
   series.forEach((x,i)=>{const h=ch*x.value/top,bx=pl+i*bw+bw*.2,y=pt+ch-h,w=bw*.6;
     g+=`<rect x="${bx}" y="${y}" width="${w}" height="${Math.max(h,x.value?2:0)}" rx="${Math.min(7,w/2)}" fill="${x.value?`url(#${id}${i===mi&&vals.length>1?'b':'a'})`:'#E3EAEE'}"><title>${x.label}: ${num(x.value)}</title></rect>`;
-    if(series.length<=14&&x.value)g+=`<text x="${bx+w/2}" y="${y-6}" font-size="10" font-weight="700" text-anchor="middle" fill="#07426F">${shortNum(x.value)}</text>`;
+    if(series.length<=14&&x.value)g+=`<text x="${bx+w/2}" y="${y-6}" font-size="10" font-weight="700" text-anchor="middle" fill="#0A2A5E">${shortNum(x.value)}</text>`;
     g+=`<text x="${bx+w/2}" y="${H-10}" font-size="10" text-anchor="middle" fill="#5B6B73">${x.label}</text>`});
-  if(avg>0){const y=pt+ch-ch*avg/top;g+=`<line x1="${pl}" y1="${y}" x2="${W-pr}" y2="${y}" stroke="#B8963E" stroke-width="1.5" stroke-dasharray="6 4"/><text x="${pl+4}" y="${y-5}" font-size="10" font-weight="700" text-anchor="start" fill="#B8963E">المتوسط ${shortNum(avg)}</text>`}
+  if(avg>0){const y=pt+ch-ch*avg/top;g+=`<line x1="${pl}" y1="${y}" x2="${W-pr}" y2="${y}" stroke="#6B8CC7" stroke-width="1.5" stroke-dasharray="6 4"/><text x="${pl+4}" y="${y-5}" font-size="10" font-weight="700" text-anchor="start" fill="#6B8CC7">المتوسط ${shortNum(avg)}</text>`}
   return `<div class="chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="المبيعات اليومية">${g}</svg></div>`;
 }
 function donut(parts,unit){
@@ -778,7 +787,7 @@ function donut(parts,unit){
   if(!tot)return '<div class="empty">لا توجد بيانات كافية</div>';
   let acc=0,seg='';
   parts.forEach(x=>{const p=x.value/tot*100;if(p>0){seg+=`<circle cx="21" cy="21" r="15.9155" fill="none" stroke="${x.color}" stroke-width="5.5" stroke-dasharray="${Math.max(p-.6,0.1)} ${100-p+.6}" stroke-dashoffset="${25-acc}"><title>${x.label}: ${num(x.value)}</title></circle>`}acc+=p});
-  return `<div class="donut-wrap"><svg class="donut" viewBox="0 0 42 42"><circle cx="21" cy="21" r="15.9155" fill="none" stroke="#EDF1F3" stroke-width="5.5"/>${seg}<text x="21" y="20.5" text-anchor="middle" font-size="5.2" font-weight="800" fill="#07426F" style="font-family:Cairo">${shortNum(tot)}</text><text x="21" y="26" text-anchor="middle" font-size="2.8" fill="#5B6B73" style="font-family:Cairo">${unit||'الإجمالي'}</text></svg>
+  return `<div class="donut-wrap"><svg class="donut" viewBox="0 0 42 42"><circle cx="21" cy="21" r="15.9155" fill="none" stroke="#EDF1F3" stroke-width="5.5"/>${seg}<text x="21" y="20.5" text-anchor="middle" font-size="5.2" font-weight="800" fill="#0A2A5E" style="font-family:Cairo">${shortNum(tot)}</text><text x="21" y="26" text-anchor="middle" font-size="2.8" fill="#5B6B73" style="font-family:Cairo">${unit||'الإجمالي'}</text></svg>
    <div class="legend">${parts.map(x=>`<div><i style="background:${x.color}"></i>${x.label}<b>${Math.round(x.value/tot*100)}%</b></div>`).join('')}</div></div>`;
 }
 function rankBars(rows,get,fmt){
@@ -786,7 +795,7 @@ function rankBars(rows,get,fmt){
   const list=[...rows].sort((a,b)=>get(b)-get(a)),max=Math.max(1,...list.map(get));
   return list.length?list.map((r,i)=>`<div class="rk ${i===0&&get(r)?'top':''}"><span>${esc(r.b.name)}</span><div class="rk-bar"><i style="width:${get(r)/max*100}%"></i></div><strong>${fmt(get(r))}</strong></div>`).join(''):'<div class="empty">لا توجد بيانات</div>';
 }
-const CH_COLORS=['#07426F','#3E9B4F','#B8963E'];
+const CH_COLORS=['#0A2A5E','#3B6FB6','#9DB8E0'];
 const channelParts=m=>[{label:'داخل الفرع',value:m.dine,color:CH_COLORS[0]},{label:'سفري',value:m.take,color:CH_COLORS[1]},{label:'توصيل',value:m.deliv,color:CH_COLORS[2]}];
 
 /* =====================================================================
@@ -1131,19 +1140,21 @@ async function delChecklistItem(id){
 
 /* الفروع */
 function renderAdminBranches(){
+  $('nbGroup').innerHTML=grpOpts($('nbGroup').value);$('nbGroupWrap').classList.toggle('hidden',!isAdmin());
   $('addBranchCard').classList.toggle('hidden',!(isAdmin()||(can('m_branches')&&currentUser.scope==='all')));
   const adm=isAdmin(),ownPos=Object.values(db.positions).filter(p=>p.scope==='own').sort((a,b)=>a.sort-b.sort);
-  $('adminBranchesList').innerHTML=`<div class="tbl-wrap"><table><thead><tr><th>اسم الدخول</th><th>اسم الفرع</th><th>المدير</th>${adm?'<th>الوظيفة</th>':''}<th>كلمة مرور جديدة</th><th>نشط</th><th></th></tr></thead><tbody>`+
-  (branches(true).map(b=>`<tr><td dir="ltr" style="text-align:right">${esc(b.username)}</td><td><input type="text" id="bn_${b.id}" value="${esc(b.name)}"></td><td><input type="text" id="bm_${b.id}" value="${esc(b.manager||'')}"></td>${adm?`<td><select id="bpos_${b.id}" style="min-width:120px">${ownPos.map(p=>`<option value="${p.key}" ${p.key===(b.position||'branch_manager')?'selected':''}>${esc(p.label)}</option>`).join('')}</select></td>`:''}<td><input type="text" id="bp_${b.id}" placeholder="اتركها فارغة" style="width:140px"></td><td><input type="checkbox" id="ba_${b.id}" ${b.active!==false?'checked':''} style="width:18px;height:18px"></td><td><button class="btn sm" onclick="saveBranch('${b.id}')">حفظ</button></td></tr>`).join('')||`<tr><td colspan="7" class="muted" style="text-align:center">لا توجد فروع ضمن صلاحياتك</td></tr>`)+'</tbody></table></div>';
+  $('adminBranchesList').innerHTML=`<div class="tbl-wrap"><table><thead><tr><th>اسم الدخول</th><th>اسم الفرع</th><th>المدير</th>${adm?'<th>الوظيفة</th><th>المجموعة</th>':''}<th>كلمة مرور جديدة</th><th>نشط</th><th></th></tr></thead><tbody>`+
+  (branches(true).map(b=>`<tr><td dir="ltr" style="text-align:right">${esc(b.username)}</td><td><input type="text" id="bn_${b.id}" value="${esc(b.name)}"></td><td><input type="text" id="bm_${b.id}" value="${esc(b.manager||'')}"></td>${adm?`<td><select id="bpos_${b.id}" style="min-width:120px">${ownPos.map(p=>`<option value="${p.key}" ${p.key===(b.position||'branch_manager')?'selected':''}>${esc(p.label)}</option>`).join('')}</select></td><td><select id="bgrp_${b.id}" style="min-width:120px">${grpOpts(b.group)}</select></td>`:''}<td><input type="text" id="bp_${b.id}" placeholder="اتركها فارغة" style="width:140px"></td><td><input type="checkbox" id="ba_${b.id}" ${b.active!==false?'checked':''} style="width:18px;height:18px"></td><td><button class="btn sm" onclick="saveBranch('${b.id}')">حفظ</button></td></tr>`).join('')||`<tr><td colspan="7" class="muted" style="text-align:center">لا توجد فروع ضمن صلاحياتك</td></tr>`)+'</tbody></table></div>';
 }
 async function saveBranch(id){
   const u=db.users[id],np=$('bp_'+id).value.trim();
   if(np&&np.length<6)return toast('كلمة المرور يجب ألا تقل عن 6 أحرف','err');
   const patch={name:$('bn_'+id).value.trim()||u.name,manager:$('bm_'+id).value.trim(),active:$('ba_'+id).checked};
   if(isAdmin()&&$('bpos_'+id))patch.position=$('bpos_'+id).value;
+  if(isAdmin()&&$('bgrp_'+id))patch.group_id=$('bgrp_'+id).value||null;
   if(!await w(sb.from('profiles').update(patch).eq('id',id)))return;
   if(np){if(!await w(sb.rpc('admin_set_password',{p_user:id,p_password:np})))return;$('bp_'+id).value=''}
-  Object.assign(u,patch);toast('تم حفظ بيانات الفرع','ok');
+  Object.assign(u,patch);if('group_id' in patch)u.group=patch.group_id||'';toast('تم حفظ بيانات الفرع','ok');renderGroups&&renderGroups();
 }
 async function addBranch(){
   const u=$('nbUser').value.trim().toLowerCase(),n=$('nbName').value.trim(),p=$('nbPass').value.trim();
@@ -1152,7 +1163,7 @@ async function addBranch(){
   if(!n||p.length<6)return toast('أكمل الاسم وكلمة مرور من 6 أحرف على الأقل','err');
   const btn=$('nbBtn');btn.disabled=true;
   try{
-    if(!await w(sb.rpc('admin_invite_branch',{p_username:u,p_name:n})))return;
+    if(!await w(sb.rpc('admin_invite_branch',{p_username:u,p_name:n,p_group:isAdmin()?($('nbGroup').value||null):null})))return;
     // عميل منفصل حتى لا تتغير جلسة المدير الحالية
     const tmp=supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false,storageKey:'tmp-signup'}});
     const {data,error}=await tmp.auth.signUp({email:u+EMAIL_DOMAIN,password:p});
@@ -1173,6 +1184,35 @@ async function addBranch(){
 /* =====================================================================
    الوظائف والموظفون (للأدمن)
    ===================================================================== */
+
+/* =====================================================================
+   المجموعات المقفولة
+   ===================================================================== */
+const grpList=()=>Object.values(db.groups||{}).sort((a,b)=>a.name.localeCompare(b.name,'ar'));
+const grpName=id=>id&&db.groups[id]?db.groups[id].name:'الرئيسية';
+const grpOpts=sel=>'<option value="">الرئيسية (بدون مجموعة)</option>'+grpList().map(g=>`<option value="${g.id}" ${g.id===sel?'selected':''}>${esc(g.name)}</option>`).join('');
+function renderGroups(){
+  const el=$('groupsList');if(!el)return;
+  const cnt=id=>Object.values(db.users).filter(u=>(u.group||'')===id);
+  el.innerHTML=grpList().length?grpList().map(g=>{const m=cnt(g.id),b=m.filter(u=>u.role==='branch').length,t=m.filter(u=>u.role==='staff').length;
+    return `<div class="item row"><div><strong>${esc(g.name)}</strong> ${badge(b+' فرع','b-blue')} ${badge(t+' موظف','b-gray')}</div><span class="spacer"></span><button class="btn ghost sm" onclick="renameGroup('${g.id}')">تسمية</button><button class="btn danger sm" onclick="delGroup('${g.id}')">حذف</button></div>`}).join(''):'<div class="empty">لا توجد مجموعات. كل الفروع الآن في المجموعة الرئيسية.</div>';
+}
+async function addGroup(){
+  const n=$('ngName').value.trim();if(!n)return toast('اكتب اسم المجموعة','err');
+  const r=await w(sb.from('groups').insert({name:n}).select().single());if(!r)return;
+  db.groups[r.data.id]={id:r.data.id,name:r.data.name};$('ngName').value='';renderGroups();renderStaff();toast('تمت إضافة المجموعة','ok');
+}
+async function renameGroup(id){
+  const n=prompt('الاسم الجديد للمجموعة',db.groups[id].name);if(!n||!n.trim())return;
+  if(!await w(sb.from('groups').update({name:n.trim()}).eq('id',id)))return;
+  db.groups[id].name=n.trim();renderGroups();renderStaff();
+}
+async function delGroup(id){
+  if(Object.values(db.users).some(u=>u.group===id))return toast('انقل أعضاء المجموعة (فروع وموظفين) إلى مجموعة أخرى قبل حذفها','err');
+  if(!confirm('حذف المجموعة؟'))return;
+  if(!await w(sb.from('groups').delete().eq('id',id)))return;
+  delete db.groups[id];renderGroups();renderStaff();
+}
 const posList=()=>Object.values(db.positions).sort((a,b)=>a.sort-b.sort||a.label.localeCompare(b.label,'ar'));
 const posLabel=k=>db.positions[k]?db.positions[k].label:'—';
 const staffList=()=>Object.entries(db.users).filter(([k,u])=>u.role==='staff').map(([k,u])=>({id:k,...u}));
@@ -1181,7 +1221,7 @@ function renderTeam(){
   $('positionsList').innerHTML=`<div class="item row"><div><strong>الأدمن</strong> ${badge('كل الصلاحيات','b-good')}<div class="muted">يتحكم في كل شيء، وصلاحياته ثابتة ولا تُعدَّل.</div></div></div>`+
    posList().map(p=>{const n=Object.values(db.users).filter(u=>u.position===p.key).length;
     return `<div class="item row"><div><strong>${esc(p.label)}</strong> ${badge(SC_SHORT[p.scope],'b-blue')} ${badge(permCount(p)+' صلاحية','b-gray')} ${p.builtin?badge('أساسية','b-gray'):''}<div class="muted">${n} حساب بهذه الوظيفة</div></div><span class="spacer"></span><button class="btn ghost sm" onclick="editPosition('${p.key}')">تعديل الصلاحيات</button>${p.builtin?'':`<button class="btn danger sm" onclick="delPosition('${p.key}')">حذف</button>`}</div>`}).join('');
-  renderStaff();
+  renderGroups();renderStaff();
 }
 function permBoxes(group,perms){
   return `<div class="perm-grp" id="pg_${group.id}"><strong style="color:var(--navy)">${group.title}</strong>
@@ -1228,11 +1268,12 @@ function renderStaff(){
   const opts=posList().filter(p=>p.scope!=='own');
   const cur=$('nsPos').value;
   $('nsPos').innerHTML=opts.map(p=>`<option value="${p.key}" ${p.key===cur?'selected':''}>${esc(p.label)}</option>`).join('');
+  const cg=$('nsGroup').value;$('nsGroup').innerHTML=grpOpts(cg);
   $('nsBranches').innerHTML=branchChecks('nsB',[]);toggleStaffBranches();
   const list=staffList();
-  $('staffList').innerHTML=list.length?`<div class="tbl-wrap"><table><thead><tr><th>اسم الدخول</th><th>الاسم</th><th>الوظيفة</th><th>الفروع</th><th>الحالة</th><th></th></tr></thead><tbody>`+list.map(u=>{
+  $('staffList').innerHTML=list.length?`<div class="tbl-wrap"><table><thead><tr><th>اسم الدخول</th><th>الاسم</th><th>الوظيفة</th><th>المجموعة</th><th>الفروع</th><th>الحالة</th><th></th></tr></thead><tbody>`+list.map(u=>{
     const p=db.positions[u.position],br=!p?'—':p.scope==='all'?'كل الفروع':(u.branchIds.map(id=>bName(id)).join('، ')||'لا يوجد فرع مسند');
-    return `<tr><td dir="ltr" style="text-align:right">${esc(u.username)}</td><td><strong>${esc(u.name)}</strong></td><td>${esc(posLabel(u.position))}</td><td>${esc(br)}</td><td>${u.active!==false?badge('نشط','b-good'):badge('موقوف','b-bad')}</td><td><button class="btn sm" onclick="editStaff('${u.id}')">تعديل</button></td></tr>`}).join('')+'</tbody></table></div>':'<div class="empty">لا يوجد موظفون إداريون بعد. أضف أول موظف من النموذج أعلاه.</div>';
+    return `<tr><td dir="ltr" style="text-align:right">${esc(u.username)}</td><td><strong>${esc(u.name)}</strong></td><td>${esc(posLabel(u.position))}</td><td>${esc(grpName(u.group))}</td><td>${esc(br)}</td><td>${u.active!==false?badge('نشط','b-good'):badge('موقوف','b-bad')}</td><td><button class="btn sm" onclick="editStaff('${u.id}')">تعديل</button></td></tr>`}).join('')+'</tbody></table></div>':'<div class="empty">لا يوجد موظفون إداريون بعد. أضف أول موظف من النموذج أعلاه.</div>';
 }
 function toggleStaffBranches(){const p=db.positions[$('nsPos').value];$('nsBrWrap').classList.toggle('hidden',!(p&&p.scope==='assigned'))}
 async function addStaff(){
@@ -1245,7 +1286,7 @@ async function addStaff(){
   if(po.scope==='assigned'&&!ids.length)return toast('اختر فرعاً واحداً على الأقل لهذه الوظيفة','err');
   const btn=$('nsBtn');btn.disabled=true;
   try{
-    if(!await w(sb.rpc('admin_invite_staff',{p_username:u,p_name:n,p_position:pk,p_branch_ids:ids})))return;
+    if(!await w(sb.rpc('admin_invite_staff',{p_username:u,p_name:n,p_position:pk,p_branch_ids:ids,p_group:$('nsGroup').value||null})))return;
     const tmp=supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false,storageKey:'tmp-signup'}});
     const {data,error}=await tmp.auth.signUp({email:u+EMAIL_DOMAIN,password:pw});
     if(error||!data.user||(data.user.identities&&!data.user.identities.length)){
@@ -1265,6 +1306,7 @@ function editStaff(id){
   openModal('تعديل: '+u.name,`
     <div class="grid g2"><div class="fg"><label>الاسم</label><input type="text" id="esName" value="${esc(u.name)}"></div>
     <div class="fg"><label>الوظيفة</label><select id="esPos" onchange="toggleEditBranches()">${posList().filter(p=>p.scope!=='own').map(p=>`<option value="${p.key}" ${p.key===u.position?'selected':''}>${esc(p.label)}</option>`).join('')}</select></div></div>
+    <div class="fg"><label>المجموعة (تحدد الفروع التي يراها لو نطاقه «كل الفروع»)</label><select id="esGroup">${grpOpts(u.group)}</select></div>
     <div class="fg" id="esBrWrap"><label>الفروع التي يراها</label><div class="row" style="gap:6px 18px">${branchChecks('esB',u.branchIds)}</div></div>
     <div class="grid g2"><div class="fg"><label>كلمة مرور جديدة (اختياري)</label><input type="text" id="esPass" placeholder="اتركها فارغة"></div>
     <div class="fg"><label>الحالة</label><label style="font-weight:600"><input type="checkbox" id="esActive" ${u.active!==false?'checked':''}> الحساب نشط</label></div></div>
@@ -1277,10 +1319,10 @@ async function saveStaff(id){
   if(np&&np.length<6)return toast('كلمة المرور يجب ألا تقل عن 6 أحرف','err');
   const ids=po&&po.scope==='assigned'?[...document.querySelectorAll('.esB:checked')].map(c=>c.value):[];
   if(po&&po.scope==='assigned'&&!ids.length)return toast('اختر فرعاً واحداً على الأقل','err');
-  const patch={name:$('esName').value.trim()||u.name,position:pk,branch_ids:ids,active:$('esActive').checked};
+  const patch={name:$('esName').value.trim()||u.name,position:pk,branch_ids:ids,active:$('esActive').checked,group_id:$('esGroup').value||null};
   if(!await w(sb.from('profiles').update(patch).eq('id',id)))return;
   if(np&&!await w(sb.rpc('admin_set_password',{p_user:id,p_password:np})))return;
-  Object.assign(u,{name:patch.name,position:pk,branchIds:ids,active:patch.active});
+  Object.assign(u,{name:patch.name,position:pk,branchIds:ids,active:patch.active,group:patch.group_id||''});
   closeModal();renderStaff();toast('تم حفظ بيانات الموظف','ok');
 }
 
