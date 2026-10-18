@@ -211,7 +211,7 @@ td input{padding:6px 8px;font-size:13px}
     <div class="fg"><label>كلمة المرور</label><input type="password" id="loginPassword" autocomplete="current-password" onkeydown="if(event.key==='Enter')handleLogin()"></div>
     <button class="btn block" id="loginBtn" onclick="handleLogin()">تسجيل الدخول</button>
     <div style="margin-top:14px;text-align:center"><a href="#" onclick="forgotPassword();return false" style="font-size:13px;color:var(--blue);text-decoration:none;font-weight:600">نسيت كلمة المرور؟</a></div>
-    <div style="margin-top:16px;text-align:center;font-size:11px;color:#94A3B8;direction:ltr">v2026.10.18b · db: njwasycnepgaivfypppl</div>
+    <div style="margin-top:16px;text-align:center;font-size:11px;color:#94A3B8;direction:ltr">v2026.10.18c · db: njwasycnepgaivfypppl</div>
   </div>
 </div>
 
@@ -380,14 +380,15 @@ td input{padding:6px 8px;font-size:13px}
 
   <section class="tab" id="tab-submit">
     <div class="card">
-      <h3>رفع تقرير جديد للإدارة</h3>
+      <h3 id="rfTitle">رفع تقرير جديد للإدارة</h3>
       <div class="grid g2">
-        <div class="fg"><label>نوع التقرير</label><select id="rfType" onchange="renderReportFields()"></select></div>
+        <div class="fg" id="rfTypeWrap"><label>نوع التقرير</label><select id="rfType" onchange="renderReportFields()"></select></div>
         <div class="fg"><label>تاريخ التقرير</label><input type="date" id="rfDate"></div>
       </div>
       <div id="rfFields" class="grid g2"></div>
       <div class="fg"><label>ملاحظات إضافية</label><textarea id="rfNotes"></textarea></div>
       <div class="fg"><label>مرفق (صورة أو ملف، حتى 5 ميجا) — اختياري</label><input type="file" id="rfFile"></div>
+      <div class="row" id="xlRow" style="margin-bottom:12px"><button type="button" class="btn ghost sm" onclick="xlTemplate()">⬇ تنزيل قالب إكسل لهذا النوع</button><label class="btn ghost sm" style="margin:0;cursor:pointer">⬆ رفع من ملف إكسل<input type="file" id="xlFile" accept=".xlsx,.xls,.csv" class="hidden" onchange="xlImport(this)"></label><span class="muted" style="font-size:12px">الصف الأول يملأ النموذج، ولو الملف فيه صفوف كثيرة تقدر ترفعها كلها دفعة واحدة</span></div>
       <button class="btn" id="rfBtn" onclick="submitReport()">إرسال التقرير</button>
     </div>
     <div class="card"><h3>سجل تقارير الفرع وحالتها</h3><div id="branchReportsList"></div></div>
@@ -409,6 +410,32 @@ td input{padding:6px 8px;font-size:13px}
 
   <section class="tab" id="tab-btasks">
     <div class="card"><h3>التكليفات الواردة من الإدارة</h3><div id="branchTasksList"></div></div>
+  </section>
+
+  <section class="tab" id="tab-quality">
+    <div class="card"><h3>شاشة الجودة <select id="qRange" style="width:auto" onchange="qRange=this.value;renderQuality()"></select></h3><div id="qBody"></div></div>
+    <div class="card" id="qItemsCard"><h3>بنود فحص الجودة (يعدلها من يملك الصلاحية)</h3>
+      <div class="row" style="margin-bottom:12px"><input type="text" id="qiTitle" placeholder="نص البند الجديد" style="flex:1;min-width:220px"><button class="btn" onclick="addQItem()">إضافة بند</button></div>
+      <div id="qItemsList"></div></div>
+  </section>
+
+  <section class="tab" id="tab-qcheck">
+    <div class="card"><h3>فحص الجودة <span id="qcPct" class="badge b-blue"></span></h3>
+      <p class="muted" style="margin-bottom:10px">علّم البنود المطابقة فقط. أي بند غير معلَّم يُحسب غير مطابق، وتُحسب النتيجة تلقائياً.</p>
+      <div id="qcBody"></div>
+      <div class="fg" style="margin-top:12px"><label>ملاحظات الفحص</label><textarea id="qcNotes"></textarea></div>
+      <button class="btn" id="qcBtn" onclick="submitQCheck()">إرسال نتيجة الفحص</button></div>
+    <div class="card"><h3>آخر فحوصات الفرع</h3><div id="qcList"></div></div>
+  </section>
+
+  <section class="tab" id="tab-cust">
+    <div class="card"><h3>أسماء القوائم (التبويبات) وإخفاؤها <button class="btn sm" onclick="saveTabs()">حفظ</button></h3>
+      <p class="muted" style="margin-bottom:10px">اترك الاسم فارغاً ليرجع للاسم الأصلي. القوائم الثابتة (الإعدادات والوظائف والتخصيص والحساب) لا تُخفى حتى لا تفقد التحكم.</p>
+      <div id="custTabs"></div></div>
+    <div class="card"><h3>أنواع التقارير <button class="btn sm" onclick="saveTypes()">حفظ</button></h3><div id="custTypes"></div></div>
+    <div class="card"><h3>نماذج مخصصة (قوائم جديدة بحقولك) <button class="btn sm" onclick="editForm(null)">+ نموذج جديد</button></h3>
+      <p class="muted" style="margin-bottom:10px">النموذج يملؤه الفرع ويصل للإدارة كتقرير. اختر إن كان يظهر كتبويب مستقل أو ضمن «رفع تقرير». الحذف يُخفي النموذج وتبقى تقاريره القديمة.</p>
+      <div id="custForms"></div></div>
   </section>
 
   <section class="tab" id="tab-account">
@@ -510,7 +537,23 @@ const CONCEPTS={
    ['service','مراجعة نظافة الصالة',''],
    ['close','تنظيف الماكينات (Backflush)',''],
    ['close','مطابقة الكاشير','']],
-  inv:[['بن قهوة','كجم',30,10],['حليب','لتر',60,25],['سيروب ونكهات','زجاجة',25,8],['أكواب وأغطية','كرتونة',20,6],['معجنات وحلويات','قطعة',50,15]]}
+  inv:[['بن قهوة','كجم',30,10],['حليب','لتر',60,25],['سيروب ونكهات','زجاجة',25,8],['أكواب وأغطية','كرتونة',20,6],['معجنات وحلويات','قطعة',50,15]]},
+  super:{name:'سوبر ماركت / هايبر ماركت',orders:'عدد الفواتير',ticket:'متوسط الفاتورة',targets:{waste:2,labor:10,quality:92},
+   checklist:[
+    ['open','فتح الكاشيرات وتشغيل نقاط البيع',''],
+    ['open','مراجعة تنظيم الأرفف وتعبئتها (Facing)',''],
+    ['open','فحص حرارة الثلاجات وغرف التبريد والفريزرات','تسجيل القراءات والتأكد من سلامة الحساسات'],
+    ['open','مراجعة تواريخ الصلاحية للمنتجات سريعة التلف',''],
+    ['open','نظافة مدخل الفرع والأرضيات وعربات التسوق',''],
+    ['service','متابعة طوابير الكاشير وفتح كاشير إضافي عند الحاجة',''],
+    ['service','مراجعة الأسعار والعروض ومطابقة بطاقات الأرفف',''],
+    ['service','استلام البضائع وفحص مطابقتها للفاتورة',''],
+    ['service','متابعة نواقص الأرفف وطلب التوريد',''],
+    ['close','تقفيل الكاشيرات ومطابقة الإيراد',''],
+    ['close','سحب المنتجات منتهية الصلاحية وتسجيلها كهالك',''],
+    ['close','تأمين المخزن وإغلاق الثلاجات والأجهزة',''],
+    ['close','تنظيف الأرضيات وإخراج المخلفات','']],
+   inv:[['ألبان وأجبان','كرتونة',40,15],['لحوم ودواجن مبردة','كجم',60,20],['خضروات وفاكهة','كجم',120,40],['مخبوزات','قطعة',100,30],['مواد بقالة جافة (أرز وسكر وزيت)','كرتونة',80,25],['مشروبات وعصائر','كرتونة',70,20],['منظفات ومستلزمات منزلية','كرتونة',40,12],['أكياس وعبوات تغليف','كرتونة',30,10]]}
 };
 
 const cur=true;
@@ -518,11 +561,12 @@ const REPORTS={
  sales:{label:'تقرير المبيعات اليومي',daily:true,fields:[
   {k:'sales_total',l:'إجمالي المبيعات',t:'number',cur,req:1},
   {k:'orders',l:()=>CONCEPTS[db.settings.concept].orders,t:'number',req:1},
-  {k:'dine_in',l:'مبيعات الصالة',t:'number',cur},
-  {k:'takeaway',l:'مبيعات الاستلام (Takeaway)',t:'number',cur},
+  {k:'dine_in',l:()=>db.settings.concept==='super'?'مبيعات داخل الفرع (الكاشير)':'مبيعات الصالة',t:'number',cur},
+  {k:'takeaway',l:()=>db.settings.concept==='super'?'مبيعات الاستلام من الفرع':'مبيعات الاستلام (Takeaway)',t:'number',cur},
   {k:'delivery',l:'مبيعات التوصيل والتطبيقات',t:'number',cur},
   {k:'discounts',l:'الخصومات والمرتجعات',t:'number',cur},
   {k:'avg_serve',l:'متوسط زمن الخدمة (دقيقة)',t:'number',only:['fast']},
+  {k:'basket',l:'متوسط عدد الأصناف في الفاتورة',t:'number',only:['super']},
   {k:'reservations',l:'عدد الحجوزات',t:'number',only:['fine']},
   {k:'noshow',l:'حالات عدم الحضور (No-show)',t:'number',only:['fine']}]},
  waste:{label:'تقرير الهالك والفاقد',fields:[
@@ -548,6 +592,18 @@ const REPORTS={
   {k:'counted',l:'عدد الأصناف المجرودة',t:'number'},{k:'low',l:'أصناف دون الحد الأدنى',t:'number'},{k:'lowItems',l:'قائمة النواقص',t:'text'}]},
  other:{label:'ملاحظة تشغيلية',fields:[{k:'subject',l:'الموضوع',t:'text',req:1}]}
 };
+const cashFields=pm=>[{k:'cashier',l:'اسم الكاشير',t:'text',req:1},{k:'opening',l:'رصيد الدرج الافتتاحي',t:'number',cur},{k:'cash_sales',l:'المبيعات النقدية',t:'number',cur,req:1},{k:'card_sales',l:'مبيعات الفيزا والبطاقات',t:'number',cur},{k:'delivery_sales',l:'مبيعات التوصيل والتطبيقات',t:'number',cur},{k:'expenses',l:'مصروفات نقدية من الدرج',t:'number',cur},...(pm?[{k:'deposit',l:'المسلَّم للخزينة / الإدارة',t:'number',cur}]:[]),{k:'counted',l:'النقدية الفعلية بالدرج بعد العد',t:'number',cur,req:1},{k:'expected',l:'المتوقع بالدرج',t:'number',cur,calc:1},{k:'diff',l:'الفرق (عجز بالسالب / زيادة)',t:'number',cur,calc:1}];
+REPORTS.cash_am={label:'تقفيل الكاشير الصباحي',grp:'cashier',fields:cashFields(false)};
+REPORTS.cash_pm={label:'تقفيل الكاشير المسائي',grp:'cashier',fields:cashFields(true)};
+REPORTS.qinspect={label:'فحص الجودة',grp:'qcheck',fields:[{k:'score',l:'نتيجة الفحص (%)',t:'number'},{k:'passed',l:'عدد البنود المطابقة',t:'number'},{k:'total',l:'إجمالي البنود',t:'number'},{k:'failed',l:'البنود غير المطابقة',t:'text'}]};
+const BASE_KEYS=Object.keys(REPORTS);BASE_KEYS.forEach(k=>REPORTS[k].base=REPORTS[k].label);
+const RT=t=>REPORTS[t]||{label:(t||'—')+' (محذوف)',fields:[]};
+function applyCustom(){
+  const c=(db&&db.settings&&db.settings.custom)||{};
+  Object.keys(REPORTS).forEach(k=>{if(!BASE_KEYS.includes(k))delete REPORTS[k]});
+  BASE_KEYS.forEach(k=>{const o=(c.types||{})[k]||{};REPORTS[k].label=o.label||REPORTS[k].base;REPORTS[k].hidden=!!o.hidden});
+  (c.custom||[]).forEach(t=>{REPORTS[t.key]={label:t.label,custom:true,tab:!!t.tab&&!t.deleted,hidden:!!t.deleted,fields:(t.fields||[]).map(f=>({k:f.k,l:f.l,t:f.t,req:f.req?1:0,opts:f.opts}))}});
+}
 const STATUS={new:['جديد','b-blue'],reviewed:['معتمد','b-good'],returned:['مُعاد للفرع','b-warn']};
 const RANGES={today:'اليوم','7d':'آخر 7 أيام','30d':'آخر 30 يوماً',month:'الشهر الحالي'};
 const MAX_FILE=5*1024*1024;
@@ -598,7 +654,7 @@ async function loadAll(){
     one(sb.from('notifications').select('*').order('created_at',{ascending:false}).limit(100)),
     one(sb.from('positions').select('*').order('sort'))
   ]);
-  const n={settings:{company:st.company,currency:st.currency,concept:st.concept,targets:st.targets},
+  const n={settings:{company:st.company,currency:st.currency,concept:st.concept,targets:st.targets,custom:st.custom||{}},
     users:{},positions:{},checklist:cl.map(mapCk),checkRuns:{},tasks:tasks.map(mapTask),reports:reps.map(mapReport),inventory:{},notifs:[]};
   pr.forEach(p=>n.users[p.id]=mapUser(p));
   pos.forEach(x=>n.positions[x.key]={key:x.key,label:x.label,scope:x.scope,perms:x.perms||{},builtin:x.builtin,sort:x.sort});
@@ -609,6 +665,7 @@ async function loadAll(){
   meta.forEach(m=>{(n.inventory[m.branch_id]=n.inventory[m.branch_id]||{items:[],updated:''}).updated=fmtTs(m.updated_at)});
   n.notifs=nt.map(x=>({id:x.id,text:x.text,time:fmtTs(x.created_at),read:x.read}));
   db=n;
+  applyCustom();
   if(currentUser)computePerms();
 }
 
@@ -633,7 +690,7 @@ function openModal(t,h){$('modalT').textContent=t;$('modalB').innerHTML=h;$('mod
 function closeModal(){$('modal').classList.remove('open')}
 const badge=(t,c)=>`<span class="badge ${c}">${esc(t)}</span>`;
 const statusBadge=s=>{const x=STATUS[s]||STATUS.new;return badge(x[0],x[1])};
-const KPI_IC=[['مبيعات','💰'],['الطلبات','🧾'],['طلب','🧾'],['ضيوف','👥'],['الهالك','🗑️'],['هالك','🗑️'],['العمالة','👷'],['الجودة','⭐'],['جودة','⭐'],['المخزون','📦'],['شكاوى','💬'],['المراجعة','✅'],['تكليفات','📌'],['متوسط','🧮'],['قيمة','🧮']];
+const KPI_IC=[['مبيعات','💰'],['الكاشير','🏧'],['فحوصات','🔍'],['الطلبات','🧾'],['طلب','🧾'],['ضيوف','👥'],['الهالك','🗑️'],['هالك','🗑️'],['العمالة','👷'],['الجودة','⭐'],['جودة','⭐'],['المخزون','📦'],['شكاوى','💬'],['المراجعة','✅'],['تكليفات','📌'],['متوسط','🧮'],['قيمة','🧮']];
 function kpi(l,v,s,tone){const ic=(KPI_IC.find(x=>l.includes(x[0]))||[0,'📊'])[1];
   return `<div class="kpi ${tone||''}"><div class="kpi-ic">${ic}</div><div class="kpi-b"><div class="kpi-l">${l}</div><div class="kpi-v">${v}</div><div class="kpi-s">${s||'&nbsp;'}</div></div></div>`}
 const lowerTone=(v,t)=>v<=t?'good':v<=t*1.2?'warn':'bad';
@@ -659,13 +716,15 @@ function dayList(from,to){const a=[];let d=from;while(d<=to&&d<=today()){a.push(
 function reportsIn(from,to,branch){return db.reports.filter(r=>r.date>=from&&r.date<=to&&(!branch||r.branch===branch))}
 function metrics(branch,from,to){
   const rs=reportsIn(from,to,branch);
-  const m={sales:0,orders:0,waste:0,labor:0,present:0,absent:0,ot:0,qs:[],hs:[],ratings:[],complaints:0,maint:0,count:rs.length,dine:0,take:0,deliv:0,disc:0};
+  const m={sales:0,orders:0,waste:0,labor:0,present:0,absent:0,ot:0,qs:[],hs:[],ratings:[],complaints:0,maint:0,count:rs.length,cashDiff:0,cashN:0,insp:0,dine:0,take:0,deliv:0,disc:0};
   rs.forEach(r=>{const d=r.data||{};
     if(r.type==='sales'){m.sales+=+d.sales_total||0;m.orders+=+d.orders||0;m.dine+=+d.dine_in||0;m.take+=+d.takeaway||0;m.deliv+=+d.delivery||0;m.disc+=+d.discounts||0}
     if(r.type==='waste')m.waste+=+d.waste_value||0;
     if(r.type==='labor'){m.labor+=+d.labor_cost||0;m.present+=+d.present||0;m.absent+=+d.absent||0;m.ot+=+d.overtime||0}
     if(r.type==='quality'){if(d.quality_score!=null)m.qs.push(+d.quality_score);if(d.hygiene_score!=null)m.hs.push(+d.hygiene_score);if(d.rating!=null)m.ratings.push(+d.rating);m.complaints+=+d.complaints||0}
     if(r.type==='maintenance')m.maint++;
+    if(r.type==='qinspect'){m.insp++;if(d.score!=null)m.qs.push(+d.score)}
+    if(r.type==='cash_am'||r.type==='cash_pm'){m.cashN++;m.cashDiff+=+d.diff||0}
   });
   const av=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
   m.avg=m.orders?m.sales/m.orders:0; m.wastePct=m.sales?m.waste/m.sales*100:0; m.laborPct=m.sales?m.labor/m.sales*100:0;
@@ -722,9 +781,10 @@ function donut(parts,unit){
   return `<div class="donut-wrap"><svg class="donut" viewBox="0 0 42 42"><circle cx="21" cy="21" r="15.9155" fill="none" stroke="#EDF1F3" stroke-width="5.5"/>${seg}<text x="21" y="20.5" text-anchor="middle" font-size="5.2" font-weight="800" fill="#07426F" style="font-family:Cairo">${shortNum(tot)}</text><text x="21" y="26" text-anchor="middle" font-size="2.8" fill="#5B6B73" style="font-family:Cairo">${unit||'الإجمالي'}</text></svg>
    <div class="legend">${parts.map(x=>`<div><i style="background:${x.color}"></i>${x.label}<b>${Math.round(x.value/tot*100)}%</b></div>`).join('')}</div></div>`;
 }
-function rankBars(rows){
-  const list=[...rows].sort((a,b)=>b.m.sales-a.m.sales),max=Math.max(1,...list.map(r=>r.m.sales));
-  return list.length?list.map((r,i)=>`<div class="rk ${i===0&&r.m.sales?'top':''}"><span>${esc(r.b.name)}</span><div class="rk-bar"><i style="width:${r.m.sales/max*100}%"></i></div><strong>${money(r.m.sales)}</strong></div>`).join(''):'<div class="empty">لا توجد فروع</div>';
+function rankBars(rows,get,fmt){
+  get=get||(r=>r.m.sales);fmt=fmt||money;
+  const list=[...rows].sort((a,b)=>get(b)-get(a)),max=Math.max(1,...list.map(get));
+  return list.length?list.map((r,i)=>`<div class="rk ${i===0&&get(r)?'top':''}"><span>${esc(r.b.name)}</span><div class="rk-bar"><i style="width:${get(r)/max*100}%"></i></div><strong>${fmt(get(r))}</strong></div>`).join(''):'<div class="empty">لا توجد بيانات</div>';
 }
 const CH_COLORS=['#07426F','#3E9B4F','#B8963E'];
 const channelParts=m=>[{label:'داخل الفرع',value:m.dine,color:CH_COLORS[0]},{label:'سفري',value:m.take,color:CH_COLORS[1]},{label:'توصيل',value:m.deliv,color:CH_COLORS[2]}];
@@ -785,8 +845,8 @@ async function changePassword(oldId,newId){
    الوظائف والصلاحيات
    ===================================================================== */
 const PERM_GROUPS=[
- {id:'m',title:'صلاحيات الإدارة',items:[['m_dash','لوحة المؤشرات الإجمالية'],['m_reports','عرض التقارير الواردة'],['m_review','اعتماد التقارير وإعادتها للفروع'],['m_exec','التقرير التنفيذي'],['m_export','تصدير Excel'],['m_tasks','إصدار التكليفات ومتابعتها'],['m_checklist','متابعة قوائم المراجعة'],['m_checklist_edit','تعديل بنود قائمة المراجعة'],['m_branches','إدارة الفروع وحساباتها'],['m_settings','إعدادات المؤسسة والمستهدفات']]},
- {id:'b',title:'صلاحيات الفرع',items:[['b_dash','لوحة مؤشرات الفرع'],['b_submit','رفع التقارير للإدارة'],['b_inventory','الجرد والمخزون'],['b_check','قائمة المراجعة اليومية'],['b_tasks','التكليفات الواردة']]}
+ {id:'m',title:'صلاحيات الإدارة',items:[['m_dash','لوحة المؤشرات الإجمالية'],['m_reports','عرض التقارير الواردة'],['m_review','اعتماد التقارير وإعادتها للفروع'],['m_exec','التقرير التنفيذي'],['m_export','تصدير Excel'],['m_tasks','إصدار التكليفات ومتابعتها'],['m_checklist','متابعة قوائم المراجعة'],['m_checklist_edit','تعديل بنود قائمة المراجعة'],['m_branches','إدارة الفروع وحساباتها'],['m_quality','شاشة الجودة (عرض الدرجات والفحوصات)'],['m_quality_edit','تعديل بنود فحص الجودة'],['m_settings','إعدادات المؤسسة + تخصيص القوائم والنماذج']]},
+ {id:'b',title:'صلاحيات الفرع',items:[['b_dash','لوحة مؤشرات الفرع'],['b_submit','رفع التقارير للإدارة'],['b_inventory','الجرد والمخزون'],['b_check','قائمة المراجعة اليومية'],['b_tasks','التكليفات الواردة'],['b_cashier','تقفيل الكاشير (صباحي ومسائي)'],['b_quality','تنفيذ فحص الجودة'],['b_excel','رفع التقارير من ملف إكسل']]}
 ];
 const SCOPES={all:'كل الفروع',assigned:'فروع يحددها الأدمن',own:'فرع واحد (حسابات الفروع)'};
 const SC_SHORT={all:'كل الفروع',assigned:'فروع محددة',own:'فرع واحد'};
@@ -800,13 +860,19 @@ function computePerms(){
 const isAdmin=()=>!!currentUser&&currentUser.role==='admin';
 const can=k=>isAdmin()||!!(currentUser&&currentUser.perms&&currentUser.perms[k]===true);
 
-const TAB_DEF={dash:['لوحة المؤشرات','m_dash'],reports:['التقارير الواردة','m_reports'],exec:['التقرير التنفيذي','m_exec'],tasks:['التكليفات','m_tasks'],
- checklist:['قوائم المراجعة','m_checklist|m_checklist_edit'],branches:['الفروع والحسابات','m_branches'],team:['الوظائف والصلاحيات','@admin'],settings:['الإعدادات','m_settings'],
- bdash:['لوحة الفرع','b_dash'],submit:['رفع تقرير','b_submit'],inventory:['الجرد والمخزون','b_inventory'],bcheck:['قائمة المراجعة اليومية','b_check'],btasks:['التكليفات الواردة','b_tasks'],account:['الحساب','*']};
+const PROTECTED_TABS=['team','cust','settings','account'];
+const TAB_DEF={dash:['لوحة المؤشرات','m_dash'],reports:['التقارير الواردة','m_reports'],quality:['الجودة','m_quality|m_quality_edit'],exec:['التقرير التنفيذي','m_exec'],tasks:['التكليفات','m_tasks'],
+ checklist:['قوائم المراجعة','m_checklist|m_checklist_edit'],branches:['الفروع والحسابات','m_branches'],team:['الوظائف والصلاحيات','@admin'],cust:['تخصيص القوائم والنماذج','m_settings'],settings:['الإعدادات','m_settings'],
+ bdash:['لوحة الفرع','b_dash'],submit:['رفع تقرير','b_submit'],cashier:['تقفيل الكاشير','b_cashier'],qcheck:['فحص الجودة','b_quality'],inventory:['الجرد والمخزون','b_inventory'],bcheck:['قائمة المراجعة اليومية','b_check'],btasks:['التكليفات الواردة','b_tasks'],account:['الحساب','*']};
+const customCfg=()=>db.settings.custom||(db.settings.custom={});
+function allTabDefs(){const d={...TAB_DEF};Object.entries(REPORTS).forEach(([k,v])=>{if(v.custom&&v.tab&&!v.hidden)d['ct_'+k]=[v.label,'b_submit']});return d}
 function navFor(){
-  const mg=['dash','reports','exec','tasks','checklist','branches','team','settings'],br=['bdash','submit','inventory','bcheck','btasks'];
+  const D=allTabDefs(),tb=customCfg().tabs||{};
+  const mg=['dash','reports','quality','exec','tasks','checklist','branches','team','cust','settings'];
+  const br=['bdash','submit','cashier','qcheck',...Object.keys(D).filter(x=>x.startsWith('ct_')),'inventory','bcheck','btasks'];
   const ids=currentUser.role==='branch'?[...br,'account']:currentUser.role==='admin'?mg:[...mg,'account'];
-  return ids.filter(id=>{const p=TAB_DEF[id][1];return p==='*'||(p==='@admin'?isAdmin():p.split('|').some(k=>can(k)))}).map(id=>[id,TAB_DEF[id][0]]);
+  return ids.filter(id=>{const p=D[id][1];if(!(p==='*'||(p==='@admin'?isAdmin():p.split('|').some(k=>can(k)))))return false;return PROTECTED_TABS.includes(id)||!(tb[id]&&tb[id].hidden)})
+    .map(id=>[id,(tb[id]&&tb[id].label)||D[id][0]]);
 }
 let navKey='';
 
@@ -841,16 +907,17 @@ function updateBadges(){
 function showTab(id){
   if(!navFor().some(x=>x[0]===id))return;
   activeTab=id;
-  document.querySelectorAll('section.tab').forEach(s=>s.classList.toggle('active',s.id==='tab-'+id));
+  const sec=(id==='cashier'||id.startsWith('ct_'))?'submit':id;
+  document.querySelectorAll('section.tab').forEach(s=>s.classList.toggle('active',s.id==='tab-'+sec));
   document.querySelectorAll('#navBar button').forEach(b=>b.classList.toggle('active',b.id==='nav-'+id));
   $('notifPanel').classList.add('hidden');
   initTab(id); window.scrollTo({top:0});
 }
 function initTab(id){
   const R={dash:()=>{fillRangeSelect('dashRange',dashRange);renderAdminDash()},reports:initReportsTab,exec:()=>{if(!$('execRange').innerHTML)fillRangeSelect('execRange','30d');$('execExportBtn').classList.toggle('hidden',!can('m_export'));renderExec()},
-   tasks:initTasksTab,checklist:renderAdminChecklist,branches:renderAdminBranches,team:renderTeam,settings:initSettings,
-   bdash:()=>{fillRangeSelect('bRange',dashRange);renderBranchDash()},submit:initSubmitTab,inventory:renderInventory,bcheck:renderBranchCheck,btasks:renderBranchTasks,account:initAccount};
-  R[id]&&R[id]();
+   tasks:initTasksTab,checklist:renderAdminChecklist,branches:renderAdminBranches,team:renderTeam,cust:renderCust,quality:()=>{fillRangeSelect('qRange',qRange);renderQuality()},qcheck:renderQCheck,cashier:()=>initSubmitTab({title:RT('cash_am').base&&'تقفيل الكاشير',types:['cash_am','cash_pm']}),settings:initSettings,
+   bdash:()=>{fillRangeSelect('bRange',dashRange);renderBranchDash()},submit:()=>initSubmitTab(null),inventory:renderInventory,bcheck:renderBranchCheck,btasks:renderBranchTasks,account:initAccount};
+  if(id.startsWith('ct_')){const k=id.slice(3);initSubmitTab({title:RT(k).label,types:[k]})}else R[id]&&R[id]();
 }
 
 /* =====================================================================
@@ -885,12 +952,13 @@ function renderAdminDash(){
    ${kpi('نسبة تكلفة العمالة',tot.sales&&tot.labor?pct(tot.laborPct):'—','المستهدف ≤ '+t.labor+'%',tot.sales&&tot.labor?lowerTone(tot.laborPct,t.labor):'')}
    ${kpi('متوسط الجودة',tot.quality!=null?pct(tot.quality,0):'—','المستهدف ≥ '+t.quality+'%',tot.quality!=null?higherTone(tot.quality,t.quality):'')}
    ${kpi('نواقص المخزون',num(lowAll),'أصناف دون الحد الأدنى',lowAll?'bad':'good')}
+   ${tot.cashN?kpi('فروق الكاشير',money(tot.cashDiff),'عدد التقفيلات: '+tot.cashN,Math.abs(tot.cashDiff)<=1?'good':'bad'):''}
   </div>`;
   h+=`<div class="chart-grid"><div class="chart-card"><h4>المبيعات اليومية (إجمالي الفروع)</h4>${barChart(dailySeries(null,from,to))}</div><div class="chart-card"><h4>توزيع المبيعات حسب القناة</h4>${donut(channelParts(tot),db.settings.currency)}</div></div>`;
   h+=`<div class="chart-card chart-solo"><h4>ترتيب الفروع بالمبيعات</h4>${rankBars(rows)}</div>`;
   h+=`<h4>مقارنة أداء الفروع</h4>`+(rows.length?branchTable(rows,false):'<div class="empty">لا توجد فروع</div>');
   const recent=db.reports.slice(0,6);
-  h+=`<h4>آخر العمليات الواردة</h4>`+(recent.length?recent.map(r=>`<div class="item row"><span>${esc(bName(r.branch))} — ${esc(REPORTS[r.type]?REPORTS[r.type].label:r.type)}</span><span class="spacer"></span><span class="muted">${r.created}</span>${statusBadge(r.status)}<button class="btn ghost sm" onclick="openReport('${r.id}')">عرض</button></div>`).join(''):'<div class="empty">لم تصل تقارير بعد.</div>');
+  h+=`<h4>آخر العمليات الواردة</h4>`+(recent.length?recent.map(r=>`<div class="item row"><span>${esc(bName(r.branch))} — ${esc(REPORTS[r.type]?RT(r.type).label:r.type)}</span><span class="spacer"></span><span class="muted">${r.created}</span>${statusBadge(r.status)}<button class="btn ghost sm" onclick="openReport('${r.id}')">عرض</button></div>`).join(''):'<div class="empty">لم تصل تقارير بعد.</div>');
   $('adminDashBody').innerHTML=h;
 }
 
@@ -904,12 +972,14 @@ function initReportsTab(){
 function repSummary(r){
   const d=r.data||{};
   switch(r.type){
-   case 'sales':return money(d.sales_total)+' | '+num(d.orders)+' '+(db.settings.concept==='fine'?'ضيف':'طلب');
+   case 'sales':return money(d.sales_total)+' | '+num(d.orders)+' '+({fine:'ضيف',fast:'طلب'}[db.settings.concept]||'فاتورة');
    case 'waste':return esc(d.item||'')+' — '+money(d.waste_value);
    case 'labor':return 'حضور '+num(d.present)+' / غياب '+num(d.absent)+' | '+money(d.labor_cost);
    case 'quality':return 'جودة '+num(d.quality_score)+'%'+(d.complaints?' | شكاوى '+d.complaints:'');
    case 'maintenance':return esc(d.equipment||'')+' — '+esc(d.severity||'');
    case 'inventory':return 'نواقص: '+num(d.low)+' من '+num(d.counted);
+   case 'cash_am':case 'cash_pm':return 'مبيعات '+money((+d.cash_sales||0)+(+d.card_sales||0)+(+d.delivery_sales||0))+' | فرق '+money(d.diff||0);
+   case 'qinspect':return 'نتيجة '+num(d.score)+'%'+(d.failed?' | غير مطابق: '+esc(String(d.failed).slice(0,60)):'');
    default:return esc(d.subject||'');
   }
 }
@@ -918,7 +988,7 @@ function renderAdminReports(){
   let from='0000-00-00',to='9999-99-99'; if(rg!=='all'){const x=getRange(rg);from=x.from;to=x.to}
   const list=db.reports.filter(r=>(!b||r.branch===b)&&(!ty||r.type===ty)&&(!st||r.status===st)&&r.date>=from&&r.date<=to);
   $('adminReportsList').innerHTML=list.length?`<div class="tbl-wrap"><table><thead><tr><th>التاريخ</th><th>الفرع</th><th>النوع</th><th>الملخص</th><th>الحالة</th><th></th></tr></thead><tbody>`+
-   list.map(r=>`<tr><td>${fmtDate(r.date)}</td><td><strong>${esc(bName(r.branch))}</strong></td><td>${esc(REPORTS[r.type].label)}</td><td>${repSummary(r)}</td><td>${statusBadge(r.status)}</td><td><button class="btn ghost sm" onclick="openReport('${r.id}')">عرض ومراجعة</button></td></tr>`).join('')+`</tbody></table></div>`
+   list.map(r=>`<tr><td>${fmtDate(r.date)}</td><td><strong>${esc(bName(r.branch))}</strong></td><td>${esc(RT(r.type).label)}</td><td>${repSummary(r)}</td><td>${statusBadge(r.status)}</td><td><button class="btn ghost sm" onclick="openReport('${r.id}')">عرض ومراجعة</button></td></tr>`).join('')+`</tbody></table></div>`
    :'<div class="empty">لا توجد تقارير مطابقة للفلاتر المحددة.</div>';
 }
 function fieldDisplay(f,v){
@@ -927,7 +997,7 @@ function fieldDisplay(f,v){
 }
 function openReport(id){
   const r=db.reports.find(x=>x.id===id); if(!r)return;
-  const def=REPORTS[r.type]; const canRev=can('m_review')&&currentUser.role!=='branch';
+  const def=RT(r.type); const canRev=can('m_review')&&currentUser.role!=='branch';
   let h=`<dl class="kv"><dt>الفرع</dt><dd>${esc(bName(r.branch))}</dd><dt>النوع</dt><dd>${def.label}</dd><dt>تاريخ التقرير</dt><dd>${fmtDate(r.date)}</dd><dt>وقت الإرسال</dt><dd>${r.created}</dd><dt>الحالة</dt><dd>${statusBadge(r.status)}</dd>`;
   def.fields.forEach(f=>{if(r.data&&r.data[f.k]!=null&&r.data[f.k]!=='')h+=`<dt>${esc(typeof f.l==='function'?f.l():f.l)}</dt><dd>${fieldDisplay(f,r.data[f.k])}</dd>`});
   if(r.notes)h+=`<dt>ملاحظات</dt><dd>${esc(r.notes)}</dd>`;
@@ -953,7 +1023,7 @@ async function reviewReport(id,st){
   if(st==='returned'&&!txt)return toast('اكتب سبب الإعادة للفرع','err');
   if(!await w(sb.from('reports').update({status:st,review:txt,reviewed_at:new Date().toISOString()}).eq('id',id)))return;
   r.status=st;r.review=txt;
-  notify(r.branch,(st==='reviewed'?'تم اعتماد ':'تمت إعادة ')+REPORTS[r.type].label+' بتاريخ '+fmtDate(r.date)+(txt?' — '+txt:''));
+  notify(r.branch,(st==='reviewed'?'تم اعتماد ':'تمت إعادة ')+RT(r.type).label+' بتاريخ '+fmtDate(r.date)+(txt?' — '+txt:''));
   closeModal();updateBadges();
   if(activeTab==='reports')renderAdminReports();if(activeTab==='dash')renderAdminDash();
   toast('تم تحديث حالة التقرير','ok');
@@ -992,7 +1062,7 @@ function renderExec(){
 function exportExcel(rg){
   const {from,to}=rg,cn=CONCEPTS[db.settings.concept];
   const sum=branchRows(from,to).map(r=>({'الفرع':r.b.name,'المبيعات':r.m.sales,[cn.orders]:r.m.orders,[cn.ticket]:Math.round(r.m.avg),'الهالك %':+r.m.wastePct.toFixed(2),'العمالة %':+r.m.laborPct.toFixed(2),'الجودة':r.m.quality!=null?+r.m.quality.toFixed(1):'','التزام قوائم المراجعة %':r.chk??'','نواقص المخزون':r.low,'تكليفات مفتوحة':r.open}));
-  const reps=reportsIn(from,to).map(r=>({'التاريخ':r.date,'الفرع':bName(r.branch),'النوع':REPORTS[r.type].label,'الحالة':STATUS[r.status][0],'الملخص':repSummary(r).replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>'),'ملاحظات الفرع':r.notes,'ملاحظات الإدارة':r.review}));
+  const reps=reportsIn(from,to).map(r=>({'التاريخ':r.date,'الفرع':bName(r.branch),'النوع':RT(r.type).label,'الحالة':STATUS[r.status][0],'الملخص':repSummary(r).replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>'),'ملاحظات الفرع':r.notes,'ملاحظات الإدارة':r.review}));
   const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(sum),'أداء الفروع');
   XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(reps),'التقارير');
@@ -1298,18 +1368,31 @@ function updateSummary(){
   el.classList.remove('hidden');
 }
 
-function initSubmitTab(){
-  if(!$('rfType').innerHTML)$('rfType').innerHTML=Object.entries(REPORTS).filter(([k,v])=>!v.auto).map(([k,v])=>`<option value="${k}">${v.label}</option>`).join('');
+let subFilter=null,qRange='30d';
+function initSubmitTab(flt){
+  subFilter=flt||null;
+  const types=flt?flt.types:Object.keys(REPORTS).filter(k=>{const v=REPORTS[k];return !v.auto&&!v.grp&&!v.hidden});
+  $('rfType').innerHTML=types.map(k=>`<option value="${k}">${esc(REPORTS[k].label)}</option>`).join('');
+  $('rfTitle').textContent=flt?flt.title:'رفع تقرير جديد للإدارة';
+  $('rfTypeWrap').classList.toggle('hidden',types.length<2);
+  $('xlRow').classList.toggle('hidden',!can('b_excel'));
   $('rfDate').value=today();$('rfDate').max=today();
   renderReportFields();renderBranchReports();
 }
-function fieldsFor(type){return REPORTS[type].fields.filter(f=>!f.only||f.only.includes(db.settings.concept))}
+function fieldsFor(type){return RT(type).fields.filter(f=>!f.calc&&(!f.only||f.only.includes(db.settings.concept)))}
 function renderReportFields(){
   const type=$('rfType').value;
   $('rfFields').innerHTML=fieldsFor(type).map(f=>{
     const l=(typeof f.l==='function'?f.l():f.l)+(f.cur?' ('+esc(db.settings.currency)+')':'')+(f.req?' *':'');
     const inp=f.t==='select'?`<select id="f_${f.k}">${f.opts.map(o=>`<option>${o}</option>`).join('')}</select>`:`<input id="f_${f.k}" type="${f.t==='number'?'number':'text'}" ${f.t==='number'?`min="0" ${f.max?`max="${f.max}"`:''} step="any"`:''}>`;
-    return `<div class="fg"><label>${l}</label>${inp}</div>`}).join('');
+    return `<div class="fg"><label>${l}</label>${inp}</div>`}).join('')+(type.startsWith('cash_')?'<div class="fg" style="grid-column:1/-1"><div id="cashDiff" class="insight"></div></div>':'');
+  $('rfFields').oninput=calcCash;calcCash();
+}
+function cashCalc(g){const v=k=>+g(k)||0,exp=v('opening')+v('cash_sales')-v('expenses')-v('deposit');return{expected:exp,diff:v('counted')-exp}}
+function calcCash(){
+  const t=$('rfType').value,b=$('cashDiff');if(!b||!t.startsWith('cash_'))return;
+  const c=cashCalc(k=>($('f_'+k)||{}).value),tone=Math.abs(c.diff)<=1?'var(--good)':'var(--bad)';
+  b.innerHTML=`المتوقع بالدرج: <strong>${money(c.expected)}</strong> &nbsp;|&nbsp; الفرق: <strong style="color:${tone}">${c.diff>0?'+':''}${money(c.diff)}</strong>`;
 }
 function resizeImage(file){
   return new Promise((res,rej)=>{
@@ -1326,7 +1409,7 @@ function resizeImage(file){
   });
 }
 async function submitReport(){
-  const type=$('rfType').value,def=REPORTS[type],date=$('rfDate').value,data={};
+  const type=$('rfType').value,def=RT(type),date=$('rfDate').value,data={};
   if(!date)return toast('حدد تاريخ التقرير','err');
   for(const f of fieldsFor(type)){
     const el=$('f_'+f.k),v=el.value.trim();
@@ -1335,6 +1418,7 @@ async function submitReport(){
     if(f.t==='number'&&v!==''){if(+v<0)return toast('قيمة غير صحيحة: '+lbl,'err');if(f.max&&+v>f.max)return toast('الحد الأقصى لـ '+lbl+' هو '+f.max,'err')}
     data[f.k]=f.t==='number'?(v===''?null:+v):v;
   }
+  if(type.startsWith('cash_')){const c=cashCalc(k=>data[k]);data.expected=c.expected;data.diff=c.diff}
   const file=$('rfFile').files[0];
   if(file&&file.size>MAX_FILE*3)return toast('حجم الملف كبير جداً (الحد 5 ميجا)','err');
   const btn=$('rfBtn');btn.disabled=true;
@@ -1359,8 +1443,8 @@ async function submitReport(){
   }finally{btn.disabled=false}
 }
 function renderBranchReports(){
-  const list=db.reports.filter(r=>r.branch===currentUser.username).slice(0,40);
-  $('branchReportsList').innerHTML=list.length?`<div class="tbl-wrap"><table><thead><tr><th>التاريخ</th><th>النوع</th><th>الملخص</th><th>الحالة</th><th>ملاحظات الإدارة</th><th></th></tr></thead><tbody>`+list.map(r=>`<tr><td>${fmtDate(r.date)}</td><td>${REPORTS[r.type].label}</td><td>${repSummary(r)}</td><td>${statusBadge(r.status)}</td><td>${esc(r.review||'—')}</td><td><button class="btn ghost sm" onclick="openReport('${r.id}')">عرض</button></td></tr>`).join('')+'</tbody></table></div>':'<div class="empty">لم يتم رفع تقارير بعد.</div>';
+  const list=db.reports.filter(r=>r.branch===currentUser.username&&(!subFilter||subFilter.types.includes(r.type))).slice(0,40);
+  $('branchReportsList').innerHTML=list.length?`<div class="tbl-wrap"><table><thead><tr><th>التاريخ</th><th>النوع</th><th>الملخص</th><th>الحالة</th><th>ملاحظات الإدارة</th><th></th></tr></thead><tbody>`+list.map(r=>`<tr><td>${fmtDate(r.date)}</td><td>${RT(r.type).label}</td><td>${repSummary(r)}</td><td>${statusBadge(r.status)}</td><td>${esc(r.review||'—')}</td><td><button class="btn ghost sm" onclick="openReport('${r.id}')">عرض</button></td></tr>`).join('')+'</tbody></table></div>':'<div class="empty">لم يتم رفع تقارير بعد.</div>';
 }
 
 /* الجرد */
@@ -1446,6 +1530,240 @@ async function saveAccount(){
   if(!await w(sb.from('profiles').update({manager,email_contact:email}).eq('id',currentUser.username)))return;
   currentUser.manager=manager;currentUser.email=email;
   toast('تم الحفظ','ok');
+}
+
+/* =====================================================================
+   حفظ التخصيصات (settings.custom)
+   ===================================================================== */
+const cloneC=()=>JSON.parse(JSON.stringify(db.settings.custom||{}));
+async function commitCustom(c){
+  if(!await w(sb.from('settings').update({custom:c}).eq('id',1)))return false;
+  db.settings.custom=c;applyCustom();return true;
+}
+const fl=f=>String(typeof f.l==='function'?f.l():f.l);
+
+/* =====================================================================
+   الجودة
+   ===================================================================== */
+const DEF_QITEMS=['نظافة منطقة التحضير والمعدات','التزام العاملين بالزي الرسمي والنظافة الشخصية','درجات حرارة الثلاجات والفريزرات ضمن المسموح','تواريخ الصلاحية وبطاقات التعريف على الأصناف','فصل الخامات النيئة عن المطبوخة','نظافة الصالة ودورات المياه','مطابقة المنتجات للمواصفة القياسية','مكافحة الحشرات وسلامة التخزين'];
+function qItems(){const q=customCfg().qItems;return(q&&q.length)?q:DEF_QITEMS.map((t,i)=>({id:'q'+(i+1),title:t}))}
+async function saveQItems(items){
+  const r=await w(sb.rpc('set_quality_items',{items}));
+  if(!r)return false;
+  customCfg().qItems=items;return true;
+}
+async function addQItem(){
+  const t=$('qiTitle').value.trim();if(!t)return toast('اكتب نص البند','err');
+  if(!await saveQItems([...qItems(),{id:'q'+Math.random().toString(36).slice(2,8),title:t}]))return;
+  $('qiTitle').value='';renderQuality();toast('تمت إضافة البند','ok');
+}
+async function delQItem(id){
+  if(qItems().length<=1)return toast('لازم يفضل بند واحد على الأقل','err');
+  if(!confirm('حذف هذا البند؟ (الفحوصات القديمة تبقى كما هي)'))return;
+  if(!await saveQItems(qItems().filter(x=>x.id!==id)))return;renderQuality();
+}
+async function renameQItem(id,el){
+  const t=el.value.trim();if(!t){renderQuality();return}
+  if(!await saveQItems(qItems().map(x=>x.id===id?{...x,title:t}:x)))return;toast('تم التعديل','ok');
+}
+function renderQuality(){
+  const {from,to}=getRange(qRange),rows=branchRows(from,to),tot=metrics(null,from,to),t=db.settings.targets;
+  const insp=reportsIn(from,to).filter(r=>r.type==='qinspect');
+  const fails={};insp.forEach(r=>Object.entries((r.data||{}).items||{}).forEach(([id,ok])=>{if(!ok)fails[id]=(fails[id]||0)+1}));
+  const titleOf=id=>{const x=qItems().find(q=>q.id===id);return x?x.title:id};
+  const failRows=Object.entries(fails).map(([id,v])=>({b:{name:titleOf(id)},v})).sort((a,b)=>b.v-a.v).slice(0,6);
+  let days=dayList(from,to);if(days.length<7)days=dayList(addDays(to,-6),to);if(days.length>31)days=days.slice(-31);
+  const series=days.map(d=>({label:d.slice(8),value:Math.round(metrics(null,d,d).quality||0)}));
+  let h=`<div class="kpis">
+   ${kpi('متوسط الجودة',tot.quality!=null?pct(tot.quality,0):'—','المستهدف ≥ '+t.quality+'%',tot.quality!=null?higherTone(tot.quality,t.quality):'')}
+   ${kpi('النظافة',tot.hygiene!=null?pct(tot.hygiene,0):'—','من تقارير الجودة اليومية')}
+   ${kpi('تقييم الضيوف',tot.rating!=null?tot.rating.toFixed(1)+' / 5':'—','متوسط التقييم')}
+   ${kpi('شكاوى العملاء',num(tot.complaints),'خلال الفترة',tot.complaints?'warn':'good')}
+   ${kpi('فحوصات الجودة',num(tot.insp),'عدد الفحوصات المنفذة')}
+  </div>
+  <div class="chart-grid"><div class="chart-card"><h4>متوسط الجودة اليومي %</h4>${barChart(series)}</div>
+  <div class="chart-card"><h4>ترتيب الفروع بالجودة</h4>${rankBars(rows,r=>r.m.quality||0,v=>v?Math.round(v)+'%':'—')}</div></div>`;
+  h+=`<div class="chart-card chart-solo"><h4>أكثر البنود عدم مطابقة</h4>${failRows.length?rankBars(failRows,r=>r.v,v=>v+' مرة'):'<div class="empty">لا توجد بنود غير مطابقة في الفترة 🎉</div>'}</div>`;
+  h+=`<h4>أداء الفروع في الجودة</h4>`+(rows.length?`<div class="tbl-wrap"><table><thead><tr><th>الفرع</th><th>الجودة</th><th>النظافة</th><th>التقييم</th><th>الشكاوى</th><th>الفحوصات</th></tr></thead><tbody>`+rows.map(r=>`<tr><td><strong>${esc(r.b.name)}</strong></td><td>${r.m.quality!=null?`<span class="badge ${toneBadge(higherTone(r.m.quality,t.quality))}">${Math.round(r.m.quality)}%</span>`:'—'}</td><td>${r.m.hygiene!=null?Math.round(r.m.hygiene)+'%':'—'}</td><td>${r.m.rating!=null?r.m.rating.toFixed(1):'—'}</td><td>${num(r.m.complaints)}</td><td>${num(r.m.insp)}</td></tr>`).join('')+'</tbody></table></div>':'<div class="empty">لا توجد فروع</div>');
+  h+=`<h4>آخر فحوصات الجودة</h4>`+(insp.length?insp.slice(0,8).map(r=>`<div class="item row"><span>${esc(bName(r.branch))} — ${repSummary(r)}</span><span class="spacer"></span><span class="muted">${r.created}</span><button class="btn ghost sm" onclick="openReport('${r.id}')">عرض</button></div>`).join(''):'<div class="empty">لا توجد فحوصات في الفترة.</div>');
+  $('qBody').innerHTML=h;
+  const ed=can('m_quality_edit');$('qItemsCard').classList.toggle('hidden',!ed);
+  if(ed)$('qItemsList').innerHTML=qItems().map(x=>`<div class="item row"><input type="text" value="${esc(x.title)}" style="flex:1" onchange="renameQItem('${x.id}',this)"><button class="btn danger sm" onclick="delQItem('${x.id}')">حذف</button></div>`).join('');
+}
+function qcCalc(){
+  const items=qItems(),ok=[...document.querySelectorAll('.qc')].filter(c=>c.checked).length,p=items.length?Math.round(ok/items.length*100):0;
+  $('qcPct').textContent=ok+' / '+items.length+' — '+p+'%';return p;
+}
+function renderQCheck(){
+  $('qcBody').innerHTML=qItems().map(x=>`<label class="item row" style="cursor:pointer"><input type="checkbox" class="qc" data-id="${x.id}" style="width:auto" onchange="qcCalc()"><span>${esc(x.title)}</span></label>`).join('');
+  qcCalc();$('qcNotes').value='';
+  const l=db.reports.filter(r=>r.branch===currentUser.username&&r.type==='qinspect').slice(0,10);
+  $('qcList').innerHTML=l.length?l.map(r=>`<div class="item row"><span>${fmtDate(r.date)} — ${repSummary(r)}</span><span class="spacer"></span>${statusBadge(r.status)}<button class="btn ghost sm" onclick="openReport('${r.id}')">عرض</button></div>`).join(''):'<div class="empty">لم يتم إجراء فحوصات بعد.</div>';
+}
+async function submitQCheck(){
+  const items=qItems(),boxes=[...document.querySelectorAll('.qc')],map={};
+  boxes.forEach(b=>map[b.dataset.id]=b.checked);
+  const passed=boxes.filter(b=>b.checked).length,score=items.length?Math.round(passed/items.length*100):0;
+  const failed=items.filter(x=>!map[x.id]).map(x=>x.title).join('، ');
+  const btn=$('qcBtn');btn.disabled=true;
+  try{
+    const r=await w(sb.from('reports').insert({branch_id:currentUser.username,type:'qinspect',report_date:today(),data:{score,passed,total:items.length,failed,items:map},notes:$('qcNotes').value.trim()}).select().single());
+    if(!r)return;
+    db.reports.unshift(mapReport(r.data));
+    notify('admin',currentUser.name+' أرسل فحص جودة بنتيجة '+score+'%');
+    renderQCheck();updateBadges();toast('تم إرسال نتيجة الفحص','ok');
+  }finally{btn.disabled=false}
+}
+
+/* =====================================================================
+   تخصيص القوائم والنماذج (للأدمن)
+   ===================================================================== */
+function renderCust(){
+  const D=allTabDefs(),tb=customCfg().tabs||{},ty=customCfg().types||{};
+  const grp=(t,ids)=>`<tr><td colspan="4" style="background:var(--bg);font-weight:800">${t}</td></tr>`+ids.filter(id=>D[id]).map(id=>{
+    const p=PROTECTED_TABS.includes(id),o=tb[id]||{};
+    return `<tr><td>${esc(D[id][0])}</td><td><input type="text" id="ctl_${id}" value="${esc(o.label||'')}" placeholder="${esc(D[id][0])}"></td><td style="text-align:center">${p?'<span class="muted">ثابتة</span>':`<input type="checkbox" id="cth_${id}" ${o.hidden?'checked':''} style="width:auto">`}</td></tr>`}).join('');
+  const ct=Object.keys(D).filter(x=>x.startsWith('ct_'));
+  $('custTabs').innerHTML=`<div class="tbl-wrap"><table><thead><tr><th>الاسم الأصلي</th><th>الاسم الجديد</th><th>إخفاء</th></tr></thead><tbody>`+
+    grp('قوائم الإدارة',['dash','reports','quality','exec','tasks','checklist','branches','team','cust','settings'])+
+    grp('قوائم الفرع',['bdash','submit','cashier','qcheck',...ct,'inventory','bcheck','btasks','account'])+'</tbody></table></div>';
+  $('custTypes').innerHTML=`<div class="tbl-wrap"><table><thead><tr><th>النوع الأصلي</th><th>الاسم الجديد</th><th>إخفاء من «رفع تقرير»</th></tr></thead><tbody>`+
+    BASE_KEYS.map(k=>{const o=ty[k]||{},fixed=REPORTS[k].auto||REPORTS[k].grp;
+      return `<tr><td>${esc(REPORTS[k].base)}</td><td><input type="text" id="cty_${k}" value="${esc(o.label||'')}" placeholder="${esc(REPORTS[k].base)}"></td><td style="text-align:center">${fixed?'<span class="muted">—</span>':`<input type="checkbox" id="cth2_${k}" ${o.hidden?'checked':''} style="width:auto">`}</td></tr>`}).join('')+'</tbody></table></div>';
+  const cf=(customCfg().custom||[]);
+  $('custForms').innerHTML=cf.length?cf.map(t=>`<div class="item row"><span><strong>${esc(t.label)}</strong> <span class="muted">· ${(t.fields||[]).length} حقول · ${t.tab?'تبويب مستقل':'ضمن رفع تقرير'}${t.deleted?' · <span style="color:var(--bad)">محذوف</span>':''}</span></span><span class="spacer"></span>${t.deleted?`<button class="btn ghost sm" onclick="restoreForm('${t.key}')">استرجاع</button>`:`<button class="btn ghost sm" onclick="editForm('${t.key}')">تعديل</button><button class="btn danger sm" onclick="delForm('${t.key}')">حذف</button>`}</div>`).join(''):'<div class="empty">لا توجد نماذج مخصصة بعد.</div>';
+}
+async function saveTabs(){
+  const c=cloneC(),D=allTabDefs(),tabs={};
+  Object.keys(D).forEach(id=>{
+    const l=($('ctl_'+id)||{value:''}).value.trim(),h=!!($('cth_'+id)&&$('cth_'+id).checked);
+    if((l&&l!==D[id][0])||h)tabs[id]={...(l&&l!==D[id][0]?{label:l}:{}),...(h?{hidden:true}:{})};
+  });
+  c.tabs=tabs;
+  if(!await commitCustom(c))return;
+  buildNav();renderCust();toast('تم حفظ أسماء القوائم','ok');
+}
+async function saveTypes(){
+  const c=cloneC(),types={};
+  BASE_KEYS.forEach(k=>{const l=($('cty_'+k)||{value:''}).value.trim(),h=!!($('cth2_'+k)&&$('cth2_'+k).checked);
+    if((l&&l!==REPORTS[k].base)||h)types[k]={...(l&&l!==REPORTS[k].base?{label:l}:{}),...(h?{hidden:true}:{})}});
+  c.types=types;
+  if(!await commitCustom(c))return;
+  buildNav();renderCust();toast('تم حفظ أنواع التقارير','ok');
+}
+let _ff=[];
+function readFormFields(){
+  _ff=_ff.map((f,i)=>$('ff_l_'+i)?{k:f.k,l:$('ff_l_'+i).value.trim(),t:$('ff_t_'+i).value,req:$('ff_r_'+i).checked,opts:$('ff_o_'+i).value.split(/[,،]/).map(s=>s.trim()).filter(Boolean)}:f);
+}
+function renderFormFields(){
+  $('cfFields').innerHTML=_ff.map((f,i)=>`<div class="item row" style="flex-wrap:wrap;gap:8px"><input type="text" id="ff_l_${i}" value="${esc(f.l)}" placeholder="اسم الحقل" style="flex:2;min-width:140px"><select id="ff_t_${i}" style="flex:1;min-width:100px" onchange="readFormFields();renderFormFields()"><option value="text" ${f.t==='text'?'selected':''}>نص</option><option value="number" ${f.t==='number'?'selected':''}>رقم</option><option value="select" ${f.t==='select'?'selected':''}>اختيار</option></select><input type="text" id="ff_o_${i}" value="${esc((f.opts||[]).join('، '))}" placeholder="الخيارات مفصولة بفاصلة" style="flex:2;min-width:140px;${f.t==='select'?'':'display:none'}"><label style="display:flex;gap:4px;align-items:center;margin:0"><input type="checkbox" id="ff_r_${i}" ${f.req?'checked':''} style="width:auto">مطلوب</label><button class="btn danger sm" onclick="readFormFields();_ff.splice(${i},1);renderFormFields()">✕</button></div>`).join('')||'<div class="empty">أضف حقلاً واحداً على الأقل</div>';
+}
+function addFormField(){readFormFields();_ff.push({k:'k'+Math.random().toString(36).slice(2,7),l:'',t:'text',req:false,opts:[]});renderFormFields()}
+function editForm(key){
+  const t=key?(customCfg().custom||[]).find(x=>x.key===key):null;
+  _ff=t?JSON.parse(JSON.stringify(t.fields||[])):[{k:'k'+Math.random().toString(36).slice(2,7),l:'',t:'text',req:false,opts:[]}];
+  openModal(t?'تعديل النموذج':'نموذج جديد',`<div class="fg"><label>اسم النموذج / القائمة</label><input type="text" id="cfName" value="${esc(t?t.label:'')}"></div>
+   <label style="display:flex;gap:8px;align-items:center;margin:10px 0"><input type="checkbox" id="cfTab" ${t&&!t.tab?'':'checked'} style="width:auto">يظهر كتبويب مستقل عند الفرع</label>
+   <h4>الحقول</h4><div id="cfFields"></div>
+   <div class="row" style="margin-top:12px"><button class="btn ghost" onclick="addFormField()">+ حقل</button><button class="btn" onclick="saveForm('${key||''}')">حفظ النموذج</button></div>`);
+  renderFormFields();
+}
+async function saveForm(key){
+  readFormFields();
+  const label=$('cfName').value.trim();if(!label)return toast('اكتب اسم النموذج','err');
+  const fields=_ff.filter(f=>f.l);if(!fields.length)return toast('أضف حقلاً واحداً على الأقل','err');
+  if(fields.some(f=>f.t==='select'&&f.opts.length<2))return toast('حقل الاختيار يحتاج خيارين على الأقل','err');
+  const c=cloneC();c.custom=c.custom||[];
+  const rec={key:key||'cf_'+Math.random().toString(36).slice(2,8),label,tab:$('cfTab').checked,fields:fields.map(f=>({k:f.k,l:f.l,t:f.t,req:!!f.req,...(f.t==='select'?{opts:f.opts}:{})}))};
+  const i=c.custom.findIndex(x=>x.key===rec.key);if(i>=0)c.custom[i]={...c.custom[i],...rec};else c.custom.push(rec);
+  if(!await commitCustom(c))return;
+  closeModal();buildNav();renderCust();toast('تم حفظ النموذج','ok');
+}
+async function delForm(key){
+  if(!confirm('حذف هذا النموذج؟ يختفي من الفروع وتبقى تقاريره القديمة.'))return;
+  const c=cloneC(),t=(c.custom||[]).find(x=>x.key===key);if(!t)return;t.deleted=true;
+  if(!await commitCustom(c))return;buildNav();renderCust();
+}
+async function restoreForm(key){
+  const c=cloneC(),t=(c.custom||[]).find(x=>x.key===key);if(!t)return;delete t.deleted;
+  if(!await commitCustom(c))return;buildNav();renderCust();
+}
+
+/* =====================================================================
+   إكسل: قالب + رفع
+   ===================================================================== */
+function xlTemplate(){
+  if(typeof XLSX==='undefined')return toast('مكتبة إكسل لم تُحمَّل، تأكد من الإنترنت','err');
+  const type=$('rfType').value,fs=fieldsFor(type);
+  const head=['التاريخ',...fs.map(f=>fl(f).replace(/\s*\(.*?\)\s*/g,'').trim())];
+  const ex=[today(),...fs.map(f=>f.t==='select'?f.opts[0]:f.t==='number'?0:'')];
+  const wb=XLSX.utils.book_new(),ws=XLSX.utils.aoa_to_sheet([head,ex]);
+  ws['!cols']=head.map(()=>({wch:24}));
+  XLSX.utils.book_append_sheet(wb,ws,'تقرير');
+  wb.Workbook={Views:[{RTL:true}]};
+  XLSX.writeFile(wb,'template-'+type+'.xlsx');
+}
+const nz=s=>String(s==null?'':s).replace(/\(.*?\)|[*:：]/g,'').replace(/[ً-ْـ]/g,'').replace(/[أإآ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').replace(/\s+/g,'').toLowerCase();
+const AR_D='٠١٢٣٤٥٦٧٨٩';
+function xlNum(v){if(typeof v==='number')return v;const s=String(v).replace(/[٠-٩]/g,d=>AR_D.indexOf(d)).replace(/[,٬\s]/g,'').replace('٫','.');return s===''||isNaN(+s)?NaN:+s}
+function xlDate(v){
+  if(v instanceof Date&&!isNaN(v)){const d=new Date(v.getTime()+12*36e5);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+  const s=String(v||'').trim().replace(/[٠-٩]/g,d=>AR_D.indexOf(d));
+  let m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);if(m)return m[1]+'-'+m[2].padStart(2,'0')+'-'+m[3].padStart(2,'0');
+  m=s.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})/);if(m)return m[3]+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0');
+  return '';
+}
+function xlRowToData(type,row){
+  const keys=Object.keys(row),find=f=>keys.find(k=>nz(k)===nz(fl(f))||nz(k)===nz(f.k)),data={};
+  for(const f of fieldsFor(type)){
+    const col=find(f),raw=col==null?'':row[col];
+    if(f.t==='number'){const n=raw===''?null:xlNum(raw);data[f.k]=(n!=null&&isNaN(n))?NaN:n}
+    else if(f.t==='select'){const s=String(raw).trim();data[f.k]=f.opts.includes(s)?s:f.opts[0]}
+    else data[f.k]=String(raw==null?'':raw).trim();
+  }
+  const dc=keys.find(k=>['التاريخ','date','تاريخالتقرير'].includes(nz(k)));
+  return{data,date:dc?xlDate(row[dc]):''};
+}
+function xlValidate(type,data){
+  for(const f of fieldsFor(type)){
+    const v=data[f.k];
+    if(f.req&&(v===''||v==null||(typeof v==='number'&&isNaN(v))))return 'الحقل المطلوب فارغ: '+fl(f);
+    if(f.t==='number'&&v!=null){if(isNaN(v)||v<0)return 'قيمة غير صحيحة: '+fl(f);if(f.max&&v>f.max)return 'أكبر من الحد ('+f.max+'): '+fl(f)}
+  }
+  return '';
+}
+async function xlImport(inp){
+  const file=inp.files[0];if(!file)return;
+  try{
+    if(typeof XLSX==='undefined')return toast('مكتبة إكسل لم تُحمَّل، تأكد من الإنترنت','err');
+    const type=$('rfType').value,def=RT(type);
+    const wb=XLSX.read(await file.arrayBuffer(),{type:'array',cellDates:true}),ws=wb.Sheets[wb.SheetNames[0]];
+    const rows=XLSX.utils.sheet_to_json(ws,{defval:'',raw:true}).filter(r=>Object.values(r).some(v=>String(v).trim()!==''));
+    if(!rows.length)return toast('الملف لا يحتوي على بيانات','err');
+    if(rows.length>60)return toast('الحد الأقصى 60 صفاً في الملف الواحد','err');
+    const parsed=rows.map(r=>xlRowToData(type,r));
+    if(!fieldsFor(type).some(f=>Object.keys(rows[0]).some(k=>nz(k)===nz(fl(f))||nz(k)===nz(f.k))))return toast('عناوين الأعمدة لا تطابق هذا النوع، نزّل القالب واستخدمه','err');
+    const first=parsed[0];
+    fieldsFor(type).forEach(f=>{const el=$('f_'+f.k);if(el)el.value=(first.data[f.k]==null||(typeof first.data[f.k]==='number'&&isNaN(first.data[f.k])))?'':first.data[f.k]});
+    if(first.date&&first.date<=today())$('rfDate').value=first.date;
+    calcCash();
+    if(rows.length===1)return toast('تمت تعبئة النموذج من الملف، راجعه ثم اضغط إرسال','ok');
+    if(!confirm('الملف فيه '+rows.length+' صفوف.\nموافق = رفعها كلها الآن كتقارير «'+def.label+'» منفصلة.\nإلغاء = تعبئة الصف الأول فقط في النموذج.'))return toast('تمت تعبئة الصف الأول، راجعه ثم اضغط إرسال','ok');
+    const out=[];
+    for(let i=0;i<parsed.length;i++){
+      const p=parsed[i],date=p.date||today(),err=xlValidate(type,p.data)||(date>today()?'تاريخ في المستقبل':'');
+      if(err)return toast('الصف '+(i+2)+': '+err,'err');
+      const data={...p.data};
+      if(type.startsWith('cash_')){const c=cashCalc(k=>data[k]);data.expected=c.expected;data.diff=c.diff}
+      out.push({branch_id:currentUser.username,type,report_date:date,data});
+    }
+    const r=await w(sb.from('reports').insert(out).select());
+    if(!r)return;
+    r.data.forEach(x=>db.reports.unshift(mapReport(x)));
+    notify('admin',currentUser.name+' رفع '+out.length+' تقارير ('+def.label+') من ملف إكسل');
+    renderBranchReports();updateBadges();toast('تم رفع '+out.length+' تقارير من الملف','ok');
+  }catch(e){console.error(e);toast('تعذر قراءة الملف: '+(e.message||''),'err')}
+  finally{inp.value=''}
 }
 
 /* =====================================================================
