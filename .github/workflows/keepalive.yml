@@ -1,0 +1,17 @@
+# المفتاح هنا هو المفتاح العام (anon) الموجود أصلاً في الصفحة، مش سري
+# يمنع إيقاف مشروع Supabase المجاني بسبب عدم النشاط (يتوقف بعد أسبوع بدون طلبات)
+name: keepalive
+on:
+  schedule:
+    - cron: '17 6 */3 * *'   # كل 3 أيام
+  workflow_dispatch: {}
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase REST + Auth
+        run: |
+          URL="https://njwasycnepgaivfypppl.supabase.co"
+          KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5qd2FzeWNuZXBnYWl2ZnlwcHBsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwMTM1NjEsImV4cCI6MjEwNzU4OTU2MX0.eRNm65Es74vgosJuq0m2Up_1HLifzkAGesvGjMuMM6A"
+          curl -fsS -o /dev/null -w "rest:%{http_code}\n" "$URL/rest/v1/settings?select=id&limit=1" -H "apikey: $KEY" -H "Authorization: Bearer $KEY" || true
+          curl -fsS -o /dev/null -w "auth:%{http_code}\n" "$URL/auth/v1/health" -H "apikey: $KEY" || true
