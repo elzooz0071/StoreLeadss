@@ -1,0 +1,56 @@
+# نسخة احتياطية يومية مشفّرة لبيانات Branchly (الخطة المجانية في Supabase بدون نسخ احتياطي)
+# تحتاج سرّين في Settings > Secrets and variables > Actions:
+#   SUPABASE_SERVICE_KEY  (service_role من Supabase > Project Settings > API) — لا تضعه في أي ملف
+#   BACKUP_PASSPHRASE     (كلمة سر طويلة تختارها لتشفير النسخة — احفظها، بدونها لا تُفتح النسخة)
+# النسخة تُحفظ كـ Artifact مشفّر (AES-256) لمدة 30 يوماً، فهي آمنة حتى لو كان المستودع عاماً.
+name: backup
+on:
+  schedule:
+    - cron: '30 1 * * *'
+  workflow_dispatch: {}
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    env:
+      SB_URL: https://njwasycnepgaivfypppl.supabase.co
+      SB_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+      PASS: ${{ secrets.BACKUP_PASSPHRASE }}
+    steps:
+      - name: Check secrets
+        run: |
+          if [ -z "$SB_KEY" ] || [ -z "$PASS" ]; then echo "::error::أضف السرّين SUPABASE_SERVICE_KEY و BACKUP_PASSPHRASE أولاً"; exit 1; fi
+      - name: Export all tables
+        run: |
+          python3 - <<'PY'
+          import json, os, urllib.request, urllib.error
+          url, key = os.environ['SB_URL'], os.environ['SB_KEY']
+          tables = ['settings','positions','groups','profiles','checklist_items','check_runs','tasks','task_status',
+                    'reports','inventory_items','inventory_meta','notifications','branch_invites']
+          out = {}
+          for t in tables:
+              rows, start = [], 0
+              while True:
+                  req = urllib.request.Request(f"{url}/rest/v1/{t}?select=*", headers={
+                      'apikey': key, 'Authorization': f'Bearer {key}',
+                      'Range-Unit': 'items', 'Range': f'{start}-{start+999}'})
+                  try:
+                      with urllib.request.urlopen(req) as r: chunk = json.load(r)
+                  except urllib.error.HTTPError as e:
+                      print(f'skip {t}: HTTP {e.code}'); chunk = None
+                  if chunk is None: break
+                  rows += chunk
+                  if len(chunk) < 1000: break
+                  start += 1000
+              if chunk is not None: out[t] = rows; print(t, len(rows))
+          json.dump(out, open('backup.json', 'w'), ensure_ascii=False)
+          PY
+      - name: Encrypt
+        run: |
+          D=$(date +%F)
+          gpg --batch --yes --symmetric --cipher-algo AES256 --passphrase "$PASS" -o "branchly-$D.json.gpg" backup.json
+          rm -f backup.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: branchly-backup
+          path: branchly-*.json.gpg
+          retention-days: 30
