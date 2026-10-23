@@ -501,7 +501,7 @@ html[data-theme=dark] .modal-bg{background:rgba(2,8,20,.7)}
     <div class="fg"><label>كلمة المرور</label><input type="password" id="loginPassword" autocomplete="current-password" onkeydown="if(event.key==='Enter')handleLogin()"></div>
     <button class="btn block" id="loginBtn" onclick="handleLogin()">تسجيل الدخول</button>
     <div style="margin-top:14px;text-align:center"><a href="#" onclick="forgotPassword();return false" style="font-size:13px;color:var(--blue);text-decoration:none;font-weight:600">نسيت كلمة المرور؟</a></div>
-    <div style="margin-top:16px;text-align:center;font-size:11px;color:#94A3B8;direction:ltr">v2026.10.23a</div>
+    <div style="margin-top:16px;text-align:center;font-size:11px;color:#94A3B8;direction:ltr">v2026.10.23b</div>
   </div>
 </div>
 
@@ -733,6 +733,22 @@ html[data-theme=dark] .modal-bg{background:rgba(2,8,20,.7)}
     <div class="card"><h3>نماذج مخصصة (قوائم جديدة بحقولك) <button class="btn sm" onclick="editForm(null)">+ نموذج جديد</button></h3>
       <p class="muted" style="margin-bottom:10px">النموذج يملؤه الفرع ويصل للإدارة كتقرير. اختر إن كان يظهر كتبويب مستقل أو ضمن «رفع تقرير». الحذف يُخفي النموذج وتبقى تقاريره القديمة.</p>
       <div id="custForms"></div></div>
+  </section>
+
+  <section class="tab" id="tab-data">
+    <div class="card">
+      <h3>إدارة البيانات</h3>
+      <div class="alert"><span>تحذير: المسح نهائي ولا يمكن التراجع عنه، ولا توجد نسخة احتياطية تلقائية. نزّل نسخة أولاً.</span></div>
+      <h4>1) نزّل نسخة قبل المسح (موصى به)</h4>
+      <p class="muted" style="margin-bottom:8px">ملف JSON فيه كل البيانات الظاهرة لك الآن (بدون ملفات المرفقات).</p>
+      <button class="btn ghost" onclick="dumpBackup()">تنزيل نسخة JSON</button>
+      <h4 style="margin-top:20px">2) اختر ما تريد مسحه</h4>
+      <label class="chk"><input type="radio" name="wipeScope" value="ops" checked><div><strong>البيانات التشغيلية فقط</strong><div class="muted">التقارير والمرفقات والتكليفات والجرد وقوائم الفحص المنفّذة والإشعارات وسجل النشاط. تبقى الفروع والمستخدمون والإعدادات.</div></div></label>
+      <label class="chk"><input type="radio" name="wipeScope" value="all"><div><strong>كل شيء ما عدا حساب الأدمن</strong><div class="muted">يشمل ما سبق، ومعه الفروع وحسابات الموظفين والمجموعات والدعوات وقوائم المراجعة والوظائف المخصصة. تبقى إعدادات الشركة والأهداف.</div></div></label>
+      <div class="fg" style="margin-top:14px"><label>اكتب كلمة «مسح» للتأكيد</label><input type="text" id="wipeConfirm" autocomplete="off" oninput="$('wipeBtn').disabled=this.value.trim()!=='مسح'"></div>
+      <button class="btn danger" id="wipeBtn" disabled onclick="wipeData()">مسح نهائي</button>
+      <div id="wipeMsg" class="muted" style="margin-top:10px"></div>
+    </div>
   </section>
 
   <section class="tab" id="tab-audit">
@@ -1175,15 +1191,15 @@ function computePerms(){
 const isAdmin=()=>!!currentUser&&currentUser.role==='admin';
 const can=k=>isAdmin()||!!(currentUser&&currentUser.perms&&currentUser.perms[k]===true);
 
-const PROTECTED_TABS=['team','cust','settings','account','audit'];
+const PROTECTED_TABS=['team','cust','settings','account','audit','data'];
 const TAB_DEF={dash:['لوحة المؤشرات','m_dash'],reports:['التقارير الواردة','m_reports'],quality:['الجودة','m_quality|m_quality_edit'],exec:['التقرير التنفيذي','m_exec'],tasks:['التكليفات','m_tasks'],
- checklist:['قوائم المراجعة','m_checklist|m_checklist_edit'],branches:['الفروع والحسابات','m_branches'],team:['الوظائف والصلاحيات','@admin'],audit:['سجل النشاط','@admin'],cust:['تخصيص القوائم والنماذج','m_settings'],settings:['الإعدادات','m_settings'],
+ checklist:['قوائم المراجعة','m_checklist|m_checklist_edit'],branches:['الفروع والحسابات','m_branches'],team:['الوظائف والصلاحيات','@admin'],audit:['سجل النشاط','@admin'],data:['إدارة البيانات','@admin'],cust:['تخصيص القوائم والنماذج','m_settings'],settings:['الإعدادات','m_settings'],
  bdash:['لوحة الفرع','b_dash'],submit:['رفع تقرير','b_submit'],cashier:['تقفيل الكاشير','b_cashier'],qcheck:['فحص الجودة','b_quality'],inventory:['الجرد والمخزون','b_inventory'],bcheck:['قائمة المراجعة اليومية','b_check'],btasks:['التكليفات الواردة','b_tasks'],account:['الحساب','*']};
 const customCfg=()=>db.settings.custom||(db.settings.custom={});
 function allTabDefs(){const d={...TAB_DEF};Object.entries(REPORTS).forEach(([k,v])=>{if(v.custom&&v.tab&&!v.hidden)d['ct_'+k]=[v.label,'b_submit']});return d}
 function navFor(){
   const D=allTabDefs(),tb=customCfg().tabs||{};
-  const mg=['dash','reports','quality','exec','tasks','checklist','branches','team','audit','cust','settings'];
+  const mg=['dash','reports','quality','exec','tasks','checklist','branches','team','audit','cust','settings','data'];
   const br=['bdash','submit','cashier','qcheck',...Object.keys(D).filter(x=>x.startsWith('ct_')),'inventory','bcheck','btasks'];
   const ids=currentUser.role==='branch'?[...br,'account']:currentUser.role==='admin'?mg:[...mg,'account'];
   return ids.filter(id=>{const p=D[id][1];if(!(p==='*'||(p==='@admin'?isAdmin():p.split('|').some(k=>can(k)))))return false;return PROTECTED_TABS.includes(id)||!(tb[id]&&tb[id].hidden)})
@@ -1230,7 +1246,7 @@ function showTab(id){
   initTab(id); window.scrollTo({top:0});
 }
 function initTab(id){
-  const R={dash:()=>{fillRangeSelect('dashRange',dashRange);renderAdminDash();onboardCard();attentionStrip()},audit:renderAudit,reports:initReportsTab,exec:()=>{if(!$('execRange').innerHTML)fillRangeSelect('execRange','30d');$('execExportBtn').classList.toggle('hidden',!can('m_export'));renderExec()},
+  const R={dash:()=>{fillRangeSelect('dashRange',dashRange);renderAdminDash();onboardCard();attentionStrip()},audit:renderAudit,data:renderData,reports:initReportsTab,exec:()=>{if(!$('execRange').innerHTML)fillRangeSelect('execRange','30d');$('execExportBtn').classList.toggle('hidden',!can('m_export'));renderExec()},
    tasks:initTasksTab,checklist:renderAdminChecklist,branches:renderAdminBranches,team:renderTeam,cust:renderCust,quality:()=>{fillRangeSelect('qRange',qRange);renderQuality()},qcheck:renderQCheck,cashier:()=>initSubmitTab({title:RT('cash_am').base&&'تقفيل الكاشير',types:['cash_am','cash_pm']}),settings:initSettings,
    bdash:()=>{fillRangeSelect('bRange',dashRange);renderBranchDash()},submit:()=>initSubmitTab(null),inventory:renderInventory,bcheck:renderBranchCheck,btasks:renderBranchTasks,account:initAccount};
   if(id.startsWith('ct_')){const k=id.slice(3);initSubmitTab({title:RT(k).label,types:[k]})}else R[id]&&R[id]();
@@ -2299,8 +2315,8 @@ Object.assign(ICP,{
   moon:'<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>',
   out:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>'
 });
-const TI={dash:'home',reports:'file',quality:'star',exec:'chart',tasks:'clip',checklist:'check',branches:'building',team:'users',audit:'history',cust:'sliders',settings:'sliders',bdash:'home',submit:'upload',cashier:'cashier',qcheck:'star',inventory:'box',bcheck:'check',btasks:'clip',account:'user'};
-const grp=id=>['branches','team','audit'].includes(id)?'m':['cust','settings','account'].includes(id)?'s':'o';
+const TI={dash:'home',reports:'file',quality:'star',exec:'chart',tasks:'clip',checklist:'check',branches:'building',team:'users',audit:'history',cust:'sliders',settings:'sliders',bdash:'home',submit:'upload',cashier:'cashier',qcheck:'star',inventory:'box',bcheck:'check',btasks:'clip',account:'user',data:'trash'};
+const grp=id=>['branches','team','audit'].includes(id)?'m':['cust','settings','account','data'].includes(id)?'s':'o';
 const GRP_L={o:'التشغيل',m:'الإدارة',s:'الإعدادات والحساب'};
 const tabIco=id=>ICO(TI[id]||'file');
 function buildChrome(){
@@ -2369,6 +2385,42 @@ function attentionStrip(){
   const low=bs.reduce((a,b)=>a+lowStock(b.id).length,0);
   const it=[['تقارير بانتظار المراجعة',newR,'reports',newR?'warn':''],['تكليفات متأخرة',over,'tasks',over?'bad':''],['فروع بلا مبيعات اليوم',noS,'reports',noS&&bs.length?'warn':''],['أصناف دون الحد الأدنى',low,'dash',low?'bad':'']];
   host.insertAdjacentHTML('afterbegin',`<div class="attn"><div class="attn-t">الانتباه اليوم</div>${it.map(x=>`<button class="attn-i ${x[3]}" onclick="showTab('${x[2]}')"><b>${x[1]}</b><span>${x[0]}</span></button>`).join('')}</div>`);
+}
+
+/* إدارة البيانات (مسح نهائي للأدمن) */
+function renderData(){const c=$('wipeConfirm');if(c){c.value='';$('wipeBtn').disabled=true}const m=$('wipeMsg');if(m)m.textContent=''}
+function dumpBackup(){
+  const o={exported_at:new Date().toISOString(),settings:db.settings,positions:db.positions,users:db.users,groups:db.groups||[],checklist:db.checklist,tasks:db.tasks,reports:db.reports,inventory:db.inventory,notifs:db.notifs};
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(o,null,1)],{type:'application/json'}));a.download='branchly-backup-'+today()+'.json';
+  document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);
+}
+async function wipeFiles(){
+  let n=0;
+  try{
+    const st=sb.storage.from('attachments'),top=await st.list('',{limit:1000});
+    for(const f of (top.data||[])){
+      if(f.id){await st.remove([f.name]);n++;continue}
+      for(let k=0;k<50;k++){
+        const sub=await st.list(f.name,{limit:1000}),ps=(sub.data||[]).filter(x=>x.id).map(x=>f.name+'/'+x.name);
+        if(!ps.length)break;
+        for(let i=0;i<ps.length;i+=100){const r=await st.remove(ps.slice(i,i+100));if(r.error)throw r.error}
+        n+=ps.length;
+      }
+    }
+    return{n};
+  }catch(e){console.error(e);return{n,err:true}}
+}
+async function wipeData(){
+  const scope=(document.querySelector('input[name=wipeScope]:checked')||{}).value||'ops';
+  if($('wipeConfirm').value.trim()!=='مسح')return;
+  if(!confirm(scope==='all'?'سيتم مسح كل البيانات والفروع والمستخدمين ما عدا حساب الأدمن نهائياً. متأكد؟':'سيتم مسح كل البيانات التشغيلية نهائياً. متأكد؟'))return;
+  const btn=$('wipeBtn');btn.disabled=true;btn.classList.add('loading');$('wipeMsg').textContent='جاري المسح…';
+  const r=await w(sb.rpc('admin_wipe_data',{p_scope:scope,p_confirm:'مسح'}));
+  if(!r){btn.classList.remove('loading');btn.disabled=false;$('wipeMsg').textContent='فشل المسح. تأكد أنك شغّلت update_5.sql في Supabase ثم أعد المحاولة.';return}
+  const f=await wipeFiles();btn.classList.remove('loading');
+  $('wipeMsg').textContent='تم المسح'+(f.err?' (تعذّر حذف بعض ملفات المرفقات تلقائياً)':'')+'. جاري إعادة تحميل التطبيق…';
+  toast('تم مسح البيانات'+(f.n?' وحذف '+f.n+' مرفق':''),'ok');
+  setTimeout(()=>location.reload(),1600);
 }
 </script>
 </body>
