@@ -488,6 +488,36 @@ html[data-theme=dark] .kpi::after{background:linear-gradient(110deg,transparent 
 html[data-theme=dark] .toast{background:#1B2B49}
 html[data-theme=dark] .modal-bg{background:rgba(2,8,20,.7)}
 @media print{#bnav,#sheet,#srch{display:none!important}}
+
+/* ===== v2026.10.24a: desktop sidebar ===== */
+nav.nav button svg{display:none}
+.nav-gh{display:none}
+@media(min-width:1100px){
+  .container{max-width:1440px}
+  #mainApp:not(.hidden){display:grid;grid-template-columns:var(--sw,244px) minmax(0,1fr);column-gap:18px;align-items:start;transition:grid-template-columns .3s var(--ease)}
+  #mainApp>header.top{grid-column:1/-1}
+  #mainApp>nav.nav{grid-column:1;grid-row:2;flex-direction:column;position:sticky;top:12px;padding:10px;gap:2px;margin-bottom:0;max-height:calc(100vh - 24px);overflow-y:auto;overflow-x:hidden;background:var(--card);backdrop-filter:none}
+  #mainApp>section.tab{grid-column:2;grid-row:2}
+  nav.nav button{flex:none;width:100%;display:flex;align-items:center;gap:10px;justify-content:flex-start;text-align:right;padding:10px 12px;min-width:0}
+  nav.nav button svg{display:block;width:19px;height:19px;flex:none}
+  nav.nav button .nl{flex:1;overflow:hidden;text-overflow:ellipsis;text-align:right}
+  nav.nav .nb{margin:0}
+  .nav-gh{display:block;font-size:11px;font-weight:800;color:var(--muted);padding:12px 12px 4px;white-space:nowrap}
+  .nav-gh:first-child{padding-top:4px}
+  .nav-sep{display:none}
+  nav.nav .nav-tog{display:flex;align-items:center;gap:10px;margin-top:10px;border-top:1px dashed var(--line);padding:12px 12px 8px;color:var(--muted);font-weight:700;font-size:13px;cursor:pointer;border-radius:0 0 8px 8px}
+  nav.nav .nav-tog:hover{color:var(--blue)}
+  nav.nav .nav-tog svg{display:block;width:19px;height:19px;flex:none;transition:transform .3s var(--ease)}
+  nav.nav .nav-tog .nl{flex:1}
+  #mainApp.side-c{--sw:68px}
+  #mainApp.side-c nav.nav .nl,#mainApp.side-c .nav-gh{display:none}
+  #mainApp.side-c nav.nav button{justify-content:center;padding:11px 0;position:relative}
+  #mainApp.side-c nav.nav .nb{position:absolute;top:3px;right:8px}
+  #mainApp.side-c .nav-tog{justify-content:center;padding:12px 0 8px}
+  #mainApp.side-c .nav-tog svg{transform:rotate(180deg)}
+}
+@media(max-width:1099px){nav.nav .nav-tog{display:none}}
+@media print{#mainApp:not(.hidden){display:block!important}}
 </style>
 </head>
 <body>
@@ -501,7 +531,7 @@ html[data-theme=dark] .modal-bg{background:rgba(2,8,20,.7)}
     <div class="fg"><label>كلمة المرور</label><input type="password" id="loginPassword" autocomplete="current-password" onkeydown="if(event.key==='Enter')handleLogin()"></div>
     <button class="btn block" id="loginBtn" onclick="handleLogin()">تسجيل الدخول</button>
     <div style="margin-top:14px;text-align:center"><a href="#" onclick="forgotPassword();return false" style="font-size:13px;color:var(--blue);text-decoration:none;font-weight:600">نسيت كلمة المرور؟</a></div>
-    <div style="margin-top:16px;text-align:center;font-size:11px;color:#94A3B8;direction:ltr">v2026.10.23b</div>
+    <div style="margin-top:16px;text-align:center;font-size:11px;color:#94A3B8;direction:ltr">v2026.10.24a</div>
   </div>
 </div>
 
@@ -1227,7 +1257,7 @@ async function refresh(){
 }
 function buildNav(){
   const nf=navFor();navKey=nf.map(x=>x[0]).join();
-  $('navBar').innerHTML=nf.map(([id,l],i)=>(i&&grp(id)!==grp(nf[i-1][0])?'<span class="nav-sep"></span>':'')+`<button id="nav-${id}" onclick="showTab('${id}')">${l}<span class="nb hidden" id="nb-${id}"></span></button>`).join('');
+  $('navBar').innerHTML=nf.map(([id,l],i)=>(i&&grp(id)!==grp(nf[i-1][0])?'<span class="nav-sep"></span>':'')+(i===0||grp(id)!==grp(nf[i-1][0])?`<span class="nav-gh">${GRP_L[grp(id)]}</span>`:'')+`<button id="nav-${id}" title="${esc(l)}" onclick="showTab('${id}')">${tabIco(id)}<span class="nl">${l}</span><span class="nb hidden" id="nb-${id}"></span></button>`).join('')+`<div class="nav-tog" role="button" tabindex="0" title="تصغير/تكبير القائمة" onclick="toggleSide()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleSide()}">${ICO('chev')}<span class="nl">تصغير القائمة</span></div>`;
   updateBadges();buildChrome();
 }
 function updateBadges(){
@@ -2313,9 +2343,10 @@ Object.assign(ICP,{
   user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
   sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
   moon:'<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>',
+  gear:'<path d="M12 2 3 7v10l9 5 9-5V7z"/><circle cx="12" cy="12" r="3"/>',
   out:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>'
 });
-const TI={dash:'home',reports:'file',quality:'star',exec:'chart',tasks:'clip',checklist:'check',branches:'building',team:'users',audit:'history',cust:'sliders',settings:'sliders',bdash:'home',submit:'upload',cashier:'cashier',qcheck:'star',inventory:'box',bcheck:'check',btasks:'clip',account:'user',data:'trash'};
+const TI={dash:'home',reports:'file',quality:'star',exec:'chart',tasks:'clip',checklist:'check',branches:'building',team:'users',audit:'history',cust:'sliders',settings:'gear',bdash:'home',submit:'upload',cashier:'cashier',qcheck:'star',inventory:'box',bcheck:'check',btasks:'clip',account:'user',data:'trash'};
 const grp=id=>['branches','team','audit'].includes(id)?'m':['cust','settings','account','data'].includes(id)?'s':'o';
 const GRP_L={o:'التشغيل',m:'الإدارة',s:'الإعدادات والحساب'};
 const tabIco=id=>ICO(TI[id]||'file');
@@ -2331,7 +2362,7 @@ function buildChrome(){
   const gs=['o','m','s'].map(g=>{const it=nf.filter(([id])=>grp(id)===g);return it.length?`<div class="sh-g">${GRP_L[g]}</div><div class="sh-grid">${it.map(([id,l])=>`<button data-t="${id}" onclick="closeSheet();showTab('${id}')">${tabIco(id)}<span>${esc(l)}</span></button>`).join('')}</div>`:''}).join('');
   s.innerHTML=`<div class="sh-bg" onclick="closeSheet()"></div><div class="sh-p"><div class="sh-grip"></div><div class="sh-u">${ICO('user')}<span>${esc($('userChip').textContent)}</span></div>${gs}<div class="sh-g">أدوات</div><div class="sh-grid"><button onclick="closeSheet();openSearch()">${ICO('search')}<span>بحث</span></button><button onclick="toggleTheme()">${ICO('moon')}<span>الوضع الداكن</span></button><button class="out" onclick="closeSheet();handleLogout()">${ICO('out')}<span>تسجيل الخروج</span></button></div></div>`;
   if(!$('hdrSearch')){const ta=document.querySelector('.top-actions');if(ta){ta.insertAdjacentHTML('afterbegin',`<button class="icon-btn" id="hdrSearch" onclick="openSearch()" title="بحث (/)">${ICO('search')}</button><button class="icon-btn" id="hdrTheme" onclick="toggleTheme()" title="الوضع الداكن"></button>`)}}
-  syncTheme();syncBnav();
+  syncTheme();syncBnav();syncSide();
 }
 function openSheet(){const s=$('sheet');if(s)s.classList.add('open')}
 function closeSheet(){const s=$('sheet');if(s)s.classList.remove('open')}
@@ -2422,6 +2453,11 @@ async function wipeData(){
   toast('تم مسح البيانات'+(f.n?' وحذف '+f.n+' مرفق':''),'ok');
   setTimeout(()=>location.reload(),1600);
 }
+
+/* القائمة الجانبية: تصغير/تكبير */
+ICP.chev='<path d="m9 18 6-6-6-6"/>';
+function syncSide(){let c=false;try{c=localStorage.getItem('bl_side')==='1'}catch(e){}$('mainApp').classList.toggle('side-c',c)}
+function toggleSide(){const m=$('mainApp'),c=!m.classList.contains('side-c');m.classList.toggle('side-c',c);try{localStorage.setItem('bl_side',c?'1':'0')}catch(e){}}
 </script>
 </body>
 </html>
