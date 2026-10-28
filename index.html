@@ -489,7 +489,7 @@ html[data-theme=dark] .toast{background:#1B2B49}
 html[data-theme=dark] .modal-bg{background:rgba(2,8,20,.7)}
 @media print{#bnav,#sheet,#srch{display:none!important}}
 
-/* ===== v2026.10.24a: desktop sidebar ===== */
+/* ===== v2026.10.28a: desktop sidebar ===== */
 nav.nav button svg{display:none}
 .nav-gh{display:none}
 @media(min-width:1100px){
@@ -519,6 +519,36 @@ nav.nav button svg{display:none}
 @media(max-width:1099px){nav.nav .nav-tog{display:none}}
 @media print{#mainApp:not(.hidden){display:block!important}}
 </style>
+<style id="posCss">
+.pos-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.pos-bar .seg{display:flex;background:var(--card2,#EEF3FA);border-radius:12px;padding:4px;gap:2px}
+.pos-bar .seg button{border:0;background:transparent;padding:9px 16px;border-radius:9px;font:inherit;font-weight:800;cursor:pointer;color:inherit;opacity:.7}
+.pos-bar .seg button.on{background:var(--blue-2,#2358A8);color:#fff;opacity:1}
+.pos-grid{display:grid;grid-template-columns:1fr 380px;gap:16px;align-items:start}
+@media(max-width:900px){.pos-grid{grid-template-columns:1fr}}
+.pos-prods{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.pos-p{border:1.5px solid var(--line,#DDE3EE);border-radius:14px;padding:12px;background:var(--card,#fff);cursor:pointer;text-align:center;font:inherit;color:inherit;min-height:84px;display:flex;flex-direction:column;justify-content:space-between;gap:6px;transition:transform .12s,border-color .12s}
+.pos-p:active{transform:scale(.96)}.pos-p:hover{border-color:var(--blue-3,#3B6FB6)}
+.pos-p b{font-size:15px;line-height:1.35}.pos-p span{font-weight:900;color:var(--blue-2,#2358A8)}
+.pos-p small{color:#C0392B;font-weight:800}
+.pos-cart{position:sticky;top:12px}
+.pos-line{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:9px 0;border-bottom:1px dashed var(--line,#DDE3EE)}
+.pos-qty{display:flex;align-items:center;gap:4px}
+.pos-qty button{width:32px;height:32px;border-radius:9px;border:1.5px solid var(--line,#DDE3EE);background:transparent;font-size:18px;font-weight:900;cursor:pointer;color:inherit}
+.pos-tot{display:flex;justify-content:space-between;padding:6px 0;font-weight:700}
+.pos-tot.big{font-size:24px;font-weight:900;border-top:2px solid var(--line,#DDE3EE);margin-top:6px;padding-top:12px}
+.pos-pay{width:100%;font-size:20px;padding:16px;margin-top:10px}
+.pos-chips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.pos-chips button{border:1.5px solid var(--line,#DDE3EE);background:transparent;border-radius:999px;padding:6px 14px;font:inherit;font-weight:700;cursor:pointer;color:inherit}
+.pos-chips button.on{background:var(--blue-2,#2358A8);border-color:var(--blue-2,#2358A8);color:#fff}
+.pos-sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:10px 0 14px}
+.pos-sum div{background:var(--card2,#EEF3FA);border-radius:12px;padding:12px;text-align:center}
+.pos-sum b{display:block;font-size:20px}.pos-sum span{font-size:12px;opacity:.7;font-weight:700}
+.pos-quick{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.pos-quick button{padding:8px 14px;border-radius:10px;border:1.5px solid var(--line,#DDE3EE);background:transparent;font:inherit;font-weight:800;cursor:pointer;color:inherit}
+.pos-void{opacity:.45;text-decoration:line-through}
+.pos-cam{width:100%;max-height:260px;border-radius:12px;background:#000;margin-top:8px}
+</style>
 </head>
 <body>
 
@@ -531,7 +561,7 @@ nav.nav button svg{display:none}
     <div class="fg"><label>كلمة المرور</label><input type="password" id="loginPassword" autocomplete="current-password" onkeydown="if(event.key==='Enter')handleLogin()"></div>
     <button class="btn block" id="loginBtn" onclick="handleLogin()">تسجيل الدخول</button>
     <div style="margin-top:14px;text-align:center"><a href="#" onclick="forgotPassword();return false" style="font-size:13px;color:var(--blue);text-decoration:none;font-weight:600">نسيت كلمة المرور؟</a></div>
-    <div style="margin-top:16px;text-align:center;font-size:11px;color:#94A3B8;direction:ltr">v2026.10.24a</div>
+    <div style="margin-top:16px;text-align:center;font-size:11px;color:#94A3B8;direction:ltr">v2026.10.28a</div>
   </div>
 </div>
 
@@ -719,6 +749,10 @@ nav.nav button svg{display:none}
       <button class="btn" id="rfBtn" onclick="submitReport()">إرسال التقرير</button>
     </div>
     <div class="card"><h3>سجل تقارير الفرع وحالتها</h3><div id="branchReportsList"></div></div>
+  </section>
+
+  <section class="tab" id="tab-pos">
+    <div id="posBody"></div>
   </section>
 
   <section class="tab" id="tab-inventory">
@@ -1207,7 +1241,7 @@ async function changePassword(oldId,newId){
    ===================================================================== */
 const PERM_GROUPS=[
  {id:'m',title:'صلاحيات الإدارة',items:[['m_dash','لوحة المؤشرات الإجمالية'],['m_reports','عرض التقارير الواردة'],['m_review','اعتماد التقارير وإعادتها للفروع'],['m_exec','التقرير التنفيذي'],['m_export','تصدير Excel'],['m_tasks','إصدار التكليفات ومتابعتها'],['m_checklist','متابعة قوائم المراجعة'],['m_checklist_edit','تعديل بنود قائمة المراجعة'],['m_branches','إدارة الفروع وحساباتها'],['m_quality','شاشة الجودة (عرض الدرجات والفحوصات)'],['m_quality_edit','تعديل بنود فحص الجودة'],['m_settings','إعدادات المؤسسة + تخصيص القوائم والنماذج']]},
- {id:'b',title:'صلاحيات الفرع',items:[['b_dash','لوحة مؤشرات الفرع'],['b_submit','رفع التقارير للإدارة'],['b_inventory','الجرد والمخزون'],['b_check','قائمة المراجعة اليومية'],['b_tasks','التكليفات الواردة'],['b_cashier','تقفيل الكاشير (صباحي ومسائي)'],['b_quality','تنفيذ فحص الجودة'],['b_excel','رفع التقارير من ملف إكسل']]}
+ {id:'b',title:'صلاحيات الفرع',items:[['b_dash','لوحة مؤشرات الفرع'],['b_submit','رفع التقارير للإدارة'],['b_inventory','الجرد والمخزون'],['b_check','قائمة المراجعة اليومية'],['b_tasks','التكليفات الواردة'],['b_cashier','تقفيل الكاشير (صباحي ومسائي)'],['b_pos','الكاشير (نقطة البيع POS)'],['b_quality','تنفيذ فحص الجودة'],['b_excel','رفع التقارير من ملف إكسل']]}
 ];
 const SCOPES={all:'كل الفروع',assigned:'فروع يحددها الأدمن',own:'فرع واحد (حسابات الفروع)'};
 const SC_SHORT={all:'كل الفروع',assigned:'فروع محددة',own:'فرع واحد'};
@@ -1224,13 +1258,13 @@ const can=k=>isAdmin()||!!(currentUser&&currentUser.perms&&currentUser.perms[k]=
 const PROTECTED_TABS=['team','cust','settings','account','audit','data'];
 const TAB_DEF={dash:['لوحة المؤشرات','m_dash'],reports:['التقارير الواردة','m_reports'],quality:['الجودة','m_quality|m_quality_edit'],exec:['التقرير التنفيذي','m_exec'],tasks:['التكليفات','m_tasks'],
  checklist:['قوائم المراجعة','m_checklist|m_checklist_edit'],branches:['الفروع والحسابات','m_branches'],team:['الوظائف والصلاحيات','@admin'],audit:['سجل النشاط','@admin'],data:['إدارة البيانات','@admin'],cust:['تخصيص القوائم والنماذج','m_settings'],settings:['الإعدادات','m_settings'],
- bdash:['لوحة الفرع','b_dash'],submit:['رفع تقرير','b_submit'],cashier:['تقفيل الكاشير','b_cashier'],qcheck:['فحص الجودة','b_quality'],inventory:['الجرد والمخزون','b_inventory'],bcheck:['قائمة المراجعة اليومية','b_check'],btasks:['التكليفات الواردة','b_tasks'],account:['الحساب','*']};
+ bdash:['لوحة الفرع','b_dash'],submit:['رفع تقرير','b_submit'],cashier:['تقفيل الكاشير','b_cashier'],pos:['نقطة البيع','b_pos'],qcheck:['فحص الجودة','b_quality'],inventory:['الجرد والمخزون','b_inventory'],bcheck:['قائمة المراجعة اليومية','b_check'],btasks:['التكليفات الواردة','b_tasks'],account:['الحساب','*']};
 const customCfg=()=>db.settings.custom||(db.settings.custom={});
 function allTabDefs(){const d={...TAB_DEF};Object.entries(REPORTS).forEach(([k,v])=>{if(v.custom&&v.tab&&!v.hidden)d['ct_'+k]=[v.label,'b_submit']});return d}
 function navFor(){
   const D=allTabDefs(),tb=customCfg().tabs||{};
   const mg=['dash','reports','quality','exec','tasks','checklist','branches','team','audit','cust','settings','data'];
-  const br=['bdash','submit','cashier','qcheck',...Object.keys(D).filter(x=>x.startsWith('ct_')),'inventory','bcheck','btasks'];
+  const br=['bdash','submit','cashier','pos','qcheck',...Object.keys(D).filter(x=>x.startsWith('ct_')),'inventory','bcheck','btasks'];
   const ids=currentUser.role==='branch'?[...br,'account']:currentUser.role==='admin'?mg:[...mg,'account'];
   return ids.filter(id=>{const p=D[id][1];if(!(p==='*'||(p==='@admin'?isAdmin():p.split('|').some(k=>can(k)))))return false;return PROTECTED_TABS.includes(id)||!(tb[id]&&tb[id].hidden)})
     .map(id=>[id,(tb[id]&&tb[id].label)||D[id][0]]);
@@ -1278,7 +1312,7 @@ function showTab(id){
 function initTab(id){
   const R={dash:()=>{fillRangeSelect('dashRange',dashRange);renderAdminDash();onboardCard();attentionStrip()},audit:renderAudit,data:renderData,reports:initReportsTab,exec:()=>{if(!$('execRange').innerHTML)fillRangeSelect('execRange','30d');$('execExportBtn').classList.toggle('hidden',!can('m_export'));renderExec()},
    tasks:initTasksTab,checklist:renderAdminChecklist,branches:renderAdminBranches,team:renderTeam,cust:renderCust,quality:()=>{fillRangeSelect('qRange',qRange);renderQuality()},qcheck:renderQCheck,cashier:()=>initSubmitTab({title:RT('cash_am').base&&'تقفيل الكاشير',types:['cash_am','cash_pm']}),settings:initSettings,
-   bdash:()=>{fillRangeSelect('bRange',dashRange);renderBranchDash()},submit:()=>initSubmitTab(null),inventory:renderInventory,bcheck:renderBranchCheck,btasks:renderBranchTasks,account:initAccount};
+   pos:renderPOS,bdash:()=>{fillRangeSelect('bRange',dashRange);renderBranchDash()},submit:()=>initSubmitTab(null),inventory:renderInventory,bcheck:renderBranchCheck,btasks:renderBranchTasks,account:initAccount};
   if(id.startsWith('ct_')){const k=id.slice(3);initSubmitTab({title:RT(k).label,types:[k]})}else R[id]&&R[id]();
 }
 
@@ -1865,6 +1899,226 @@ function readInvInputs(){
 function ensureInv(){const id=currentUser.username;return db.inventory[id]=db.inventory[id]||{items:[],updated:''}}
 function addInvRow(){const inv=ensureInv();inv.items=readInvInputs();inv.items.push({id:newId(),name:'',unit:'',qty:0,min:0});renderInventory()}
 function delInvRow(x){const inv=ensureInv();inv.items=readInvInputs();inv.items.splice(x,1);renderInventory()}
+/* =====================================================================
+   الكاشير (POS) — يعتمد على update_6.sql
+   ===================================================================== */
+const POS={prods:[],shift:null,sales:[],cart:[],view:'sell',cat:'',q:'',busy:false,loaded:false,hist:[],disc:{v:0,u:'amt'}};
+const pf=n=>Number(n||0).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:2});
+const pmoney=n=>pf(n)+' '+((db&&db.settings&&db.settings.currency)||'');
+const posUid=()=>currentUser.username;
+const PMETH={cash:'نقدي',card:'بطاقة',other:'أخرى'};
+async function posLoad(){
+  const uid=posUid();
+  const [p,s]=await Promise.all([
+    w(sb.from('pos_products').select('*').eq('branch_id',uid).order('sort').order('name')),
+    w(sb.from('pos_shifts').select('*').eq('branch_id',uid).is('closed_at',null).maybeSingle())]);
+  if(!p||!s)return false;
+  POS.prods=p.data||[];POS.shift=s.data||null;POS.sales=[];
+  if(POS.shift){const r=await w(sb.from('pos_sales').select('*').eq('shift_id',POS.shift.id).order('created_at',{ascending:false}));if(!r)return false;POS.sales=r.data||[]}
+  await posSyncInv();POS.loaded=true;return true;
+}
+async function posSyncInv(){
+  const r=await sb.from('inventory_items').select('*').eq('branch_id',posUid()).order('sort').order('id');
+  if(r.error)return;const inv=ensureInv();
+  inv.items=(r.data||[]).map(i=>({id:i.id,name:i.name,unit:i.unit,qty:+i.qty,min:+i.min_qty}));
+}
+async function renderPOS(){
+  $('posBody').innerHTML='<div class="card"><div class="empty">جارٍ التحميل…</div></div>';
+  if(!await posLoad()){$('posBody').innerHTML='<div class="card"><div class="empty">تعذر تحميل بيانات الكاشير. تأكد من تشغيل update_6.sql ثم حدّث الصفحة.</div></div>';return}
+  drawPOS();
+}
+function drawPOS(){
+  posStopCam();const el=$('posBody');
+  if(!POS.shift){el.innerHTML=posOpenCard();return}
+  const tabs=[['sell','بيع'],['today','الوردية'],['prods','الأصناف']];
+  el.innerHTML=`<div class="pos-bar"><div class="seg">${tabs.map(t=>`<button class="${POS.view===t[0]?'on':''}" onclick="posView('${t[0]}')">${t[1]}</button>`).join('')}</div><span class="muted" style="font-size:13px">الكاشير: <b>${esc(POS.shift.cashier)}</b> · من ${fmtTs(POS.shift.opened_at)}</span></div><div id="posView"></div>`;
+  ({sell:posSell,today:posToday,prods:posProds})[POS.view]();
+}
+function posView(v){POS.view=v;drawPOS()}
+function posOpenCard(){
+  const hist=''; 
+  return `<div class="card" style="max-width:480px;margin:0 auto"><h3>فتح وردية جديدة</h3>
+   <label>اسم الكاشير</label><input type="text" id="posCash" value="${esc(currentUser.name||'')}" placeholder="اسم الكاشير">
+   <label style="margin-top:10px">رصيد الدرج الافتتاحي</label><input type="number" min="0" step="0.01" id="posOpen" value="0" inputmode="decimal">
+   <button class="btn pos-pay" onclick="posOpenShift()">فتح الوردية</button>
+   </div>`;
+}
+async function posOpenShift(){
+  const n=$('posCash').value.trim();if(!n)return toast('اكتب اسم الكاشير','err');
+  const o=+$('posOpen').value||0;if(o<0)return toast('الرصيد غير صحيح','err');
+  if(!await w(sb.rpc('pos_open_shift',{p_cashier:n,p_opening:o})))return;
+  POS.view='sell';POS.cart=[];await renderPOS();toast('تم فتح الوردية','ok');
+}
+/* ---- شاشة البيع ---- */
+function posSell(){
+  const cats=[...new Set(POS.prods.filter(p=>p.active).map(p=>p.category).filter(Boolean))];
+  $('posView').innerHTML=`<div class="pos-grid"><div>
+    <div class="row" style="gap:8px;margin-bottom:6px"><input type="text" id="posQ" placeholder="بحث بالاسم أو الباركود (اضغط Enter)" value="${esc(POS.q)}" oninput="POS.q=this.value;posDrawProds()" onkeydown="if(event.key==='Enter')posScanText(this.value)" style="flex:1;min-width:160px" autocomplete="off"><button class="btn ghost" onclick="posCamera()">📷 باركود</button></div>
+    <div id="posCamBox"></div>
+    ${cats.length?`<div class="pos-chips"><button class="${!POS.cat?'on':''}" onclick="POS.cat='';posSell()">الكل</button>${cats.map(c=>`<button class="${POS.cat===c?'on':''}" onclick="POS.cat=this.dataset.c;posSell()" data-c="${esc(c)}">${esc(c)}</button>`).join('')}</div>`:''}
+    <div class="pos-prods" id="posProds"></div></div>
+    <div class="card pos-cart"><h3>الفاتورة</h3><div id="posCart"></div></div></div>`;
+  posDrawProds();posDrawCart();
+}
+function posDrawProds(){
+  const q=POS.q.trim().toLowerCase();
+  const list=POS.prods.filter(p=>p.active&&(!POS.cat||p.category===POS.cat)&&(!q||p.name.toLowerCase().includes(q)||p.barcode===q));
+  const inv=(db.inventory[posUid()]||{items:[]}).items;
+  $('posProds').innerHTML=list.map(p=>{const it=p.inv_item_id&&inv.find(i=>i.id===p.inv_item_id);const low=it&&+it.qty<=+it.min;
+    return `<button class="pos-p" onclick="posAdd('${p.id}')"><b>${esc(p.name)}</b><span>${pmoney(p.price)}</span>${low?'<small>مخزون منخفض</small>':''}</button>`}).join('')||`<div class="empty" style="grid-column:1/-1">${POS.prods.length?'لا نتائج':'لا توجد أصناف. أضفها من تبويب «الأصناف».'}</div>`;
+}
+function posScanText(v){
+  v=v.trim();if(!v)return;const p=POS.prods.find(x=>x.active&&x.barcode===v);
+  if(p){posAdd(p.id);POS.q='';const i=$('posQ');if(i){i.value='';i.focus()};posDrawProds()}
+  else{const m=POS.prods.filter(x=>x.active&&x.name.toLowerCase().includes(v.toLowerCase()));if(m.length===1){posAdd(m[0].id);POS.q='';$('posQ').value='';posDrawProds()}else toast(m.length?'اختر الصنف من القائمة':'الباركود غير مسجل','err')}
+}
+let posStream=null;
+async function posCamera(){
+  const box=$('posCamBox');
+  if(posStream){posStopCam();return}
+  if(!('BarcodeDetector' in window)||!navigator.mediaDevices)return toast('متصفحك لا يدعم قراءة الباركود بالكاميرا. استخدم قارئ USB أو اكتب الرقم.','err');
+  try{posStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}})}catch(e){return toast('لم يتم السماح بالكاميرا','err')}
+  box.innerHTML='<video class="pos-cam" id="posVid" autoplay playsinline muted></video>';const v=$('posVid');v.srcObject=posStream;
+  const det=new BarcodeDetector();let last='',lt=0;
+  (async function loop(){while(posStream&&$('posVid')){try{const r=await det.detect(v);if(r.length){const c=r[0].rawValue,n=Date.now();if(c!==last||n-lt>1500){last=c;lt=n;posScanText(c)}}}catch(e){}await new Promise(r=>setTimeout(r,250))}})();
+}
+function posStopCam(){if(posStream){posStream.getTracks().forEach(t=>t.stop());posStream=null}const b=$('posCamBox');if(b)b.innerHTML=''}
+function posAdd(id){const l=POS.cart.find(x=>x.id===id);if(l)l.qty++;else POS.cart.push({id,qty:1});posDrawCart()}
+function posQty(id,d){const l=POS.cart.find(x=>x.id===id);if(!l)return;l.qty+=d;if(l.qty<=0)POS.cart=POS.cart.filter(x=>x!==l);posDrawCart()}
+function posSetQty(id,v){const l=POS.cart.find(x=>x.id===id);v=+v;if(!l)return;if(!(v>0)){POS.cart=POS.cart.filter(x=>x!==l)}else l.qty=Math.min(v,9999);posDrawCart()}
+function posTotals(){
+  const sub=POS.cart.reduce((a,l)=>{const p=POS.prods.find(x=>x.id===l.id);return a+(p?p.price*l.qty:0)},0);
+  let d=+POS.disc.v||0;if(POS.disc.u==='pct')d=sub*Math.min(d,100)/100;d=Math.max(0,Math.min(d,sub));
+  return {sub,d:Math.round(d*100)/100,tot:Math.round((sub-d)*100)/100};
+}
+function posDrawCart(){
+  const el=$('posCart');if(!el)return;const t=posTotals();
+  el.innerHTML=(POS.cart.length?POS.cart.map(l=>{const p=POS.prods.find(x=>x.id===l.id);if(!p)return '';
+    return `<div class="pos-line"><div><b>${esc(p.name)}</b><div class="muted" style="font-size:12px">${pmoney(p.price)} × ${pf(l.qty)} = ${pmoney(p.price*l.qty)}</div></div>
+    <div class="pos-qty"><button onclick="posQty('${l.id}',-1)">−</button><input type="number" value="${l.qty}" min="0" step="1" style="width:56px;text-align:center" onchange="posSetQty('${l.id}',this.value)"><button onclick="posQty('${l.id}',1)">+</button></div>
+    <button class="ghost" style="padding:6px 10px" onclick="posSetQty('${l.id}',0)">✕</button></div>`}).join(''):'<div class="empty" style="padding:18px 0">السلة فارغة</div>')+
+  `<div class="row" style="gap:6px;margin-top:10px"><input type="number" min="0" step="0.01" placeholder="خصم" value="${POS.disc.v||''}" style="flex:1" oninput="POS.disc.v=this.value;posDrawTot()" inputmode="decimal"><select onchange="POS.disc.u=this.value;posDrawTot()" style="width:80px"><option value="amt" ${POS.disc.u==='amt'?'selected':''}>مبلغ</option><option value="pct" ${POS.disc.u==='pct'?'selected':''}>%</option></select></div>
+   <div id="posTot"></div>
+   <button class="btn pos-pay" ${POS.cart.length?'':'disabled'} onclick="posPay()">الدفع</button>
+   ${POS.cart.length?'<button class="btn ghost" style="width:100%;margin-top:6px" onclick="POS.cart=[];POS.disc.v=0;posDrawCart()">تفريغ السلة</button>':''}`;
+  posDrawTot();
+}
+function posDrawTot(){const t=posTotals(),e=$('posTot');if(e)e.innerHTML=`<div class="pos-tot"><span>المجموع</span><span>${pmoney(t.sub)}</span></div>${t.d?`<div class="pos-tot"><span>الخصم</span><span>− ${pmoney(t.d)}</span></div>`:''}<div class="pos-tot big"><span>الإجمالي</span><span>${pmoney(t.tot)}</span></div>`}
+/* ---- الدفع ---- */
+let posMeth='cash';
+function posPay(){
+  if(!POS.cart.length)return;const t=posTotals();posMeth='cash';
+  const qs=[...new Set([t.tot,Math.ceil(t.tot/10)*10,Math.ceil(t.tot/50)*50,Math.ceil(t.tot/100)*100,Math.ceil(t.tot/200)*200])].filter(x=>x>=t.tot).slice(0,5);
+  openModal('الدفع',`<div class="pos-tot big" style="border:0;margin:0"><span>المطلوب</span><span>${pmoney(t.tot)}</span></div>
+   <div class="pos-chips" id="posMeths">${Object.entries(PMETH).map(([k,l])=>`<button class="${k==='cash'?'on':''}" data-m="${k}" onclick="posSetMeth('${k}')">${l}</button>`).join('')}</div>
+   <div id="posCashBox"><label>المبلغ المدفوع</label><input type="number" id="posPaid" min="0" step="0.01" value="${t.tot}" oninput="posChange()" inputmode="decimal"><div class="pos-quick">${qs.map(q=>`<button onclick="$('posPaid').value=${q};posChange()">${pf(q)}</button>`).join('')}</div>
+   <div class="pos-tot big" style="border:0"><span>الباقي</span><span id="posChg">0</span></div></div>
+   <button class="btn pos-pay" id="posConfirm" onclick="posConfirm()">تأكيد البيع</button>`);
+  posChange();setTimeout(()=>{const i=$('posPaid');if(i){i.focus();i.select()}},50);
+}
+function posSetMeth(m){posMeth=m;document.querySelectorAll('#posMeths button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));$('posCashBox').style.display=m==='cash'?'':'none'}
+function posChange(){const t=posTotals(),p=+$('posPaid').value||0,c=p-t.tot;$('posChg').textContent=c>=0?pmoney(c):'ناقص '+pmoney(-c);$('posChg').style.color=c<0?'#C0392B':''}
+async function posConfirm(){
+  if(POS.busy)return;const t=posTotals(),paid=posMeth==='cash'?(+$('posPaid').value||0):null;
+  if(posMeth==='cash'&&paid<t.tot)return toast('المبلغ المدفوع أقل من المطلوب','err');
+  POS.busy=true;$('posConfirm').disabled=true;
+  const r=await w(sb.rpc('pos_sell',{p_items:POS.cart.map(l=>({id:l.id,qty:l.qty})),p_discount:t.d,p_method:posMeth,p_paid:paid}));
+  POS.busy=false;
+  if(!r){const b=$('posConfirm');if(b)b.disabled=false;return}
+  const s=r.data;POS.sales.unshift(s);POS.cart=[];POS.disc.v=0;
+  await posSyncInv();
+  const low=POS.prods.filter(p=>p.inv_item_id&&s.items.some(i=>i.id===p.id)).map(p=>(db.inventory[posUid()].items.find(i=>i.id===p.inv_item_id)||{})).filter(i=>i.name&&+i.qty<=+i.min).map(i=>i.name);
+  if(low.length)toast('تنبيه مخزون منخفض: '+[...new Set(low)].join('، '),'err');
+  posReceipt(s,true);posSell();
+}
+/* ---- الإيصال والطباعة ---- */
+const posFmt=()=>{try{return localStorage.getItem('bl_pos_fmt')||'80'}catch(e){return '80'}};
+function posReceiptHTML(s,fmt){
+  const co=esc((db.settings&&db.settings.company)||'');const d=new Date(s.created_at);
+  const w80=fmt==='80';
+  const css=w80?'@page{size:80mm auto;margin:0}body{width:72mm;margin:4mm;font:12px/1.5 Tahoma,Arial,sans-serif}':'@page{size:A4;margin:16mm}body{max-width:170mm;margin:0 auto;font:14px/1.6 Tahoma,Arial,sans-serif}';
+  return `<!doctype html><html dir="rtl" lang="ar"><meta charset="utf-8"><title>فاتورة ${s.no}</title><style>${css}h2{text-align:center;margin:0 0 2px}.c{text-align:center}table{width:100%;border-collapse:collapse}td,th{padding:3px 0;border-bottom:1px dashed #999;text-align:right}th:last-child,td:last-child{text-align:left}.t td{border:0}.b{font-weight:bold;font-size:1.2em;border-top:2px solid #000}</style><body>
+  <h2>${co}</h2><div class="c">فاتورة رقم ${s.no}${s.voided?' — <b>ملغاة</b>':''}</div><div class="c">${d.toLocaleDateString('ar-EG')} ${d.toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'})}</div><div class="c">الكاشير: ${esc(s.cashier)}</div><hr>
+  <table><tr><th>الصنف</th><th>الكمية</th><th>السعر</th><th>الإجمالي</th></tr>${s.items.map(i=>`<tr><td>${esc(i.name)}</td><td>${pf(i.qty)}</td><td>${pf(i.price)}</td><td>${pf(i.price*i.qty)}</td></tr>`).join('')}</table>
+  <table class="t"><tr><td>المجموع</td><td>${pf(s.subtotal)}</td></tr>${+s.discount?`<tr><td>الخصم</td><td>− ${pf(s.discount)}</td></tr>`:''}<tr class="b"><td>الإجمالي</td><td>${pf(s.total)} ${esc((db.settings&&db.settings.currency)||'')}</td></tr><tr><td>طريقة الدفع</td><td>${PMETH[s.method]}</td></tr>${s.method==='cash'?`<tr><td>المدفوع</td><td>${pf(s.paid)}</td></tr><tr><td>الباقي</td><td>${pf(s.change_due)}</td></tr>`:''}</table>
+  <p class="c">شكراً لزيارتكم</p></body></html>`;
+}
+function posReceipt(s,fresh){
+  const f=posFmt();
+  openModal('فاتورة رقم '+s.no,`${fresh?'<div class="ok-box" style="text-align:center;font-size:22px;font-weight:900;color:#2F8A3F;margin-bottom:8px">✓ تم البيع'+(s.method==='cash'&&+s.change_due?' — الباقي '+pmoney(s.change_due):'')+'</div>':''}
+   <div style="max-height:46vh;overflow:auto;border:1px dashed var(--line,#ccc);border-radius:10px;padding:10px;margin-bottom:10px">${s.items.map(i=>`<div class="pos-tot"><span>${esc(i.name)} × ${pf(i.qty)}</span><span>${pmoney(i.price*i.qty)}</span></div>`).join('')}${+s.discount?`<div class="pos-tot"><span>الخصم</span><span>− ${pmoney(s.discount)}</span></div>`:''}<div class="pos-tot big"><span>الإجمالي</span><span>${pmoney(s.total)}</span></div></div>
+   <div class="row" style="gap:8px"><select id="posFmt" style="flex:1" onchange="try{localStorage.setItem('bl_pos_fmt',this.value)}catch(e){}"><option value="80" ${f==='80'?'selected':''}>حراري 80mm</option><option value="a4" ${f==='a4'?'selected':''}>A4</option></select><button class="btn" onclick="posPrint('${s.id}')">طباعة</button><button class="btn ghost" onclick="closeModal()">إغلاق</button></div>`);
+}
+function posPrint(id){
+  const s=POS.sales.find(x=>x.id===id);if(!s)return;
+  const f=($('posFmt')&&$('posFmt').value)||posFmt();
+  const fr=document.createElement('iframe');fr.style.cssText='position:fixed;width:0;height:0;border:0;opacity:0';document.body.appendChild(fr);
+  fr.contentDocument.open();fr.contentDocument.write(posReceiptHTML(s,f));fr.contentDocument.close();
+  setTimeout(()=>{try{fr.contentWindow.focus();fr.contentWindow.print()}catch(e){toast('تعذرت الطباعة','err')}setTimeout(()=>fr.remove(),4000)},250);
+}
+/* ---- الوردية ---- */
+function posShiftStats(){
+  const ok=POS.sales.filter(s=>!s.voided),sum=(f)=>ok.filter(f).reduce((a,s)=>a+ +s.total,0);
+  const cash=sum(s=>s.method==='cash');
+  return {n:ok.length,tot:sum(()=>true),cash,card:sum(s=>s.method==='card'),other:sum(s=>s.method==='other'),voided:POS.sales.length-ok.length,expected:+POS.shift.opening_cash+cash};
+}
+function posToday(){
+  const st=posShiftStats();
+  $('posView').innerHTML=`<div class="card"><h3>ملخص الوردية</h3><div class="pos-sum"><div><b>${pf(st.n)}</b><span>عدد الفواتير</span></div><div><b>${pmoney(st.tot)}</b><span>إجمالي المبيعات</span></div><div><b>${pmoney(st.cash)}</b><span>نقدي</span></div><div><b>${pmoney(st.card)}</b><span>بطاقة</span></div><div><b>${pmoney(st.expected)}</b><span>المتوقع في الدرج</span></div></div>
+   <div class="row"><button class="btn" onclick="posCloseForm()">إقفال الوردية</button></div></div>
+   <div class="card"><h3>فواتير الوردية</h3>${POS.sales.length?`<div class="tbl-wrap"><table><thead><tr><th>#</th><th>الوقت</th><th>الإجمالي</th><th>الدفع</th><th></th></tr></thead><tbody>`+POS.sales.map(s=>`<tr class="${s.voided?'pos-void':''}"><td>${s.no}</td><td>${new Date(s.created_at).toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'})}</td><td>${pmoney(s.total)}</td><td>${PMETH[s.method]}</td><td style="white-space:nowrap"><button class="ghost" onclick="posReceipt(POS.sales.find(x=>x.id==='${s.id}'))">عرض</button> ${s.voided?'<span class="muted">ملغاة</span>':`<button class="ghost" onclick="posVoid('${s.id}')">إلغاء</button>`}</td></tr>`).join('')+'</tbody></table></div>':'<div class="empty">لا توجد فواتير بعد.</div>'}</div>`;
+}
+async function posVoid(id){
+  if(!confirm('إلغاء هذه الفاتورة؟ سيرجع المخزون.'))return;
+  if(!await w(sb.rpc('pos_void',{p_sale:id})))return;
+  const s=POS.sales.find(x=>x.id===id);if(s){s.voided=true}
+  await posSyncInv();posToday();toast('تم إلغاء الفاتورة','ok');
+}
+function posCloseForm(){
+  const st=posShiftStats();
+  openModal('إقفال الوردية',`<div class="pos-sum"><div><b>${pmoney(st.n?st.tot:0)}</b><span>إجمالي المبيعات</span></div><div><b>${pmoney(st.expected)}</b><span>المتوقع في الدرج</span></div></div>
+   <label>النقدية الفعلية في الدرج (عدّها)</label><input type="number" id="posCnt" min="0" step="0.01" inputmode="decimal" oninput="posDiff(${st.expected})"><div class="pos-tot big" style="border:0"><span>الفرق</span><span id="posDf">—</span></div>
+   <label>ملاحظات</label><input type="text" id="posNote" placeholder="اختياري"><button class="btn pos-pay" onclick="posClose()">تأكيد الإقفال</button>`);
+}
+function posDiff(exp){const v=$('posCnt').value;const e=$('posDf');if(v===''){e.textContent='—';return}const d=+v-exp;e.textContent=(d>0?'زيادة ':d<0?'عجز ':'')+pmoney(Math.abs(d));e.style.color=d<0?'#C0392B':d>0?'#B7791F':'#2F8A3F'}
+async function posClose(){
+  const v=$('posCnt').value;if(v===''||+v<0)return toast('اكتب النقدية الفعلية','err');
+  const r=await w(sb.rpc('pos_close_shift',{p_counted:+v,p_note:$('posNote').value.trim()}));if(!r)return;
+  const c=r.data;closeModal();
+  notify('admin',currentUser.name+' أقفل وردية الكاشير: مبيعات '+pmoney(c.sales_total)+(+c.diff?' — '+(c.diff<0?'عجز ':'زيادة ')+pmoney(Math.abs(c.diff)):''));
+  POS.cart=[];await renderPOS();
+  openModal('تم إقفال الوردية',`<div class="pos-sum"><div><b>${pf(c.sales_count)}</b><span>فواتير</span></div><div><b>${pmoney(c.sales_total)}</b><span>المبيعات</span></div><div><b>${pmoney(c.expected)}</b><span>المتوقع</span></div><div><b>${pmoney(c.counted)}</b><span>الفعلي</span></div></div><div class="pos-tot big"><span>الفرق</span><span style="color:${c.diff<0?'#C0392B':'#2F8A3F'}">${c.diff==0?'مطابق ✓':(c.diff<0?'عجز ':'زيادة ')+pmoney(Math.abs(c.diff))}</span></div><button class="btn pos-pay" onclick="closeModal()">تم</button>`);
+}
+/* ---- الأصناف ---- */
+function posProds(){
+  $('posView').innerHTML=`<div class="card"><h3>أصناف البيع <button class="btn" style="float:left" onclick="posProdForm()">+ صنف</button></h3>${POS.prods.length?`<div class="tbl-wrap"><table><thead><tr><th>الصنف</th><th>السعر</th><th>التصنيف</th><th>الباركود</th><th>خصم من المخزون</th><th></th></tr></thead><tbody>`+POS.prods.map(p=>{const it=p.inv_item_id&&(db.inventory[posUid()]||{items:[]}).items.find(i=>i.id===p.inv_item_id);
+    return `<tr class="${p.active?'':'pos-void'}"><td>${esc(p.name)}</td><td>${pmoney(p.price)}</td><td>${esc(p.category)||'—'}</td><td>${esc(p.barcode)||'—'}</td><td>${it?esc(it.name)+' × '+pf(p.inv_qty):'—'}</td><td style="white-space:nowrap"><button class="ghost" onclick="posProdForm('${p.id}')">تعديل</button></td></tr>`}).join('')+'</tbody></table></div>':'<div class="empty">لا توجد أصناف بعد. اضغط «+ صنف».</div>'}</div>`;
+}
+function posProdForm(id){
+  const p=POS.prods.find(x=>x.id===id)||{name:'',price:'',category:'',barcode:'',inv_item_id:null,inv_qty:1,active:true};
+  const inv=(db.inventory[posUid()]||{items:[]}).items;
+  const cats=[...new Set(POS.prods.map(x=>x.category).filter(Boolean))];
+  openModal(id?'تعديل صنف':'صنف جديد',`<label>اسم الصنف</label><input type="text" id="ppN" value="${esc(p.name)}">
+   <div class="row" style="gap:8px"><div style="flex:1"><label>السعر</label><input type="number" id="ppP" min="0" step="0.01" value="${p.price}" inputmode="decimal"></div><div style="flex:1"><label>التصنيف</label><input type="text" id="ppC" value="${esc(p.category)}" list="ppCl"><datalist id="ppCl">${cats.map(c=>`<option value="${esc(c)}">`).join('')}</datalist></div></div>
+   <label>الباركود (اختياري)</label><input type="text" id="ppB" value="${esc(p.barcode)}" inputmode="numeric">
+   <div class="row" style="gap:8px"><div style="flex:2"><label>يخصم من صنف المخزون</label><select id="ppI"><option value="">— لا يخصم —</option>${inv.map(i=>`<option value="${i.id}" ${p.inv_item_id===i.id?'selected':''}>${esc(i.name)}${i.unit?' ('+esc(i.unit)+')':''}</option>`).join('')}</select></div><div style="flex:1"><label>الكمية لكل بيعة</label><input type="number" id="ppQ" min="0" step="0.01" value="${p.inv_qty}" inputmode="decimal"></div></div>
+   <label class="chk" style="margin-top:8px"><input type="checkbox" id="ppA" ${p.active?'checked':''}><div>الصنف متاح للبيع</div></label>
+   <div class="row" style="gap:8px;margin-top:12px"><button class="btn" style="flex:1" onclick="posProdSave('${id||''}')">حفظ</button>${id?`<button class="btn ghost" onclick="posProdDel('${id}')">حذف</button>`:''}</div>`);
+}
+async function posProdSave(id){
+  const n=$('ppN').value.trim(),pr=+$('ppP').value;
+  if(!n)return toast('اكتب اسم الصنف','err');if(!(pr>=0)||$('ppP').value==='')return toast('اكتب السعر','err');
+  const row={id:id||newId(),branch_id:posUid(),name:n,price:pr,category:$('ppC').value.trim(),barcode:$('ppB').value.trim(),inv_item_id:$('ppI').value||null,inv_qty:+$('ppQ').value||0,active:$('ppA').checked,sort:id?(POS.prods.find(x=>x.id===id)||{}).sort||0:POS.prods.length};
+  if(!await w(sb.from('pos_products').upsert(row)))return;
+  const i=POS.prods.findIndex(x=>x.id===row.id);if(i>=0)POS.prods[i]=row;else POS.prods.push(row);
+  closeModal();posProds();toast('تم الحفظ','ok');
+}
+async function posProdDel(id){
+  if(!confirm('حذف الصنف؟ الفواتير القديمة لن تتأثر.'))return;
+  if(!await w(sb.from('pos_products').delete().eq('id',id)))return;
+  POS.prods=POS.prods.filter(x=>x.id!==id);POS.cart=POS.cart.filter(x=>x.id!==id);closeModal();posProds();
+}
+
 async function seedInventory(){
   const id=currentUser.username,rows=CONCEPTS[db.settings.concept].inv.map((x,i)=>({id:newId(),branch_id:id,name:x[0],unit:x[1],qty:x[2],min_qty:x[3],sort:i}));
   if(!await w(sb.from('inventory_items').upsert(rows)))return;
@@ -2026,7 +2280,7 @@ function renderCust(){
   const ct=Object.keys(D).filter(x=>x.startsWith('ct_'));
   $('custTabs').innerHTML=`<div class="tbl-wrap"><table><thead><tr><th>الاسم الأصلي</th><th>الاسم الجديد</th><th>إخفاء</th></tr></thead><tbody>`+
     grp('قوائم الإدارة',['dash','reports','quality','exec','tasks','checklist','branches','team','cust','settings'])+
-    grp('قوائم الفرع',['bdash','submit','cashier','qcheck',...ct,'inventory','bcheck','btasks','account'])+'</tbody></table></div>';
+    grp('قوائم الفرع',['bdash','submit','cashier','pos','qcheck',...ct,'inventory','bcheck','btasks','account'])+'</tbody></table></div>';
   $('custTypes').innerHTML=`<div class="tbl-wrap"><table><thead><tr><th>النوع الأصلي</th><th>الاسم الجديد</th><th>إخفاء من «رفع تقرير»</th></tr></thead><tbody>`+
     BASE_KEYS.map(k=>{const o=ty[k]||{},fixed=REPORTS[k].auto||REPORTS[k].grp;
       return `<tr><td>${esc(REPORTS[k].base)}</td><td><input type="text" id="cty_${k}" value="${esc(o.label||'')}" placeholder="${esc(REPORTS[k].base)}"></td><td style="text-align:center">${fixed?'<span class="muted">—</span>':`<input type="checkbox" id="cth2_${k}" ${o.hidden?'checked':''} style="width:auto">`}</td></tr>`}).join('')+'</tbody></table></div>';
@@ -2346,7 +2600,7 @@ Object.assign(ICP,{
   gear:'<path d="M12 2 3 7v10l9 5 9-5V7z"/><circle cx="12" cy="12" r="3"/>',
   out:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>'
 });
-const TI={dash:'home',reports:'file',quality:'star',exec:'chart',tasks:'clip',checklist:'check',branches:'building',team:'users',audit:'history',cust:'sliders',settings:'gear',bdash:'home',submit:'upload',cashier:'cashier',qcheck:'star',inventory:'box',bcheck:'check',btasks:'clip',account:'user',data:'trash'};
+const TI={dash:'home',reports:'file',quality:'star',exec:'chart',tasks:'clip',checklist:'check',branches:'building',team:'users',audit:'history',cust:'sliders',settings:'gear',bdash:'home',submit:'upload',cashier:'cashier',pos:'receipt',qcheck:'star',inventory:'box',bcheck:'check',btasks:'clip',account:'user',data:'trash'};
 const grp=id=>['branches','team','audit'].includes(id)?'m':['cust','settings','account','data'].includes(id)?'s':'o';
 const GRP_L={o:'التشغيل',m:'الإدارة',s:'الإعدادات والحساب'};
 const tabIco=id=>ICO(TI[id]||'file');

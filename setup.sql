@@ -651,7 +651,7 @@ create policy p_sel on public.profiles for select to authenticated using (
 -- 5) الصلاحيات الجديدة للوظائف الحالية (القيم الموجودة لا تتغير)
 update public.positions set perms = '{"m_quality":true,"m_quality_edit":true}'::jsonb || perms where key = 'ops_manager';
 update public.positions set perms = '{"m_quality":true,"m_quality_edit":false}'::jsonb || perms where key = 'area_manager';
-update public.positions set perms = '{"b_cashier":true,"b_quality":true,"b_excel":true}'::jsonb || perms where key = 'branch_manager';
+update public.positions set perms = '{"b_cashier":true,"b_pos":true,"b_quality":true,"b_excel":true}'::jsonb || perms where key = 'branch_manager';
 update public.positions set perms = '{"m_quality":false,"m_quality_edit":false}'::jsonb || perms where scope <> 'own' and not (perms ? 'm_quality');
 update public.positions set perms = '{"b_cashier":false,"b_quality":false,"b_excel":false}'::jsonb || perms where scope = 'own' and not (perms ? 'b_cashier');
 -- =====================================================================
