@@ -489,7 +489,7 @@ html[data-theme=dark] .toast{background:#1B2B49}
 html[data-theme=dark] .modal-bg{background:rgba(2,8,20,.7)}
 @media print{#bnav,#sheet,#srch{display:none!important}}
 
-/* ===== v2026.10.28a: desktop sidebar ===== */
+/* ===== v2026.10.29a: desktop sidebar ===== */
 nav.nav button svg{display:none}
 .nav-gh{display:none}
 @media(min-width:1100px){
@@ -549,6 +549,14 @@ nav.nav button svg{display:none}
 .pos-void{opacity:.45;text-decoration:line-through}
 .pos-cam{width:100%;max-height:260px;border-radius:12px;background:#000;margin-top:8px}
 </style>
+<style id="p10Css">
+.help-d{border:1.5px solid var(--line,#DDE3EE);border-radius:12px;margin-bottom:8px;overflow:hidden}
+.help-d summary{padding:13px 16px;font-weight:800;cursor:pointer;background:var(--card2,#EEF3FA)}
+.help-b{padding:6px 18px 14px;line-height:1.9}.help-b ul,.help-b ol{padding-inline-start:20px}
+.pos-off{background:#FFF4D6;color:#7A5200;border-radius:12px;padding:10px 14px;font-weight:800;margin-bottom:10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.pos-off.err{background:#FDE8E6;color:#8E2A1F}
+[data-theme=dark] .pos-off{background:#4A3A12;color:#FFD98A}[data-theme=dark] .pos-off.err{background:#4A1F1A;color:#FFB4AA}
+</style>
 </head>
 <body>
 
@@ -561,7 +569,7 @@ nav.nav button svg{display:none}
     <div class="fg"><label>كلمة المرور</label><input type="password" id="loginPassword" autocomplete="current-password" onkeydown="if(event.key==='Enter')handleLogin()"></div>
     <button class="btn block" id="loginBtn" onclick="handleLogin()">تسجيل الدخول</button>
     <div style="margin-top:14px;text-align:center"><a href="#" onclick="forgotPassword();return false" style="font-size:13px;color:var(--blue);text-decoration:none;font-weight:600">نسيت كلمة المرور؟</a></div>
-    <div style="margin-top:16px;text-align:center;font-size:11px;color:#94A3B8;direction:ltr">v2026.10.28a</div>
+    <div style="margin-top:16px;text-align:center;font-size:11px;color:#94A3B8;direction:ltr">v2026.10.29a</div>
   </div>
 </div>
 
@@ -750,6 +758,10 @@ nav.nav button svg{display:none}
     </div>
     <div class="card"><h3>سجل تقارير الفرع وحالتها</h3><div id="branchReportsList"></div></div>
   </section>
+
+  <section class="tab" id="tab-posrep"><div id="posrepBody"></div></section>
+  <section class="tab" id="tab-errors"><div id="errorsBody"></div></section>
+  <section class="tab" id="tab-help"><div id="helpBody"></div></section>
 
   <section class="tab" id="tab-pos">
     <div id="posBody"></div>
@@ -1255,17 +1267,17 @@ function computePerms(){
 const isAdmin=()=>!!currentUser&&currentUser.role==='admin';
 const can=k=>isAdmin()||!!(currentUser&&currentUser.perms&&currentUser.perms[k]===true);
 
-const PROTECTED_TABS=['team','cust','settings','account','audit','data'];
+const PROTECTED_TABS=['team','cust','settings','account','audit','data','errors'];
 const TAB_DEF={dash:['لوحة المؤشرات','m_dash'],reports:['التقارير الواردة','m_reports'],quality:['الجودة','m_quality|m_quality_edit'],exec:['التقرير التنفيذي','m_exec'],tasks:['التكليفات','m_tasks'],
  checklist:['قوائم المراجعة','m_checklist|m_checklist_edit'],branches:['الفروع والحسابات','m_branches'],team:['الوظائف والصلاحيات','@admin'],audit:['سجل النشاط','@admin'],data:['إدارة البيانات','@admin'],cust:['تخصيص القوائم والنماذج','m_settings'],settings:['الإعدادات','m_settings'],
- bdash:['لوحة الفرع','b_dash'],submit:['رفع تقرير','b_submit'],cashier:['تقفيل الكاشير','b_cashier'],pos:['نقطة البيع','b_pos'],qcheck:['فحص الجودة','b_quality'],inventory:['الجرد والمخزون','b_inventory'],bcheck:['قائمة المراجعة اليومية','b_check'],btasks:['التكليفات الواردة','b_tasks'],account:['الحساب','*']};
+ bdash:['لوحة الفرع','b_dash'],submit:['رفع تقرير','b_submit'],cashier:['تقفيل الكاشير','b_cashier'],pos:['نقطة البيع','b_pos'],posrep:['تقارير الكاشير','m_dash|m_exec'],errors:['سجل الأخطاء','@admin'],help:['دليل الاستخدام','*'],qcheck:['فحص الجودة','b_quality'],inventory:['الجرد والمخزون','b_inventory'],bcheck:['قائمة المراجعة اليومية','b_check'],btasks:['التكليفات الواردة','b_tasks'],account:['الحساب','*']};
 const customCfg=()=>db.settings.custom||(db.settings.custom={});
 function allTabDefs(){const d={...TAB_DEF};Object.entries(REPORTS).forEach(([k,v])=>{if(v.custom&&v.tab&&!v.hidden)d['ct_'+k]=[v.label,'b_submit']});return d}
 function navFor(){
   const D=allTabDefs(),tb=customCfg().tabs||{};
-  const mg=['dash','reports','quality','exec','tasks','checklist','branches','team','audit','cust','settings','data'];
+  const mg=['dash','reports','quality','exec','posrep','tasks','checklist','branches','team','audit','cust','settings','data','errors','help'];
   const br=['bdash','submit','cashier','pos','qcheck',...Object.keys(D).filter(x=>x.startsWith('ct_')),'inventory','bcheck','btasks'];
-  const ids=currentUser.role==='branch'?[...br,'account']:currentUser.role==='admin'?mg:[...mg,'account'];
+  const ids=currentUser.role==='branch'?[...br,'help','account']:currentUser.role==='admin'?mg:[...mg,'account'];
   return ids.filter(id=>{const p=D[id][1];if(!(p==='*'||(p==='@admin'?isAdmin():p.split('|').some(k=>can(k)))))return false;return PROTECTED_TABS.includes(id)||!(tb[id]&&tb[id].hidden)})
     .map(id=>[id,(tb[id]&&tb[id].label)||D[id][0]]);
 }
@@ -1312,7 +1324,7 @@ function showTab(id){
 function initTab(id){
   const R={dash:()=>{fillRangeSelect('dashRange',dashRange);renderAdminDash();onboardCard();attentionStrip()},audit:renderAudit,data:renderData,reports:initReportsTab,exec:()=>{if(!$('execRange').innerHTML)fillRangeSelect('execRange','30d');$('execExportBtn').classList.toggle('hidden',!can('m_export'));renderExec()},
    tasks:initTasksTab,checklist:renderAdminChecklist,branches:renderAdminBranches,team:renderTeam,cust:renderCust,quality:()=>{fillRangeSelect('qRange',qRange);renderQuality()},qcheck:renderQCheck,cashier:()=>initSubmitTab({title:RT('cash_am').base&&'تقفيل الكاشير',types:['cash_am','cash_pm']}),settings:initSettings,
-   pos:renderPOS,bdash:()=>{fillRangeSelect('bRange',dashRange);renderBranchDash()},submit:()=>initSubmitTab(null),inventory:renderInventory,bcheck:renderBranchCheck,btasks:renderBranchTasks,account:initAccount};
+   pos:renderPOS,posrep:renderPosRep,errors:renderErrors,help:renderHelp,bdash:()=>{fillRangeSelect('bRange',dashRange);renderBranchDash()},submit:()=>initSubmitTab(null),inventory:renderInventory,bcheck:renderBranchCheck,btasks:renderBranchTasks,account:initAccount};
   if(id.startsWith('ct_')){const k=id.slice(3);initSubmitTab({title:RT(k).label,types:[k]})}else R[id]&&R[id]();
 }
 
@@ -1907,31 +1919,90 @@ const pf=n=>Number(n||0).toLocaleString('en-US',{minimumFractionDigits:0,maximum
 const pmoney=n=>pf(n)+' '+((db&&db.settings&&db.settings.currency)||'');
 const posUid=()=>currentUser.username;
 const PMETH={cash:'نقدي',card:'بطاقة',other:'أخرى'};
+const isNet=e=>!!e&&(/fetch|network|load failed|timeout|offline/i.test(e.message||'')||e.status===0);
+const posKey=k=>'bl_pos'+k+'_'+posUid();
+const posLS=(k,d)=>{try{const v=localStorage.getItem(posKey(k));return v?JSON.parse(v):d}catch(e){return d}};
+const posLSset=(k,v)=>{try{localStorage.setItem(posKey(k),JSON.stringify(v))}catch(e){}};
+const posQget=()=>posLS('q',[]);
+function posCache(){posLSset('c',{prods:POS.prods,shift:POS.shift,sales:POS.sales})}
 async function posLoad(){
-  const uid=posUid();
-  const [p,s]=await Promise.all([
-    w(sb.from('pos_products').select('*').eq('branch_id',uid).order('sort').order('name')),
-    w(sb.from('pos_shifts').select('*').eq('branch_id',uid).is('closed_at',null).maybeSingle())]);
-  if(!p||!s)return false;
-  POS.prods=p.data||[];POS.shift=s.data||null;POS.sales=[];
-  if(POS.shift){const r=await w(sb.from('pos_sales').select('*').eq('shift_id',POS.shift.id).order('created_at',{ascending:false}));if(!r)return false;POS.sales=r.data||[]}
-  await posSyncInv();POS.loaded=true;return true;
+  const uid=posUid();POS.offline=false;
+  if(navigator.onLine){
+    try{
+      const [p,s]=await Promise.all([
+        sb.from('pos_products').select('*').eq('branch_id',uid).order('sort').order('name'),
+        sb.from('pos_shifts').select('*').eq('branch_id',uid).is('closed_at',null).maybeSingle()]);
+      if(!p.error&&!s.error){
+        POS.prods=p.data||[];POS.shift=s.data||null;POS.sales=[];
+        if(POS.shift){const r=await sb.from('pos_sales').select('*').eq('shift_id',POS.shift.id).order('created_at',{ascending:false});if(r.error&&!isNet(r.error)){toast('تعذر تحميل الفواتير: '+r.error.message,'err');return false}
+          if(!r.error)POS.sales=r.data||[]}
+        const have=new Set(POS.sales.map(x=>x.id));
+        posQget().forEach(e=>{if(POS.shift&&e.sale.shift_id===POS.shift.id&&!have.has(e.sale.id))POS.sales.unshift(e.sale)});
+        await posSyncInv();POS.loaded=true;posCache();return true;
+      }
+      if(!isNet(p.error)&&!isNet(s.error)){toast('تعذر تحميل الكاشير: '+((p.error||s.error).message||''),'err');return false}
+    }catch(e){}
+  }
+  const c=posLS('c',null);
+  if(!c)return false;
+  POS.prods=c.prods||[];POS.shift=c.shift||null;POS.sales=c.sales||[];POS.offline=true;POS.loaded=true;return true;
+}
+let posFlushing=false;
+async function posTrySell(args){
+  if(!navigator.onLine)return {off:true};
+  try{
+    const r=await sb.rpc('pos_sell',args);
+    if(r.error)return isNet(r.error)?{off:true}:{err:r.error.message||'خطأ'};
+    return {data:r.data};
+  }catch(e){return {off:true}}
+}
+async function posFlush(manual){
+  if(posFlushing||!navigator.onLine)return;let q=posQget();if(!q.length)return;
+  posFlushing=true;let done=0;
+  try{
+    for(const e of q.filter(x=>!x.err)){
+      const r=await posTrySell(e.args);
+      if(r.off)break;
+      if(r.err){e.err=r.err;continue}
+      const i=POS.sales.findIndex(x=>x.id===e.sale.id);if(i>=0)POS.sales[i]=r.data;
+      e.done=true;done++;
+    }
+  }finally{posFlushing=false}
+  q=q.filter(x=>!x.done);posLSset('q',q);posCache();
+  if(done){toast('تم رفع '+done+' فاتورة','ok');posSyncInv()}
+  if($('posBody')&&activeTab==='pos'&&POS.shift)drawPOS();
+}
+window.addEventListener('online',()=>{if(typeof currentUser!=='undefined'&&currentUser&&currentUser.role==='branch')posFlush()});
+window.addEventListener('offline',()=>{if(typeof activeTab!=='undefined'&&activeTab==='pos'&&POS.shift)drawPOS()});
+setInterval(()=>{if(typeof currentUser!=='undefined'&&currentUser&&currentUser.role==='branch'&&posQget().length)posFlush()},45000);
+function posBanner(){
+  const q=posQget(),bad=q.filter(x=>x.err),pend=q.length-bad.length;
+  let h='';
+  if(!navigator.onLine||POS.offline)h+='<div class="pos-off">📡 غير متصل — البيع يُحفظ على الجهاز ويُرفع تلقائيًا عند عودة الاتصال.</div>';
+  if(pend)h+=`<div class="pos-off">⏳ ${pend} فاتورة لم تُرفع بعد <button class="btn ghost" onclick="posFlush(true)">رفع الآن</button></div>`;
+  bad.forEach(e=>{h+=`<div class="pos-off err">⚠️ فاتورة م-${esc(String(e.sale.no).replace('م-',''))} رفضها الخادم: ${esc(e.err)} <button class="btn ghost" onclick="posDiscard('${e.sale.id}')">حذف الفاتورة</button></div>`});
+  return h;
+}
+function posDiscard(id){
+  if(!confirm('حذف هذه الفاتورة نهائيًا من الجهاز؟ لن تُسجل في الحسابات.'))return;
+  posLSset('q',posQget().filter(x=>x.sale.id!==id));POS.sales=POS.sales.filter(x=>x.id!==id);posCache();drawPOS();
 }
 async function posSyncInv(){
-  const r=await sb.from('inventory_items').select('*').eq('branch_id',posUid()).order('sort').order('id');
+  let r;try{r=await sb.from('inventory_items').select('*').eq('branch_id',posUid()).order('sort').order('id')}catch(e){return}
   if(r.error)return;const inv=ensureInv();
   inv.items=(r.data||[]).map(i=>({id:i.id,name:i.name,unit:i.unit,qty:+i.qty,min:+i.min_qty}));
 }
 async function renderPOS(){
   $('posBody').innerHTML='<div class="card"><div class="empty">جارٍ التحميل…</div></div>';
+  if(navigator.onLine&&posQget().length)await posFlush();
   if(!await posLoad()){$('posBody').innerHTML='<div class="card"><div class="empty">تعذر تحميل بيانات الكاشير. تأكد من تشغيل update_6.sql ثم حدّث الصفحة.</div></div>';return}
   drawPOS();
 }
 function drawPOS(){
   posStopCam();const el=$('posBody');
-  if(!POS.shift){el.innerHTML=posOpenCard();return}
+  if(!POS.shift){el.innerHTML=(POS.offline?'<div class="pos-off">📡 غير متصل — فتح وردية يحتاج اتصالًا بالإنترنت.</div>':'')+posOpenCard();return}
   const tabs=[['sell','بيع'],['today','الوردية'],['prods','الأصناف']];
-  el.innerHTML=`<div class="pos-bar"><div class="seg">${tabs.map(t=>`<button class="${POS.view===t[0]?'on':''}" onclick="posView('${t[0]}')">${t[1]}</button>`).join('')}</div><span class="muted" style="font-size:13px">الكاشير: <b>${esc(POS.shift.cashier)}</b> · من ${fmtTs(POS.shift.opened_at)}</span></div><div id="posView"></div>`;
+  el.innerHTML=`<div class="pos-bar"><div class="seg">${tabs.map(t=>`<button class="${POS.view===t[0]?'on':''}" onclick="posView('${t[0]}')">${t[1]}</button>`).join('')}</div><span class="muted" style="font-size:13px">الكاشير: <b>${esc(POS.shift.cashier)}</b> · من ${fmtTs(POS.shift.opened_at)}</span></div>${posBanner()}<div id="posView"></div>`;
   ({sell:posSell,today:posToday,prods:posProds})[POS.view]();
 }
 function posView(v){POS.view=v;drawPOS()}
@@ -2022,14 +2093,25 @@ async function posConfirm(){
   if(POS.busy)return;const t=posTotals(),paid=posMeth==='cash'?(+$('posPaid').value||0):null;
   if(posMeth==='cash'&&paid<t.tot)return toast('المبلغ المدفوع أقل من المطلوب','err');
   POS.busy=true;$('posConfirm').disabled=true;
-  const r=await w(sb.rpc('pos_sell',{p_items:POS.cart.map(l=>({id:l.id,qty:l.qty})),p_discount:t.d,p_method:posMeth,p_paid:paid}));
+  const sid=newId(),at=new Date().toISOString();
+  const args={p_items:POS.cart.map(l=>({id:l.id,qty:l.qty})),p_discount:t.d,p_method:posMeth,p_paid:paid,p_id:sid,p_at:at};
+  const r=await posTrySell(args);
   POS.busy=false;
-  if(!r){const b=$('posConfirm');if(b)b.disabled=false;return}
-  const s=r.data;POS.sales.unshift(s);POS.cart=[];POS.disc.v=0;
-  await posSyncInv();
-  const low=POS.prods.filter(p=>p.inv_item_id&&s.items.some(i=>i.id===p.id)).map(p=>(db.inventory[posUid()].items.find(i=>i.id===p.inv_item_id)||{})).filter(i=>i.name&&+i.qty<=+i.min).map(i=>i.name);
-  if(low.length)toast('تنبيه مخزون منخفض: '+[...new Set(low)].join('، '),'err');
-  posReceipt(s,true);posSell();
+  let s;
+  if(r.err){toast('تعذر تنفيذ العملية: '+r.err,'err');const b=$('posConfirm');if(b)b.disabled=false;return}
+  if(r.off){
+    const lines=POS.cart.map(l=>{const p=POS.prods.find(x=>x.id===l.id);return {id:p.id,name:p.name,price:+p.price,qty:l.qty,inv:p.inv_item_id,invq:+p.inv_qty}});
+    const q=posQget();const n=(posLS('n',0)||0)+1;posLSset('n',n);
+    s={id:sid,no:'م-'+n,local:true,branch_id:posUid(),shift_id:POS.shift.id,cashier:POS.shift.cashier,subtotal:t.sub,discount:t.d,total:t.tot,method:posMeth,paid:posMeth==='cash'?paid:t.tot,change_due:posMeth==='cash'?Math.round((paid-t.tot)*100)/100:0,items:lines,voided:false,created_at:at};
+    q.push({args,sale:s});posLSset('q',q);
+  }else s=r.data;
+  POS.sales.unshift(s);POS.cart=[];POS.disc.v=0;posCache();
+  if(!r.off){
+    await posSyncInv();
+    const low=POS.prods.filter(p=>p.inv_item_id&&s.items.some(i=>i.id===p.id)).map(p=>(db.inventory[posUid()].items.find(i=>i.id===p.inv_item_id)||{})).filter(i=>i.name&&+i.qty<=+i.min).map(i=>i.name);
+    if(low.length)toast('تنبيه مخزون منخفض: '+[...new Set(low)].join('، '),'err');
+  }
+  posReceipt(s,true);drawPOS();
 }
 /* ---- الإيصال والطباعة ---- */
 const posFmt=()=>{try{return localStorage.getItem('bl_pos_fmt')||'80'}catch(e){return '80'}};
@@ -2045,10 +2127,14 @@ function posReceiptHTML(s,fmt){
 }
 function posReceipt(s,fresh){
   const f=posFmt();
-  openModal('فاتورة رقم '+s.no,`${fresh?'<div class="ok-box" style="text-align:center;font-size:22px;font-weight:900;color:#2F8A3F;margin-bottom:8px">✓ تم البيع'+(s.method==='cash'&&+s.change_due?' — الباقي '+pmoney(s.change_due):'')+'</div>':''}
+  openModal('فاتورة رقم '+s.no,`${fresh?'<div class="ok-box" style="text-align:center;font-size:22px;font-weight:900;color:#2F8A3F;margin-bottom:8px">✓ تم البيع'+(s.method==='cash'&&+s.change_due?' — الباقي '+pmoney(s.change_due):'')+'</div>':''}${s.local?'<div class="pos-off">محفوظة على الجهاز وستُرفع عند عودة الاتصال</div>':''}
    <div style="max-height:46vh;overflow:auto;border:1px dashed var(--line,#ccc);border-radius:10px;padding:10px;margin-bottom:10px">${s.items.map(i=>`<div class="pos-tot"><span>${esc(i.name)} × ${pf(i.qty)}</span><span>${pmoney(i.price*i.qty)}</span></div>`).join('')}${+s.discount?`<div class="pos-tot"><span>الخصم</span><span>− ${pmoney(s.discount)}</span></div>`:''}<div class="pos-tot big"><span>الإجمالي</span><span>${pmoney(s.total)}</span></div></div>
-   <div class="row" style="gap:8px"><select id="posFmt" style="flex:1" onchange="try{localStorage.setItem('bl_pos_fmt',this.value)}catch(e){}"><option value="80" ${f==='80'?'selected':''}>حراري 80mm</option><option value="a4" ${f==='a4'?'selected':''}>A4</option></select><button class="btn" onclick="posPrint('${s.id}')">طباعة</button><button class="btn ghost" onclick="closeModal()">إغلاق</button></div>`);
+   <div class="row" style="gap:8px"><select id="posFmt" style="flex:1" onchange="try{localStorage.setItem('bl_pos_fmt',this.value)}catch(e){}"><option value="80" ${f==='80'?'selected':''}>حراري 80mm</option><option value="a4" ${f==='a4'?'selected':''}>A4</option></select><button class="btn" onclick="posPrint('${s.id}')">طباعة</button><button class="btn ghost" onclick="posShareSale('${s.id}')">واتساب</button><button class="btn ghost" onclick="closeModal()">إغلاق</button></div>`);
 }
+function posShareText(t){window.open('https://wa.me/?text='+encodeURIComponent(t),'_blank')}
+function posMailText(sub,t){location.href='mailto:?subject='+encodeURIComponent(sub)+'&body='+encodeURIComponent(t)}
+function posShareSale(id){const s=POS.sales.find(x=>x.id===id);if(!s)return;
+  posShareText(((db.settings&&db.settings.company)||'')+'\nفاتورة '+s.no+'\n'+s.items.map(i=>i.name+' × '+pf(i.qty)+' = '+pf(i.price*i.qty)).join('\n')+'\nالإجمالي: '+pmoney(s.total))}
 function posPrint(id){
   const s=POS.sales.find(x=>x.id===id);if(!s)return;
   const f=($('posFmt')&&$('posFmt').value)||posFmt();
@@ -2069,6 +2155,7 @@ function posToday(){
    <div class="card"><h3>فواتير الوردية</h3>${POS.sales.length?`<div class="tbl-wrap"><table><thead><tr><th>#</th><th>الوقت</th><th>الإجمالي</th><th>الدفع</th><th></th></tr></thead><tbody>`+POS.sales.map(s=>`<tr class="${s.voided?'pos-void':''}"><td>${s.no}</td><td>${new Date(s.created_at).toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'})}</td><td>${pmoney(s.total)}</td><td>${PMETH[s.method]}</td><td style="white-space:nowrap"><button class="ghost" onclick="posReceipt(POS.sales.find(x=>x.id==='${s.id}'))">عرض</button> ${s.voided?'<span class="muted">ملغاة</span>':`<button class="ghost" onclick="posVoid('${s.id}')">إلغاء</button>`}</td></tr>`).join('')+'</tbody></table></div>':'<div class="empty">لا توجد فواتير بعد.</div>'}</div>`;
 }
 async function posVoid(id){
+  const ls=POS.sales.find(x=>x.id===id);if(ls&&ls.local)return toast('ارفع الفواتير المحفوظة على الجهاز أولاً (يلزم اتصال)','err');
   if(!confirm('إلغاء هذه الفاتورة؟ سيرجع المخزون.'))return;
   if(!await w(sb.rpc('pos_void',{p_sale:id})))return;
   const s=POS.sales.find(x=>x.id===id);if(s){s.voided=true}
@@ -2083,12 +2170,17 @@ function posCloseForm(){
 function posDiff(exp){const v=$('posCnt').value;const e=$('posDf');if(v===''){e.textContent='—';return}const d=+v-exp;e.textContent=(d>0?'زيادة ':d<0?'عجز ':'')+pmoney(Math.abs(d));e.style.color=d<0?'#C0392B':d>0?'#B7791F':'#2F8A3F'}
 async function posClose(){
   const v=$('posCnt').value;if(v===''||+v<0)return toast('اكتب النقدية الفعلية','err');
+  if(posQget().length){await posFlush();if(posQget().length){toast('لا يمكن إقفال الوردية قبل رفع كل الفواتير المحفوظة على الجهاز (تحتاج اتصالًا، أو احذف المرفوضة)','err');return}}
   const r=await w(sb.rpc('pos_close_shift',{p_counted:+v,p_note:$('posNote').value.trim()}));if(!r)return;
   const c=r.data;closeModal();
   notify('admin',currentUser.name+' أقفل وردية الكاشير: مبيعات '+pmoney(c.sales_total)+(+c.diff?' — '+(c.diff<0?'عجز ':'زيادة ')+pmoney(Math.abs(c.diff)):''));
-  POS.cart=[];await renderPOS();
-  openModal('تم إقفال الوردية',`<div class="pos-sum"><div><b>${pf(c.sales_count)}</b><span>فواتير</span></div><div><b>${pmoney(c.sales_total)}</b><span>المبيعات</span></div><div><b>${pmoney(c.expected)}</b><span>المتوقع</span></div><div><b>${pmoney(c.counted)}</b><span>الفعلي</span></div></div><div class="pos-tot big"><span>الفرق</span><span style="color:${c.diff<0?'#C0392B':'#2F8A3F'}">${c.diff==0?'مطابق ✓':(c.diff<0?'عجز ':'زيادة ')+pmoney(Math.abs(c.diff))}</span></div><button class="btn pos-pay" onclick="closeModal()">تم</button>`);
+  POS.cart=[];try{localStorage.removeItem(posKey('c'))}catch(e){}await renderPOS();
+  window.__lastClose=c;
+  openModal('تم إقفال الوردية',`<div class="pos-sum"><div><b>${pf(c.sales_count)}</b><span>فواتير</span></div><div><b>${pmoney(c.sales_total)}</b><span>المبيعات</span></div><div><b>${pmoney(c.expected)}</b><span>المتوقع</span></div><div><b>${pmoney(c.counted)}</b><span>الفعلي</span></div></div><div class="pos-tot big"><span>الفرق</span><span style="color:${c.diff<0?'#C0392B':'#2F8A3F'}">${c.diff==0?'مطابق ✓':(c.diff<0?'عجز ':'زيادة ')+pmoney(Math.abs(c.diff))}</span></div><div class="row" style="gap:8px;margin-top:10px"><button class="btn ghost" style="flex:1" onclick="posShareClose()">واتساب</button><button class="btn ghost" style="flex:1" onclick="posMailClose()">إيميل</button></div><button class="btn pos-pay" onclick="closeModal()">تم</button>`);
 }
+function posCloseText(){const c=window.__lastClose;if(!c)return '';return ((db.settings&&db.settings.company)||'')+' — إقفال وردية '+currentUser.name+'\nالكاشير: '+c.cashier+'\nالفواتير: '+c.sales_count+'\nالمبيعات: '+pmoney(c.sales_total)+'\nالمتوقع: '+pmoney(c.expected)+'\nالفعلي: '+pmoney(c.counted)+'\nالفرق: '+(c.diff==0?'مطابق':(c.diff<0?'عجز ':'زيادة ')+pmoney(Math.abs(c.diff)))}
+function posShareClose(){posShareText(posCloseText())}
+function posMailClose(){posMailText('إقفال وردية',posCloseText())}
 /* ---- الأصناف ---- */
 function posProds(){
   $('posView').innerHTML=`<div class="card"><h3>أصناف البيع <button class="btn" style="float:left" onclick="posProdForm()">+ صنف</button></h3>${POS.prods.length?`<div class="tbl-wrap"><table><thead><tr><th>الصنف</th><th>السعر</th><th>التصنيف</th><th>الباركود</th><th>خصم من المخزون</th><th></th></tr></thead><tbody>`+POS.prods.map(p=>{const it=p.inv_item_id&&(db.inventory[posUid()]||{items:[]}).items.find(i=>i.id===p.inv_item_id);
@@ -2117,6 +2209,97 @@ async function posProdDel(id){
   if(!confirm('حذف الصنف؟ الفواتير القديمة لن تتأثر.'))return;
   if(!await w(sb.from('pos_products').delete().eq('id',id)))return;
   POS.prods=POS.prods.filter(x=>x.id!==id);POS.cart=POS.cart.filter(x=>x.id!==id);closeModal();posProds();
+}
+
+/* =====================================================================
+   سجل الأخطاء (يُرسل للأدمن) — update_7.sql
+   ===================================================================== */
+const APP_VER='v2026.10.29a';
+const ERRQ={n:0,seen:new Set()};
+async function logErr(msg,src,stack){
+  try{
+    msg=String(msg||'').slice(0,500);
+    if(!msg||ERRQ.n>=10||typeof sb==='undefined'||!sb||typeof currentUser==='undefined'||!currentUser)return;
+    if(/ResizeObserver|^Script error|Failed to fetch|NetworkError|Load failed|AbortError/i.test(msg))return;
+    if(ERRQ.seen.has(msg))return;ERRQ.seen.add(msg);ERRQ.n++;
+    const s=await sb.auth.getSession(),u=s&&s.data&&s.data.session&&s.data.session.user;if(!u)return;
+    await sb.from('app_errors').insert({user_id:u.id,username:currentUser.name||'',msg,src:String(src||'').slice(0,200),stack:String(stack||'').slice(0,1500),ua:navigator.userAgent.slice(0,200),ver:APP_VER});
+  }catch(e){}
+}
+window.addEventListener('error',e=>logErr(e.message,(e.filename||'')+':'+(e.lineno||''),e.error&&e.error.stack));
+window.addEventListener('unhandledrejection',e=>{const r=e.reason;logErr(r&&r.message?r.message:String(r),'promise',r&&r.stack)});
+async function renderErrors(){
+  const el=$('errorsBody');el.innerHTML='<div class="card"><div class="empty">جارٍ التحميل…</div></div>';
+  const r=await w(sb.from('app_errors').select('*').order('at',{ascending:false}).limit(200));
+  if(!r){el.innerHTML='<div class="card"><div class="empty">تعذر التحميل. تأكد من تشغيل update_7.sql.</div></div>';return}
+  const rows=r.data||[];
+  el.innerHTML=`<div class="card"><h3>سجل الأخطاء <span class="badge b-blue">${rows.length}</span></h3><p class="muted" style="font-size:13px">أخطاء حدثت في متصفحات المستخدمين (آخر 200). الغرض منها اكتشاف المشاكل قبل أن يشتكي أحد.</p>
+   <div class="row" style="margin-bottom:10px"><button class="btn ghost" onclick="renderErrors()">تحديث</button>${rows.length?'<button class="btn ghost" onclick="clearErrors()">مسح السجل</button>':''}</div>
+   ${rows.length?`<div class="tbl-wrap"><table><thead><tr><th>الوقت</th><th>المستخدم</th><th>الخطأ</th><th>الإصدار</th></tr></thead><tbody>`+rows.map(x=>`<tr><td style="white-space:nowrap">${fmtTs(x.at)}</td><td>${esc(x.username)}</td><td><details><summary>${esc(x.msg)}</summary><div class="muted" style="font-size:12px;direction:ltr;text-align:left;white-space:pre-wrap">${esc(x.src)}\n${esc(x.stack)}\n${esc(x.ua)}</div></details></td><td style="direction:ltr">${esc(x.ver)}</td></tr>`).join('')+'</tbody></table></div>':'<div class="empty">لا توجد أخطاء مسجلة 👌</div>'}</div>`;
+}
+async function clearErrors(){if(!confirm('مسح كل سجل الأخطاء؟'))return;if(!await w(sb.from('app_errors').delete().not('id','is',null)))return;renderErrors()}
+
+/* =====================================================================
+   تقارير الكاشير للإدارة
+   ===================================================================== */
+let PR={days:7};
+async function renderPosRep(){
+  const el=$('posrepBody');el.innerHTML='<div class="card"><div class="empty">جارٍ التحميل…</div></div>';
+  const from=new Date();from.setHours(0,0,0,0);from.setDate(from.getDate()-(PR.days-1));
+  let sales,shifts;
+  try{
+    sales=await fetchAll('pos_sales','*',q=>q.gte('created_at',from.toISOString()).order('created_at'));
+    shifts=await fetchAll('pos_shifts','*',q=>q.gte('opened_at',from.toISOString()).order('opened_at'));
+  }catch(e){el.innerHTML='<div class="card"><div class="empty">تعذر التحميل. تأكد من تشغيل update_6.sql.</div></div>';return}
+  drawPosRep(sales,shifts);
+}
+function drawPosRep(sales,shifts){
+  const ok=sales.filter(s=>!s.voided),sum=(a,f)=>a.reduce((x,s)=>x+(+f(s)||0),0);
+  const tot=sum(ok,s=>s.total),n=ok.length;
+  const bn=id=>(db.users[id]&&db.users[id].name)||'فرع';
+  const ids=[...new Set([...sales.map(s=>s.branch_id),...shifts.map(s=>s.branch_id)])];
+  const brows=ids.map(id=>{const b=ok.filter(s=>s.branch_id===id),sh=shifts.filter(s=>s.branch_id===id&&s.closed_at);
+    const diff=sh.reduce((a,s)=>a+(+s.counted_cash-+s.expected_cash),0);
+    return {id,name:bn(id),n:b.length,tot:sum(b,s=>s.total),cash:sum(b.filter(s=>s.method==='cash'),s=>s.total),card:sum(b.filter(s=>s.method==='card'),s=>s.total),voided:sales.filter(s=>s.branch_id===id&&s.voided).length,diff}}).sort((a,b)=>b.tot-a.tot);
+  const pm={};ok.forEach(s=>(s.items||[]).forEach(i=>{const k=i.name;pm[k]=pm[k]||{name:k,q:0,v:0};pm[k].q+=+i.qty;pm[k].v+=i.price*i.qty}));
+  const top=Object.values(pm).sort((a,b)=>b.v-a.v).slice(0,10);
+  const bad=shifts.filter(s=>s.closed_at&&Math.abs(+s.counted_cash-+s.expected_cash)>0.009).sort((a,b)=>new Date(b.closed_at)-new Date(a.closed_at)).slice(0,15);
+  const open=shifts.filter(s=>!s.closed_at);
+  $('posrepBody').innerHTML=`<div class="card"><h3>تقارير الكاشير (POS)</h3>
+   <div class="pos-bar"><div class="seg">${[[1,'اليوم'],[7,'7 أيام'],[30,'30 يوم']].map(x=>`<button class="${PR.days===x[0]?'on':''}" onclick="PR.days=${x[0]};renderPosRep()">${x[1]}</button>`).join('')}</div><button class="btn ghost no-print" onclick="window.print()">طباعة</button></div>
+   <div class="pos-sum"><div><b>${pmoney(tot)}</b><span>إجمالي المبيعات</span></div><div><b>${pf(n)}</b><span>عدد الفواتير</span></div><div><b>${pmoney(n?tot/n:0)}</b><span>متوسط الفاتورة</span></div><div><b>${pf(sales.length-n)}</b><span>فواتير ملغاة</span></div><div><b>${pf(open.length)}</b><span>ورديات مفتوحة الآن</span></div></div></div>
+   <div class="card"><h3>حسب الفرع</h3>${brows.length?`<div class="tbl-wrap"><table><thead><tr><th>الفرع</th><th>المبيعات</th><th>الفواتير</th><th>نقدي</th><th>بطاقة</th><th>ملغاة</th><th>عجز/زيادة</th></tr></thead><tbody>`+brows.map(r=>`<tr><td>${esc(r.name)}</td><td>${pmoney(r.tot)}</td><td>${pf(r.n)}</td><td>${pmoney(r.cash)}</td><td>${pmoney(r.card)}</td><td>${pf(r.voided)}</td><td style="color:${r.diff<-0.009?'#C0392B':r.diff>0.009?'#B7791F':'inherit'}">${Math.abs(r.diff)<0.01?'—':(r.diff<0?'عجز ':'زيادة ')+pmoney(Math.abs(r.diff))}</td></tr>`).join('')+'</tbody></table></div>':'<div class="empty">لا توجد مبيعات في هذه الفترة.</div>'}</div>
+   <div class="card"><h3>الأصناف الأكثر مبيعًا</h3>${top.length?`<div class="tbl-wrap"><table><thead><tr><th>#</th><th>الصنف</th><th>الكمية</th><th>الإيراد</th></tr></thead><tbody>`+top.map((t,i)=>`<tr><td>${i+1}</td><td>${esc(t.name)}</td><td>${pf(t.q)}</td><td>${pmoney(t.v)}</td></tr>`).join('')+'</tbody></table></div>':'<div class="empty">—</div>'}</div>
+   <div class="card"><h3>ورديات بها عجز أو زيادة</h3>${bad.length?`<div class="tbl-wrap"><table><thead><tr><th>الفرع</th><th>الكاشير</th><th>الإقفال</th><th>المتوقع</th><th>الفعلي</th><th>الفرق</th></tr></thead><tbody>`+bad.map(s=>{const d=+s.counted_cash-+s.expected_cash;return `<tr><td>${esc(bn(s.branch_id))}</td><td>${esc(s.cashier)}</td><td>${fmtTs(s.closed_at)}</td><td>${pmoney(s.expected_cash)}</td><td>${pmoney(s.counted_cash)}</td><td style="color:${d<0?'#C0392B':'#B7791F'}"><b>${d<0?'عجز ':'زيادة '}${pmoney(Math.abs(d))}</b></td></tr>`}).join('')+'</tbody></table></div>':'<div class="empty">كل الورديات مطابقة ✓</div>'}</div>`;
+}
+
+/* =====================================================================
+   دليل الاستخدام
+   ===================================================================== */
+const HELP=[
+ {t:'البداية',r:'all',b:'<ul><li>سجّل الدخول باسم المستخدم وكلمة السر التي أعطاك إياها الأدمن.</li><li>لتثبيت التطبيق على الموبايل: من قائمة المتصفح اختر «إضافة إلى الشاشة الرئيسية».</li><li>الأيقونة 🔍 في الأعلى تبحث في كل التطبيق، والهلال يبدّل الوضع الداكن، والجرس للإشعارات.</li><li>القائمة الجانبية يمكن تصغيرها بالسهم في آخرها.</li></ul>'},
+ {t:'رفع التقارير وتقفيل الكاشير',r:'branch',b:'<ul><li>من «رفع تقرير» اختر النوع (مبيعات، هالك، عمالة…) واملأ الحقول واضغط إرسال.</li><li>«تقفيل الكاشير» للتقفيل الصباحي والمسائي بالنقدية الفعلية.</li><li>لو النت قطع، التقرير يُحفظ على جهازك ويُرسل تلقائيًا عند عودة الاتصال. يظهر شريط أعلى الصفحة بعدد التقارير المنتظرة.</li></ul>'},
+ {t:'الكاشير (نقطة البيع)',r:'branch',b:'<ol><li><b>فتح وردية:</b> اكتب اسم الكاشير ورصيد الدرج الافتتاحي.</li><li><b>الأصناف:</b> من تبويب «الأصناف» أضف الصنف والسعر والتصنيف والباركود، واربطه بصنف في الجرد ليخصم المخزون تلقائيًا.</li><li><b>البيع:</b> اضغط على الصنف أو اكتب/امسح الباركود ثم Enter. عدّل الكمية أو أضف خصمًا (مبلغ أو %).</li><li><b>الدفع:</b> اختر نقدي/بطاقة/أخرى. في النقدي اكتب المبلغ المدفوع ويظهر الباقي.</li><li><b>الطباعة:</b> بعد البيع تظهر الفاتورة: اختر حراري 80mm أو A4 ثم «طباعة».</li><li><b>الإلغاء:</b> من تبويب «الوردية» يمكن إلغاء فاتورة داخل نفس الوردية فيرجع المخزون.</li><li><b>الإقفال:</b> من «الوردية» اضغط «إقفال الوردية» وعدّ النقدية الفعلية؛ يظهر العجز أو الزيادة ويصل إشعار للإدارة.</li></ol><p><b>بدون إنترنت:</b> يستمر البيع ويُحفظ على الجهاز، وتظهر الفواتير بـ«م-» قبل رفعها. عند عودة الاتصال تُرفع تلقائيًا. لا تُقفل الوردية قبل رفعها كلها.</p>'},
+ {t:'الجرد والمخزون',r:'branch',b:'<ul><li>سجّل الكميات الحالية والحد الأدنى لكل صنف واضغط «حفظ الجرد وإرساله».</li><li>الأصناف المربوطة بالكاشير تنقص تلقائيًا مع كل بيع.</li><li>عند الوصول للحد الأدنى يظهر تنبيه.</li></ul>'},
+ {t:'قائمة المراجعة والتكليفات',r:'branch',b:'<ul><li>علّم البنود المنجزة في «قائمة المراجعة اليومية»، ونسبة الإنجاز تصل للإدارة.</li><li>«التكليفات الواردة» فيها مهام من الإدارة؛ علّمها منجزة عند الانتهاء.</li></ul>'},
+ {t:'لوحات المؤشرات والتقارير',r:'mgmt',b:'<ul><li>«لوحة المؤشرات» تلخّص المبيعات والجودة والهالك والعمالة لكل الفروع في فترة تختارها.</li><li>«التقارير الواردة» لاعتماد التقارير أو إعادتها للفرع مع ملاحظة.</li><li>«التقرير التنفيذي» ملخص جاهز للطباعة أو التصدير.</li><li>«التكليفات» لإرسال مهام لفروع محددة ومتابعة إنجازها.</li></ul>'},
+ {t:'تقارير الكاشير',r:'mgmt',b:'<ul><li>مبيعات كل فرع، متوسط الفاتورة، الملغاة، والأصناف الأكثر مبيعًا.</li><li>جدول الورديات التي بها عجز أو زيادة في النقدية.</li><li>اختر الفترة (اليوم / 7 أيام / 30 يوم) ويمكن طباعة الصفحة.</li></ul>'},
+ {t:'الإدارة والأدمن',r:'admin',b:'<ul><li><b>الفروع والحسابات:</b> أنشئ حسابات الفروع وأعد تعيين كلمات السر.</li><li><b>الوظائف والصلاحيات:</b> حدّد ماذا يرى كل منصب وما يستطيع فعله، ونطاقه (كل الفروع أو فروع محددة).</li><li><b>سجل النشاط:</b> كل تعديل مهم ومن قام به.</li><li><b>سجل الأخطاء:</b> أخطاء حدثت عند المستخدمين لتصلحها مبكرًا.</li><li><b>إدارة البيانات:</b> نسخة JSON ومسح البيانات (نهائي، ويطلب كتابة «مسح»).</li><li><b>النسخ الاحتياطي:</b> يعمل يوميًا تلقائيًا على GitHub Actions ويُحفظ 30 يومًا مشفّرًا.</li></ul>'},
+ {t:'مشاكل شائعة',r:'all',b:'<ul><li><b>البيانات لا تظهر بعد تحديث:</b> حدّث الصفحة بقوة (Ctrl+Shift+R) أو أغلق التطبيق وافتحه.</li><li><b>نسيت كلمة السر:</b> اطلب من الأدمن إعادة تعيينها من «الفروع والحسابات».</li><li><b>رسالة «تعذر تنفيذ العملية»:</b> غالبًا الاتصال ضعيف؛ أعد المحاولة. لو تكررت، أبلغ الأدمن (يظهر الخطأ في سجل الأخطاء).</li><li><b>الطباعة لا تعمل:</b> تأكد من اختيار الطابعة الصحيحة في نافذة الطباعة، وجرّب A4 للتأكد.</li></ul>'}
+];
+let helpQ='';
+function renderHelp(){
+  const role=currentUser.role==='branch'?'branch':'mgmt',adm=isAdmin();
+  const list=HELP.filter(h=>h.r==='all'||h.r===role||(h.r==='mgmt'&&adm)||(h.r==='admin'&&adm));
+  const q=helpQ.trim();
+  const shown=q?list.filter(h=>(h.t+h.b.replace(/<[^>]+>/g,' ')).includes(q)):list;
+  $('helpBody').innerHTML=`<div class="card"><h3>دليل الاستخدام</h3><input type="text" placeholder="ابحث في الدليل…" value="${esc(helpQ)}" oninput="helpQ=this.value;renderHelpList()" id="helpQi">
+   <div id="helpList" style="margin-top:12px"></div></div>`;
+  window.__helpShown=list;renderHelpList();
+}
+function renderHelpList(){
+  const q=helpQ.trim(),list=(window.__helpShown||[]).filter(h=>!q||(h.t+h.b.replace(/<[^>]+>/g,' ')).includes(q));
+  $('helpList').innerHTML=list.map((h,i)=>`<details class="help-d" ${q||i===0?'open':''}><summary>${esc(h.t)}</summary><div class="help-b">${h.b}</div></details>`).join('')||'<div class="empty">لا نتائج</div>';
 }
 
 async function seedInventory(){
@@ -2600,7 +2783,7 @@ Object.assign(ICP,{
   gear:'<path d="M12 2 3 7v10l9 5 9-5V7z"/><circle cx="12" cy="12" r="3"/>',
   out:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>'
 });
-const TI={dash:'home',reports:'file',quality:'star',exec:'chart',tasks:'clip',checklist:'check',branches:'building',team:'users',audit:'history',cust:'sliders',settings:'gear',bdash:'home',submit:'upload',cashier:'cashier',pos:'receipt',qcheck:'star',inventory:'box',bcheck:'check',btasks:'clip',account:'user',data:'trash'};
+const TI={dash:'home',reports:'file',quality:'star',exec:'chart',tasks:'clip',checklist:'check',branches:'building',team:'users',audit:'history',cust:'sliders',settings:'gear',bdash:'home',submit:'upload',cashier:'cashier',pos:'receipt',posrep:'chart',errors:'search',help:'msg',qcheck:'star',inventory:'box',bcheck:'check',btasks:'clip',account:'user',data:'trash'};
 const grp=id=>['branches','team','audit'].includes(id)?'m':['cust','settings','account','data'].includes(id)?'s':'o';
 const GRP_L={o:'التشغيل',m:'الإدارة',s:'الإعدادات والحساب'};
 const tabIco=id=>ICO(TI[id]||'file');
